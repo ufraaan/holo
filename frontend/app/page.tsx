@@ -45,6 +45,10 @@ export default function HomePage() {
         Create a room, share the link, drop a file. The relay forwards bytes
         between browsers — nothing is stored.
       </p>
+      <p className="mt-2 text-xs text-muted">
+        Both people open the same room link, wait for it to connect, then one
+        person uploads a file for the other.
+      </p>
 
       <div className="mt-8 space-y-3">
         <button
