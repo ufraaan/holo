@@ -309,17 +309,35 @@ export default function RoomPage() {
       )}
 
       <div
-        className="mt-8 flex flex-col items-center rounded-lg border border-dashed border-divider px-6 py-10 text-center"
-        onDrop={onDrop}
-        onDragOver={onDragOver}
+        className={`mt-8 flex flex-col items-center rounded-lg border border-dashed border-divider px-6 py-10 text-center ${
+          status !== "connected" ? "opacity-60" : ""
+        }`}
+        onDrop={status === "connected" ? onDrop : undefined}
+        onDragOver={status === "connected" ? onDragOver : undefined}
       >
         <p className="text-sm text-subtle">
           Drop a file here or choose one
         </p>
-        <label className="mt-4 cursor-pointer rounded-lg border border-divider bg-surface px-5 py-2.5 text-sm font-medium text-ink transition hover:border-ink">
-          <input type="file" className="hidden" onChange={onInputChange} />
+        <label
+          className={`mt-4 rounded-lg border border-divider bg-surface px-5 py-2.5 text-sm font-medium transition ${
+            status === "connected"
+              ? "cursor-pointer text-ink hover:border-ink"
+              : "cursor-not-allowed text-muted"
+          }`}
+        >
+          <input
+            type="file"
+            className="hidden"
+            onChange={status === "connected" ? onInputChange : undefined}
+            disabled={status !== "connected"}
+          />
           Choose file
         </label>
+        {status !== "connected" && (
+          <p className="mt-3 text-xs text-muted">
+            You can upload once the room is connected.
+          </p>
+        )}
       </div>
 
       <div className="mt-8">
