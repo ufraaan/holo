@@ -263,7 +263,10 @@ export default function RoomPage() {
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-sm font-medium text-ink">
-            Room <span className="font-mono text-muted">{roomId}</span>
+            Room{" "}
+            <span className="inline-flex items-center rounded-md border border-divider-soft bg-soft px-2 py-0.5 font-mono text-xs text-ink">
+              {roomId}
+            </span>
           </h1>
         </div>
         <span
@@ -291,6 +294,13 @@ export default function RoomPage() {
             : "Disconnected"}
         </span>
       </div>
+
+      {status === "connecting" && !errorMessage && (
+        <div className="mt-4 rounded-lg bg-amber-soft px-4 py-3 text-xs text-amber-ink">
+          Connecting to relay… this can take up to a minute. You can leave this
+          tab open.
+        </div>
+      )}
 
       {errorMessage && (
         <div className="mt-4 rounded-lg bg-red-soft px-4 py-3 text-xs text-red-ink">

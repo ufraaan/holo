@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
@@ -48,9 +49,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="min-h-screen bg-sand text-ink">
         <div className="mx-auto flex min-h-screen max-w-2xl flex-col px-5 py-8 sm:px-6 sm:py-12">
           <header className="mb-8 sm:mb-12">
-            <div className="text-xs font-medium tracking-[0.2em] text-muted uppercase">
+            <Link
+              href="/"
+              className="inline-block text-xs font-medium tracking-[0.2em] text-muted uppercase hover:text-ink transition-colors"
+            >
               holo
-            </div>
+            </Link>
           </header>
           <main className="flex flex-1 items-center justify-center">
             <div className="w-full">{children}</div>
