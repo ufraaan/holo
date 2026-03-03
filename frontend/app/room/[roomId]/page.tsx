@@ -48,6 +48,7 @@ export default function RoomPage() {
   const [transfers, setTransfers] = useState<Record<string, Transfer>>({});
   const wsRef = useRef<WebSocket | null>(null);
   const [copied, setCopied] = useState(false);
+  const [reconnectKey, setReconnectKey] = useState(0);
 
   useEffect(() => {
     if (!roomId) return;
@@ -159,7 +160,7 @@ export default function RoomPage() {
       ws.close();
       wsRef.current = null;
     };
-  }, [roomId, clientId]);
+  }, [roomId, clientId, reconnectKey]);
 
   useEffect(() => {
     if (!copied) return;
@@ -273,6 +274,7 @@ export default function RoomPage() {
       wsRef.current.close();
       wsRef.current = null;
     }
+    setReconnectKey((key) => key + 1);
   };
 
   const handleCopyLink = async () => {
