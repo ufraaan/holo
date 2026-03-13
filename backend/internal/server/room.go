@@ -2,6 +2,7 @@ package server
 
 import (
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -10,19 +11,43 @@ type Room struct {
 	id           string
 	clients      map[*Client]struct{}
 	mu           sync.RWMutex
-	lastActivity time.Time
+	lastActivity atomic.Int64 // Unix nanoseconds; written/read atomically so gcRooms and Broadcast don't race
 }
 
 func NewRoom(id string) *Room {
-	return &Room{
-		id:           id,
-		clients:      make(map[*Client]struct{}),
-		lastActivity: time.Now(),
+	r := &Room{
+		id:      id,
+		clients: make(map[*Client]struct{}),
 	}
+	r.lastActivity.Store(time.Now().UnixNano())
+	return r
 }
 
 func (r *Room) touch() {
-	r.lastActivity = time.Now()
+	r.lastActivity.Store(time.Now().UnixNano())
+}
+
+// LastActivity returns the time of the most recent client activity in the room.
+func (r *Room) LastActivity() time.Time {
+	return time.Unix(0, r.lastActivity.Load())
+}
+
+// ClientCount returns the current number of clients safely.
+func (r *Room) ClientCount() int {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	return len(r.clients)
+}
+
+// CloseAll closes every client in the room and empties the client set.
+func (r *Room) CloseAll() {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	for c := range r.clients {
+		close(c.send)
+		_ = c.conn.Close()
+	}
+	r.clients = make(map[*Client]struct{})
 }
 
 func (r *Room) AddClient(c *Client) {
