@@ -17,8 +17,10 @@ const (
 )
 
 var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
+	// Match the front-end chunk size so the library doesn't need to
+	// grow its internal buffers for every file-chunk frame.
+	ReadBufferSize:  65536,
+	WriteBufferSize: 65536,
 	CheckOrigin: func(r *http.Request) bool {
 		// Frontend should be served from a trusted origin in production.
 		return true
