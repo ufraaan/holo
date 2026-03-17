@@ -1,4 +1,4 @@
-module github.com/moroii69/holo
+module github.com/ufraaan/holo
 
 go 1.22
 
