@@ -8,7 +8,7 @@ import (
 
 	"github.com/getsentry/sentry-go"
 	sentryhttp "github.com/getsentry/sentry-go/http"
-	"github.com/moroii69/holo/internal/server"
+	"github.com/ufraaan/holo/internal/server"
 )
 
 func main() {
