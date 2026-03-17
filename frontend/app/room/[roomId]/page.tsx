@@ -12,11 +12,14 @@ interface Transfer {
   mime: string;
   progress: number;
   direction: TransferDirection;
-  blobParts?: BlobPart[];
   url?: string;
 }
 
 const CHUNK_SIZE = 64 * 1024; // 64KiB
+
+// Reuse a single encoder/decoder across all messages to avoid per-call allocation.
+const textEncoder = new TextEncoder();
+const textDecoder = new TextDecoder();
 
 function useClientId() {
   return useMemo(() => {
@@ -49,10 +52,15 @@ export default function RoomPage() {
   const wsRef = useRef<WebSocket | null>(null);
   const [copied, setCopied] = useState(false);
   const [reconnectKey, setReconnectKey] = useState(0);
+  // Accumulate incoming file chunks in a ref so that each new chunk is an O(1)
+  // push rather than an O(n) array spread inside React state.
+  const incomingBlobPartsRef = useRef<Record<string, BlobPart[]>>({});
 
   useEffect(() => {
     if (!roomId) return;
     setErrorMessage(null);
+    // Discard any partially-accumulated chunks from the previous connection.
+    incomingBlobPartsRef.current = {};
 
     let ws: WebSocket;
     try {
@@ -99,11 +107,12 @@ export default function RoomPage() {
       if (!(ev.data instanceof ArrayBuffer)) {
         return;
       }
-      const text = new TextDecoder().decode(ev.data);
+      const text = textDecoder.decode(ev.data);
       try {
         const msg = JSON.parse(text) as any;
         if (msg.type === "file-meta") {
           const { fileId, name, size, mime } = msg.payload;
+          incomingBlobPartsRef.current[fileId] = [];
           setTransfers((prev) => ({
             ...prev,
             [fileId]: {
@@ -113,7 +122,6 @@ export default function RoomPage() {
               mime,
               progress: 0,
               direction: "incoming",
-              blobParts: [],
             },
           }));
         } else if (msg.type === "file-chunk") {
@@ -123,32 +131,34 @@ export default function RoomPage() {
             offset: number;
             final: boolean;
           };
+          const bytes = Uint8Array.from(atob(chunk), (c) =>
+            c.charCodeAt(0),
+          );
+          // O(1) push — avoids the O(n) spread that storing parts in React
+          // state would require on every chunk.
+          (incomingBlobPartsRef.current[fileId] ??= []).push(bytes);
           setTransfers((prev) => {
             const current = prev[fileId];
             if (!current || current.direction !== "incoming") return prev;
-            const bytes = Uint8Array.from(atob(chunk), (c) =>
-              c.charCodeAt(0),
-            );
-            const parts = [...(current.blobParts ?? []), bytes];
             const received = offset + bytes.byteLength;
             const progress =
               current.size > 0
                 ? Math.min(100, Math.round((received / current.size) * 100))
                 : 0;
-            const next: Transfer = {
-              ...current,
-              blobParts: parts,
-              progress,
-            };
             if (final) {
+              const parts = incomingBlobPartsRef.current[fileId] ?? [];
+              delete incomingBlobPartsRef.current[fileId];
               const blob = new Blob(parts, { type: current.mime });
-              next.url = URL.createObjectURL(blob);
-              next.progress = 100;
+              return {
+                ...prev,
+                [fileId]: {
+                  ...current,
+                  progress: 100,
+                  url: URL.createObjectURL(blob),
+                },
+              };
             }
-            return {
-              ...prev,
-              [fileId]: next,
-            };
+            return { ...prev, [fileId]: { ...current, progress } };
           });
         }
       } catch {
@@ -159,6 +169,7 @@ export default function RoomPage() {
     return () => {
       ws.close();
       wsRef.current = null;
+      incomingBlobPartsRef.current = {};
     };
   }, [roomId, clientId, reconnectKey]);
 
@@ -177,7 +188,7 @@ export default function RoomPage() {
       return;
     }
     const text = JSON.stringify(msg);
-    ws.send(new TextEncoder().encode(text));
+    ws.send(textEncoder.encode(text));
   };
 
   const handleFiles = async (files: FileList | null) => {
@@ -217,9 +228,15 @@ export default function RoomPage() {
       while (offset < file.size) {
         const slice = file.slice(offset, offset + CHUNK_SIZE);
         const buf = new Uint8Array(await slice.arrayBuffer());
+        // Build the binary string in 8 KiB batches using spread-into-
+        // String.fromCharCode, which is far faster than the naïve
+        // character-by-character concatenation loop (O(n) vs O(n²)).
         let binary = "";
-        for (let i = 0; i < buf.byteLength; i++) {
-          binary += String.fromCharCode(buf[i]);
+        const CHAR_BATCH_SIZE = 8192;
+        for (let i = 0; i < buf.byteLength; i += CHAR_BATCH_SIZE) {
+          binary += String.fromCharCode(
+            ...buf.subarray(i, Math.min(i + CHAR_BATCH_SIZE, buf.byteLength)),
+          );
         }
         const b64 = btoa(binary);
         const final = offset + CHUNK_SIZE >= file.size;
@@ -276,6 +293,14 @@ export default function RoomPage() {
     }
     setReconnectKey((key) => key + 1);
   };
+
+  // Sort is memoised so it doesn't re-run on every render while chunks are
+  // arriving; it only recomputes when the transfers map itself changes.
+  const sortedTransfers = useMemo(
+    () =>
+      Object.values(transfers).sort((a, b) => a.name.localeCompare(b.name)),
+    [transfers],
+  );
 
   const handleCopyLink = async () => {
     try {
@@ -397,9 +422,7 @@ export default function RoomPage() {
             </p>
           ) : (
             <ul className="space-y-4">
-              {Object.values(transfers)
-                .sort((a, b) => a.name.localeCompare(b.name))
-                .map((t) => (
+              {sortedTransfers.map((t) => (
                   <li
                     key={t.id}
                     className="rounded-lg border border-divider-soft bg-soft px-4 py-4 sm:px-5 sm:py-4"

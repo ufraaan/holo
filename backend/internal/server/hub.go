@@ -54,7 +54,7 @@ func (h *Hub) addClient(c *Client) {
 	logInfo("client_joined", logFields{
 		"roomId":      c.roomID,
 		"clientId":    c.id,
-		"clientCount": len(room.clients),
+		"clientCount": room.ClientCount(),
 	})
 }
 
@@ -70,9 +70,9 @@ func (h *Hub) removeClient(c *Client) {
 	logInfo("client_left", logFields{
 		"roomId":      c.roomID,
 		"clientId":    c.id,
-		"clientCount": len(room.clients),
+		"clientCount": room.ClientCount(),
 	})
-	if len(room.clients) == 0 {
+	if room.ClientCount() == 0 {
 		delete(h.rooms, c.roomID)
 	}
 }
@@ -89,21 +89,26 @@ func (h *Hub) Broadcast(roomID string, sender *Client, message []byte) {
 
 func (h *Hub) gcRooms() {
 	now := time.Now()
-	h.mu.Lock()
-	defer h.mu.Unlock()
 
+	// Identify stale rooms and remove them from the map while holding the
+	// hub lock.  Closing connections is deferred until after the lock is
+	// released so that in-flight Broadcast calls are not blocked for the
+	// entire duration of the cleanup.
+	h.mu.Lock()
+	var toEvict []*Room
 	for id, room := range h.rooms {
-		if now.Sub(room.lastActivity) > h.inactivity || len(room.clients) == 0 {
-			logInfo("room_gc", logFields{
-				"roomId":      id,
-				"clientCount": len(room.clients),
-				"lastActive":  room.lastActivity,
-			})
-			for c := range room.clients {
-				close(c.send)
-				_ = c.conn.Close()
-			}
+		if now.Sub(room.LastActivity()) > h.inactivity || room.ClientCount() == 0 {
+			toEvict = append(toEvict, room)
 			delete(h.rooms, id)
 		}
+	}
+	h.mu.Unlock()
+
+	for _, room := range toEvict {
+		logInfo("room_gc", logFields{
+			"roomId":     room.id,
+			"lastActive": room.LastActivity(),
+		})
+		room.CloseAll()
 	}
 }
