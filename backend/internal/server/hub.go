@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	"sync"
 	"time"
 )
@@ -51,6 +52,7 @@ func (h *Hub) addClient(c *Client) {
 		h.rooms[c.roomID] = room
 	}
 	room.AddClient(c)
+	h.broadcastRoomState(room)
 	logInfo("client_joined", logFields{
 		"roomId":      c.roomID,
 		"clientId":    c.id,
@@ -67,6 +69,7 @@ func (h *Hub) removeClient(c *Client) {
 		return
 	}
 	room.RemoveClient(c)
+	h.broadcastRoomState(room)
 	logInfo("client_left", logFields{
 		"roomId":      c.roomID,
 		"clientId":    c.id,
@@ -75,6 +78,30 @@ func (h *Hub) removeClient(c *Client) {
 	if room.ClientCount() == 0 {
 		delete(h.rooms, c.roomID)
 	}
+}
+
+func (h *Hub) broadcastRoomState(room *Room) {
+	msg, err := json.Marshal(struct {
+		Type    string `json:"type"`
+		Payload struct {
+			ClientCount int `json:"clientCount"`
+		} `json:"payload"`
+	}{
+		Type: "room-state",
+		Payload: struct {
+			ClientCount int `json:"clientCount"`
+		}{
+			ClientCount: room.ClientCount(),
+		},
+	})
+	if err != nil {
+		logError("room_state_marshal_error", logFields{
+			"roomId": room.id,
+			"error":  err.Error(),
+		})
+		return
+	}
+	room.BroadcastAll(msg)
 }
 
 func (h *Hub) Broadcast(roomID string, sender *Client, message []byte) {
