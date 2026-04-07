@@ -101,6 +101,10 @@ func (h *Hub) broadcastRoomState(room *Room) {
 		})
 		return
 	}
+	logInfo("room_state_broadcast", logFields{
+		"roomId":      room.id,
+		"clientCount": room.ClientCount(),
+	})
 	room.BroadcastAll(msg)
 }
 
