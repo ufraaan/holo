@@ -15,13 +15,6 @@ interface Transfer {
   url?: string;
 }
 
-interface RoomStateMessage {
-  type: "room-state";
-  payload: {
-    clientCount: number;
-  };
-}
-
 const CHUNK_SIZE = 64 * 1024; // 64KiB
 
 // Reuse a single encoder/decoder across all messages to avoid per-call allocation.
@@ -71,7 +64,6 @@ export default function RoomPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [transfers, setTransfers] = useState<Record<string, Transfer>>({});
   const wsRef = useRef<WebSocket | null>(null);
-  const [clientCount, setClientCount] = useState<number>(1);
   const [reconnectKey, setReconnectKey] = useState(0);
   // Accumulate incoming file chunks in a ref so that each new chunk is an O(1)
   // push rather than an O(n) array spread inside React state.
@@ -132,8 +124,8 @@ export default function RoomPage() {
       try {
         const msg = JSON.parse(text) as any;
         if (msg.type === "room-state") {
-          const state = msg as RoomStateMessage;
-          setClientCount(state.payload.clientCount);
+          // Keep consuming room-state control messages even if not displayed.
+          return;
         } else if (msg.type === "file-meta") {
           const { fileId, name, size, mime } = msg.payload;
           incomingBlobPartsRef.current[fileId] = [];
@@ -353,7 +345,6 @@ export default function RoomPage() {
               ? "Connecting…"
               : "Disconnected"}
           </span>
-          <span className="text-neutral-500">{clientCount} in room</span>
           {status === "closed" && (
             <button
               type="button"
