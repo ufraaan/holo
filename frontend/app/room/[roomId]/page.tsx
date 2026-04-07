@@ -26,7 +26,7 @@ function useClientId() {
     if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
       return crypto.randomUUID();
     }
-    return `c_${Math.random().toString(36).slice(2, 10)}`;
+    return "c_fallback";
   }, []);
 }
 
@@ -109,11 +109,9 @@ export default function RoomPage() {
     };
     ws.onerror = (ev) => {
       setStatus("closed");
-      if (!errorMessage) {
-        setErrorMessage(
-          "A WebSocket error occurred. Check the browser console and that the Go relay is reachable.",
-        );
-      }
+      setErrorMessage(
+        "A WebSocket error occurred. Check the browser console and that the Go relay is reachable.",
+      );
       console.error("WebSocket error", ev);
     };
     ws.onmessage = async (ev) => {
@@ -122,12 +120,21 @@ export default function RoomPage() {
         return;
       }
       try {
-        const msg = JSON.parse(text) as any;
+        const msg = JSON.parse(text) as {
+          type?: string;
+          payload?: unknown;
+        };
         if (msg.type === "room-state") {
           // Keep consuming room-state control messages even if not displayed.
           return;
         } else if (msg.type === "file-meta") {
-          const { fileId, name, size, mime } = msg.payload;
+          const payload = msg.payload as {
+            fileId: string;
+            name: string;
+            size: number;
+            mime: string;
+          };
+          const { fileId, name, size, mime } = payload;
           incomingBlobPartsRef.current[fileId] = [];
           setTransfers((prev) => ({
             ...prev,
