@@ -15,7 +15,7 @@ func main() {
 	if err := sentry.Init(sentry.ClientOptions{
 		Dsn: os.Getenv("SENTRY_DSN"),
 	}); err != nil {
-		log.Printf(`{"level":"error","msg":"sentry_init_failed","error":%q}`, err)
+		log.Printf("ERROR sentry_init_failed error=%q", err)
 	}
 	defer sentry.Flush(2 * time.Second)
 
@@ -42,9 +42,9 @@ func main() {
 		WriteTimeout: 30 * time.Second,
 	}
 
-	log.Print(`{"level":"info","msg":"holo_listening","addr":"` + addr + `"}`)
+	log.Printf("INFO holo_listening addr=%q", addr)
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		log.Fatalf(`{"level":"error","msg":"server_error","error":%q}`, err)
+		log.Fatalf("ERROR server_error error=%q", err)
 	}
 }
 

@@ -46,20 +46,20 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
         />
       )}
-      <body className="min-h-screen bg-sand text-ink">
-        <div className="mx-auto flex min-h-screen max-w-2xl flex-col px-5 py-8 sm:px-6 sm:py-12">
-          <header className="mb-8 sm:mb-12">
+      <body>
+        <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col bg-neutral-100 px-6 py-10 text-neutral-900 antialiased md:px-10">
+          <header className="mb-12 flex items-center justify-between">
             <Link
               href="/"
-              className="inline-block text-xs font-medium tracking-[0.2em] text-muted uppercase hover:text-ink transition-colors"
+              className="text-sm font-medium uppercase tracking-[0.24em] text-neutral-500 transition hover:text-neutral-900"
             >
               holo
             </Link>
           </header>
-          <main className="flex flex-1 items-center justify-center">
-            <div className="w-full">{children}</div>
+          <main className="flex flex-1 items-start">
+            <div className="mx-auto w-full max-w-4xl">{children}</div>
           </main>
-          <footer className="mt-auto pt-12 text-[11px] text-muted">
+          <footer className="mt-16 text-center text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
             no storage · no accounts · just a room
           </footer>
         </div>

@@ -77,9 +77,8 @@ func NewWSHandler(hub *Hub) http.Handler {
 			"clientId":   clientID,
 		})
 
-		hub.register <- client
-
 		go client.writePump()
+		hub.register <- client
 		go client.readPump()
 	})
 }
