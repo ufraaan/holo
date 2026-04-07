@@ -1,40 +1,58 @@
 package server
 
 import (
-	"encoding/json"
+	"fmt"
 	"log"
+	"sort"
+	"strconv"
+	"strings"
 	"time"
 )
 
 type logFields map[string]any
 
-type logEvent struct {
-	Level   string    `json:"level"`
-	Time    time.Time `json:"time"`
-	Message string    `json:"msg"`
-	Fields  logFields `json:"fields,omitempty"`
+func logLine(level, msg string, fields logFields) {
+	ts := time.Now().UTC().Format(time.RFC3339)
+	builder := strings.Builder{}
+	builder.WriteString(ts)
+	builder.WriteString(" ")
+	builder.WriteString(strings.ToUpper(level))
+	builder.WriteString(" ")
+	builder.WriteString(msg)
+
+	if len(fields) > 0 {
+		keys := make([]string, 0, len(fields))
+		for k := range fields {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		for _, k := range keys {
+			builder.WriteString(" ")
+			builder.WriteString(k)
+			builder.WriteString("=")
+			builder.WriteString(formatFieldValue(fields[k]))
+		}
+	}
+	log.Print(builder.String())
 }
 
-func logJSON(level, msg string, fields logFields) {
-	e := logEvent{
-		Level:   level,
-		Time:    time.Now().UTC(),
-		Message: msg,
-		Fields:  fields,
+func formatFieldValue(v any) string {
+	switch x := v.(type) {
+	case string:
+		return strconv.Quote(x)
+	case time.Time:
+		return strconv.Quote(x.UTC().Format(time.RFC3339))
+	case error:
+		return strconv.Quote(x.Error())
+	default:
+		return fmt.Sprintf("%v", x)
 	}
-	b, err := json.Marshal(e)
-	if err != nil {
-		log.Printf("log-marshal-error: %v", err)
-		return
-	}
-	log.Print(string(b))
 }
 
 func logInfo(msg string, fields logFields) {
-	logJSON("info", msg, fields)
+	logLine("info", msg, fields)
 }
 
 func logError(msg string, fields logFields) {
-	logJSON("error", msg, fields)
+	logLine("error", msg, fields)
 }
-
