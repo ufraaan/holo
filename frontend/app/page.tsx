@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { FormEvent, useCallback, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 
 function generateRoomId() {
   return Math.random().toString(36).slice(2, 8);
@@ -9,6 +9,17 @@ function generateRoomId() {
 export default function HomePage() {
   const router = useRouter();
   const [roomId, setRoomId] = useState("");
+  const [entered, setEntered] = useState(false);
+
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const id = requestAnimationFrame(() => setEntered(true));
+    return () => {
+      cancelAnimationFrame(id);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, []);
 
   const handleCreate = useCallback(() => {
     const id = generateRoomId();
@@ -26,46 +37,88 @@ export default function HomePage() {
   );
 
   return (
-    <section className="pt-14 text-center md:pt-20">
-      <h1 className="text-4xl font-semibold tracking-tight text-neutral-900 md:text-5xl">
-        Share a file in seconds.
-      </h1>
-      <p className="mx-auto mt-4 max-w-xl text-lg text-neutral-600">
-        Create a room. Share the link. Send the file.
-      </p>
+    <section className="fixed inset-0 z-50 overflow-hidden">
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: "url('/image.png')" }}
+      />
+      <div className="absolute inset-0 bg-black/35" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/20 to-black/45" />
+      <div className="absolute inset-x-0 bottom-0 h-[48%] bg-gradient-to-t from-black/75 via-black/52 to-transparent backdrop-blur-[3px]" />
 
-      <div className="mx-auto mt-10 grid max-w-xl gap-3">
-        <button
-          type="button"
-          onClick={handleCreate}
-          className="h-12 border border-neutral-900 bg-neutral-900 px-4 text-sm font-medium text-white transition hover:bg-neutral-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-600"
-        >
-          Create room
-        </button>
-
-        <div className="flex items-center gap-3 text-sm text-neutral-500 before:h-px before:flex-1 before:bg-neutral-300 after:h-px after:flex-1 after:bg-neutral-300">
-          or
+      <div className="relative z-10 flex h-full min-h-screen flex-col px-6 pb-10 pt-8 text-white md:px-10">
+        <div className="flex w-full items-center justify-between">
+          <span className="text-sm font-semibold uppercase tracking-[0.22em] text-white/90 [font-family:Inter,ui-sans-serif,system-ui,sans-serif]">
+            HOLO
+          </span>
+          <a
+            href="https://github.com/ufraaan/holo"
+            target="_blank"
+            rel="noreferrer"
+            className="cursor-pointer text-sm font-medium text-white/80 underline-offset-4 transition hover:text-white hover:underline"
+          >
+            GitHub
+          </a>
         </div>
 
-        <form onSubmit={handleJoin} className="grid grid-cols-[1fr_auto] gap-3">
-          <label className="sr-only" htmlFor="join-room-id">
-            Enter room ID
-          </label>
-          <input
-            id="join-room-id"
-            type="text"
-            placeholder="Enter room ID"
-            value={roomId}
-            onChange={(e) => setRoomId(e.target.value)}
-            className="h-12 border border-neutral-300 bg-white px-4 text-sm text-neutral-900 placeholder:text-neutral-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-600"
-          />
-          <button
-            type="submit"
-            className="h-12 border border-neutral-300 bg-white px-5 text-sm font-medium text-neutral-900 transition hover:border-neutral-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-600"
+        <div className="mx-auto mt-12 flex w-full max-w-3xl flex-1 flex-col items-center justify-center text-center">
+          <h1
+            className={`text-5xl font-semibold tracking-tight text-white transition-all duration-700 md:text-6xl ${
+              entered ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+            }`}
           >
-            Join
-          </button>
-        </form>
+            Share a file in <em>seconds</em>
+          </h1>
+          <p
+            className={`mt-4 max-w-2xl text-lg text-white/85 transition-all delay-100 duration-700 ${
+              entered ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+            }`}
+          >
+            Create a room, share the code, and transfer instantly between devices.
+          </p>
+
+          <div
+            className={`mt-10 grid w-full max-w-md gap-3 transition-transform delay-200 duration-700 ${
+              entered ? "translate-y-0" : "translate-y-3"
+            }`}
+          >
+            <button
+              type="button"
+              onClick={handleCreate}
+              className="h-12 cursor-pointer rounded-xl border border-white/30 bg-white/25 px-4 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            >
+              Create room
+            </button>
+
+            <div className="flex items-center gap-3 text-sm text-white/80 before:h-px before:flex-1 before:bg-white/35 after:h-px after:flex-1 after:bg-white/35">
+              or
+            </div>
+
+            <form onSubmit={handleJoin} className="mx-auto grid w-full max-w-md grid-cols-[1fr_auto] gap-3">
+              <label className="sr-only" htmlFor="join-room-id">
+                Enter room ID
+              </label>
+              <input
+                id="join-room-id"
+                type="text"
+                placeholder="Enter room ID"
+                value={roomId}
+                onChange={(e) => setRoomId(e.target.value)}
+                className="h-12 rounded-xl border border-white/30 bg-white/20 px-4 text-sm text-white placeholder:text-white/70 backdrop-blur-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              />
+              <button
+                type="submit"
+                className="h-12 cursor-pointer rounded-xl border border-white/30 bg-black/35 px-5 text-sm font-semibold text-white transition hover:bg-black/45 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >
+                Join
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div className="pb-2 text-center text-xs font-medium uppercase tracking-[0.14em] text-white/75">
+          no storage · no accounts · just a room
+        </div>
       </div>
     </section>
   );
