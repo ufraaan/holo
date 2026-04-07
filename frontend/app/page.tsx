@@ -1,6 +1,4 @@
 "use client";
-
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FormEvent, useCallback, useState } from "react";
 
@@ -28,57 +26,42 @@ export default function HomePage() {
   );
 
   return (
-    <section>
-      <div className="flex justify-center mb-8">
-        <Image
-          src="/favicon.png"
-          alt="holo"
-          width={200}
-          height={200}
-          priority
-        />
-      </div>
-      <h1 className="text-base font-medium text-ink">
-        Hand off a file, then leave.
+    <section className="pt-14 text-center md:pt-20">
+      <h1 className="text-4xl font-semibold tracking-tight text-neutral-900 md:text-5xl">
+        Share a file in seconds.
       </h1>
-      <p className="mt-3 text-sm text-subtle leading-relaxed">
-        Create a room, share the link, drop a file. The relay forwards bytes
-        between browsers — nothing is stored.
-      </p>
-      <p className="mt-2 text-xs text-muted">
-        Both people open the same room link, wait for it to connect, then one
-        person uploads a file for the other.
+      <p className="mx-auto mt-4 max-w-xl text-lg text-neutral-600">
+        Create a room. Share the link. Send the file.
       </p>
 
-      <div className="mt-8 space-y-3">
+      <div className="mx-auto mt-10 grid max-w-xl gap-3">
         <button
           type="button"
           onClick={handleCreate}
-          className="w-full rounded-lg bg-ink px-4 py-3 text-sm font-medium text-sand transition hover:bg-ink-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/50 focus-visible:ring-offset-2 focus-visible:ring-offset-sand"
+          className="h-12 border border-neutral-900 bg-neutral-900 px-4 text-sm font-medium text-white transition hover:bg-neutral-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-600"
         >
           Create room
         </button>
 
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-divider-soft"></div>
-          </div>
-          <div className="relative flex justify-center">
-            <span className="bg-sand px-3 text-xs text-muted">or</span>
-          </div>
+        <div className="flex items-center gap-3 text-sm text-neutral-500 before:h-px before:flex-1 before:bg-neutral-300 after:h-px after:flex-1 after:bg-neutral-300">
+          or
         </div>
 
-        <form onSubmit={handleJoin} className="flex gap-2">
+        <form onSubmit={handleJoin} className="grid grid-cols-[1fr_auto] gap-3">
+          <label className="sr-only" htmlFor="join-room-id">
+            Enter room ID
+          </label>
           <input
+            id="join-room-id"
             type="text"
             placeholder="Enter room ID"
             value={roomId}
             onChange={(e) => setRoomId(e.target.value)}
-            className="flex-1 rounded-lg border border-divider bg-surface px-4 py-3 text-sm text-ink placeholder-muted outline-none transition focus:border-ink"
+            className="h-12 border border-neutral-300 bg-white px-4 text-sm text-neutral-900 placeholder:text-neutral-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-600"
           />
           <button
             type="submit"
-            className="rounded-lg border border-divider bg-surface px-5 py-3 text-sm font-medium text-ink transition hover:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/50 focus-visible:ring-offset-2 focus-visible:ring-offset-sand"
+            className="h-12 border border-neutral-300 bg-white px-5 text-sm font-medium text-neutral-900 transition hover:border-neutral-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-600"
           >
             Join
           </button>
