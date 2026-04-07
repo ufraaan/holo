@@ -39,6 +39,20 @@ function getWsUrl(roomId: string, clientId: string) {
   return url.toString();
 }
 
+async function decodeWsData(data: MessageEvent["data"]): Promise<string | null> {
+  if (data instanceof ArrayBuffer) {
+    return textDecoder.decode(data);
+  }
+  if (typeof data === "string") {
+    return data;
+  }
+  if (typeof Blob !== "undefined" && data instanceof Blob) {
+    const buf = await data.arrayBuffer();
+    return textDecoder.decode(buf);
+  }
+  return null;
+}
+
 export default function RoomPage() {
   const params = useParams<{ roomId: string }>();
   const roomId = params.roomId;
@@ -50,7 +64,6 @@ export default function RoomPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [transfers, setTransfers] = useState<Record<string, Transfer>>({});
   const wsRef = useRef<WebSocket | null>(null);
-  const [copied, setCopied] = useState(false);
   const [reconnectKey, setReconnectKey] = useState(0);
   // Accumulate incoming file chunks in a ref so that each new chunk is an O(1)
   // push rather than an O(n) array spread inside React state.
@@ -103,14 +116,17 @@ export default function RoomPage() {
       }
       console.error("WebSocket error", ev);
     };
-    ws.onmessage = (ev) => {
-      if (!(ev.data instanceof ArrayBuffer)) {
+    ws.onmessage = async (ev) => {
+      const text = await decodeWsData(ev.data);
+      if (!text) {
         return;
       }
-      const text = textDecoder.decode(ev.data);
       try {
         const msg = JSON.parse(text) as any;
-        if (msg.type === "file-meta") {
+        if (msg.type === "room-state") {
+          // Keep consuming room-state control messages even if not displayed.
+          return;
+        } else if (msg.type === "file-meta") {
           const { fileId, name, size, mime } = msg.payload;
           incomingBlobPartsRef.current[fileId] = [];
           setTransfers((prev) => ({
@@ -172,12 +188,6 @@ export default function RoomPage() {
       incomingBlobPartsRef.current = {};
     };
   }, [roomId, clientId, reconnectKey]);
-
-  useEffect(() => {
-    if (!copied) return;
-    const id = setTimeout(() => setCopied(false), 1500);
-    return () => clearTimeout(id);
-  }, [copied]);
 
   const sendJson = (msg: unknown) => {
     const ws = wsRef.current;
@@ -302,50 +312,31 @@ export default function RoomPage() {
     [transfers],
   );
 
-  const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-    } catch {
-      setCopied(false);
-    }
-  };
-
   return (
     <section>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-sm font-medium text-ink">
-            Room{" "}
-            <span className="inline-flex items-center rounded-md border border-divider-soft bg-soft px-2 py-0.5 font-mono text-xs text-ink">
-              {roomId}
-            </span>
-          </h1>
-          <button
-            type="button"
-            onClick={handleCopyLink}
-            className="inline-flex items-center rounded-md border border-divider-soft bg-soft px-2 py-0.5 text-[11px] text-muted hover:border-ink hover:text-ink transition"
-          >
-            {copied ? "Copied" : "Copy link"}
-          </button>
+      <div className="grid gap-4 border-b border-neutral-300 pb-5 md:grid-cols-2 md:items-center">
+        <div className="md:justify-self-start">
+          <div className="inline-flex items-center border border-neutral-300 px-3 py-1 font-mono text-sm text-neutral-800">
+            {roomId}
+          </div>
         </div>
-        <div className="flex flex-wrap items-center gap-3 justify-between sm:justify-end">
+        <div className="flex items-center gap-4 text-sm md:justify-self-end">
           <span
-            className={`inline-flex items-center gap-1.5 text-xs ${
+            className={`inline-flex items-center gap-2 font-medium ${
               status === "connected"
-                ? "text-green-ink"
+                ? "text-emerald-700"
                 : status === "connecting"
-                ? "text-amber-ink"
-                : "text-red-ink"
+                  ? "text-amber-700"
+                  : "text-red-700"
             }`}
           >
             <span
-              className={`h-1.5 w-1.5 rounded-full ${
+              className={`h-2 w-2 rounded-full ${
                 status === "connected"
-                  ? "bg-green-ink"
+                  ? "bg-emerald-500"
                   : status === "connecting"
-                  ? "bg-amber-ink"
-                  : "bg-red-ink"
+                    ? "bg-amber-500"
+                    : "bg-red-500"
               }`}
             />
             {status === "connected"
@@ -358,7 +349,7 @@ export default function RoomPage() {
             <button
               type="button"
               onClick={handleRetry}
-              className="inline-flex items-center rounded-md border border-divider-soft bg-soft px-2 py-1 text-[11px] font-medium text-ink hover:border-ink transition"
+              className="h-9 border border-neutral-300 bg-white px-3 text-sm font-medium text-neutral-900 transition hover:border-neutral-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-600"
             >
               Retry
             </button>
@@ -366,99 +357,85 @@ export default function RoomPage() {
         </div>
       </div>
 
-      <div className="mt-6 space-y-6 sm:mt-8 sm:space-y-8">
-        {status === "connecting" && !errorMessage && (
-          <div className="rounded-lg bg-amber-soft px-4 py-3 text-xs text-amber-ink">
-            Connecting to relay… this can take up to a minute. You can leave this
-            tab open.
-          </div>
-        )}
-
-        {errorMessage && (
-          <div className="rounded-lg bg-red-soft px-4 py-3 text-xs text-red-ink">
-            {errorMessage}
-          </div>
-        )}
-
-        <div
-          className={`flex flex-col items-center rounded-lg border border-dashed border-divider px-6 py-10 text-center sm:px-8 sm:py-12 ${
-            status !== "connected" ? "opacity-60" : ""
-          }`}
-          onDrop={status === "connected" ? onDrop : undefined}
-          onDragOver={status === "connected" ? onDragOver : undefined}
-        >
-          <p className="text-sm text-subtle">
-            Drop a file here or choose one
-          </p>
-          <label
-            className={`mt-4 rounded-lg border border-divider bg-surface px-5 py-2.5 text-sm font-medium transition ${
-              status === "connected"
-                ? "cursor-pointer text-ink hover:border-ink"
-                : "cursor-not-allowed text-muted"
-            }`}
-          >
-            <input
-              type="file"
-              className="hidden"
-              onChange={status === "connected" ? onInputChange : undefined}
-              disabled={status !== "connected"}
-            />
-            Choose file
-          </label>
-          {status !== "connected" && (
-            <p className="mt-3 text-xs text-muted">
-              You can upload once the room is connected.
-            </p>
+      <div className="mt-10 grid gap-8 md:grid-cols-2 md:gap-10 md:items-start">
+        <div className="grid gap-5 md:pr-2">
+          {status === "connecting" && !errorMessage && (
+            <div className="border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              Connecting to relay… this can take up to a minute. You can leave this
+              tab open.
+            </div>
           )}
+
+          {errorMessage && (
+            <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{errorMessage}</div>
+          )}
+
+          <div
+            className={`flex min-h-[260px] flex-col items-center justify-center gap-4 border border-neutral-300 px-6 py-12 text-center ${
+              status !== "connected" ? "opacity-60" : ""
+            }`}
+            onDrop={status === "connected" ? onDrop : undefined}
+            onDragOver={status === "connected" ? onDragOver : undefined}
+            tabIndex={0}
+          >
+            <p className="text-lg font-medium text-neutral-900">Drop a file here</p>
+            <p className="text-sm text-neutral-500">or choose one from your device</p>
+            <label
+              className={`inline-flex h-10 items-center justify-center border px-4 text-sm font-medium tracking-tight transition ${
+                status === "connected"
+                  ? "cursor-pointer border-neutral-300 bg-white text-neutral-900 hover:border-neutral-500 hover:bg-neutral-50"
+                  : "cursor-not-allowed border-neutral-200 bg-neutral-100 text-neutral-400"
+              }`}
+            >
+              <input
+                type="file"
+                className="sr-only"
+                onChange={status === "connected" ? onInputChange : undefined}
+                disabled={status !== "connected"}
+              />
+              Choose file
+            </label>
+            {status !== "connected" && (
+              <p className="text-sm text-neutral-500">Upload is available after connection.</p>
+            )}
+          </div>
         </div>
 
-        <div>
-          <div className="mb-3 text-xs font-medium text-muted uppercase tracking-wider">
-            Transfers
-          </div>
+        <div className="md:pl-2">
+          <p className="mb-4 text-sm font-semibold uppercase tracking-[0.14em] text-neutral-500">Transfers</p>
           {Object.keys(transfers).length === 0 ? (
-            <p className="text-sm text-subtle">
-              No transfers yet.
-            </p>
+            <p className="text-sm text-neutral-500">No transfers yet.</p>
           ) : (
-            <ul className="space-y-4">
+            <ul className="divide-y divide-neutral-300 border-y border-neutral-300">
               {sortedTransfers.map((t) => (
-                  <li
-                    key={t.id}
-                    className="rounded-lg border border-divider-soft bg-soft px-4 py-4 sm:px-5 sm:py-4"
-                  >
-                    <div className="flex items-center justify-between gap-4">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="truncate text-sm text-ink">
-                          {t.name}
-                        </span>
-                        <span className="text-xs text-muted">
-                          {formatSize(t.size)}
-                        </span>
-                      </div>
-                      <div className="mt-1 text-xs text-muted">
-                        {t.direction === "outgoing" ? "Sending" : "Receiving"} · {t.progress}%
-                      </div>
+                <li key={t.id} className="py-4">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="truncate font-medium text-neutral-900">{t.name}</p>
+                      <p className="mt-1 text-sm text-neutral-500">
+                        {formatSize(t.size)} ·{" "}
+                        {getTransferState(t)} ·{" "}
+                        {t.progress}%
+                      </p>
                     </div>
-                      {t.url && (
-                        <a
-                          href={t.url}
-                          download={t.name}
-                          className="shrink-0 rounded-lg border border-divider bg-surface px-3 py-1.5 text-xs font-medium text-ink transition hover:border-ink"
-                        >
-                          Save
-                        </a>
-                      )}
-                    </div>
-                    <div className="mt-4 h-1 w-full rounded-full bg-divider-soft">
-                      <div
-                        className="h-1 rounded-full bg-ink transition-[width]"
-                        style={{ width: `${t.progress}%` }}
-                      />
-                    </div>
-                  </li>
-                ))}
+                    {t.url && (
+                      <a
+                        href={t.url}
+                        download={t.name}
+                        className="h-9 border border-neutral-300 bg-white px-3 text-sm font-medium text-neutral-900 transition hover:border-neutral-900"
+                      >
+                        Save file
+                      </a>
+                    )}
+                  </div>
+                  <div className="mt-3 h-1.5 w-full overflow-hidden bg-neutral-200">
+                    <div
+                      className="h-full bg-neutral-900 transition-[width] duration-150"
+                      style={{ width: `${t.progress}%` }}
+                    />
+                  </div>
+                </li>
+              ))}
             </ul>
           )}
         </div>
@@ -477,5 +454,12 @@ function formatSize(size: number): string {
     idx++;
   }
   return `${s.toFixed(s >= 10 || idx === 0 ? 0 : 1)} ${units[idx]}`;
+}
+
+function getTransferState(transfer: Transfer): string {
+  if (transfer.progress >= 100) {
+    return transfer.direction === "outgoing" ? "Sent" : "Received";
+  }
+  return transfer.direction === "outgoing" ? "Sending" : "Receiving";
 }
 
