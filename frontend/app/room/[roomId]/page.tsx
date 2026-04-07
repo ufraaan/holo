@@ -46,6 +46,20 @@ function getWsUrl(roomId: string, clientId: string) {
   return url.toString();
 }
 
+async function decodeWsData(data: MessageEvent["data"]): Promise<string | null> {
+  if (data instanceof ArrayBuffer) {
+    return textDecoder.decode(data);
+  }
+  if (typeof data === "string") {
+    return data;
+  }
+  if (typeof Blob !== "undefined" && data instanceof Blob) {
+    const buf = await data.arrayBuffer();
+    return textDecoder.decode(buf);
+  }
+  return null;
+}
+
 export default function RoomPage() {
   const params = useParams<{ roomId: string }>();
   const roomId = params.roomId;
@@ -110,11 +124,11 @@ export default function RoomPage() {
       }
       console.error("WebSocket error", ev);
     };
-    ws.onmessage = (ev) => {
-      if (!(ev.data instanceof ArrayBuffer)) {
+    ws.onmessage = async (ev) => {
+      const text = await decodeWsData(ev.data);
+      if (!text) {
         return;
       }
-      const text = textDecoder.decode(ev.data);
       try {
         const msg = JSON.parse(text) as any;
         if (msg.type === "room-state") {
