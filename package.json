@@ -1,0 +1,11 @@
+{
+  "name": "holo-repo",
+  "private": true,
+  "scripts": {
+    "prepare": "husky",
+    "precommit:checks": "cd backend && go test ./... && cd ../frontend && npm run lint && npm run typecheck && npm run test"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
+}
