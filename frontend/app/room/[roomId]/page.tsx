@@ -429,7 +429,7 @@ export default function RoomPage() {
                       <a
                         href={t.url}
                         download={t.name}
-                        className="h-9 border border-neutral-300 bg-white px-3 text-sm font-medium text-neutral-900 transition hover:border-neutral-900"
+                        className="inline-flex h-9 items-center justify-center border border-neutral-300 bg-white px-4 text-sm font-medium leading-none text-neutral-900 transition hover:border-neutral-900"
                       >
                         Save file
                       </a>
