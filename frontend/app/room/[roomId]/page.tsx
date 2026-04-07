@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 
@@ -320,131 +321,173 @@ export default function RoomPage() {
   );
 
   return (
-    <section>
-      <div className="grid gap-4 border-b border-neutral-300 pb-5 md:grid-cols-2 md:items-center">
-        <div className="md:justify-self-start">
-          <div className="inline-flex items-center border border-neutral-300 px-3 py-1 font-mono text-sm text-neutral-800">
-            {roomId}
-          </div>
-        </div>
-        <div className="flex items-center gap-4 text-sm md:justify-self-end">
-          <span
-            className={`inline-flex items-center gap-2 font-medium ${
-              status === "connected"
-                ? "text-emerald-700"
-                : status === "connecting"
-                  ? "text-amber-700"
-                  : "text-red-700"
-            }`}
-          >
-            <span
-              className={`h-2 w-2 rounded-full ${
-                status === "connected"
-                  ? "bg-emerald-500"
-                  : status === "connecting"
-                    ? "bg-amber-500"
-                    : "bg-red-500"
-              }`}
-            />
-            {status === "connected"
-              ? "Connected"
-              : status === "connecting"
-              ? "Connecting…"
-              : "Disconnected"}
+    <section className="fixed inset-0 z-40 overflow-y-auto">
+      <div
+        className="fixed inset-0 bg-cover bg-center bg-fixed"
+        style={{ backgroundImage: "url('/image.png')" }}
+      />
+      <div className="fixed inset-0 bg-black/45" />
+      <div className="fixed inset-0 bg-gradient-to-b from-black/30 via-black/35 to-black/55" />
+      <div className="fixed inset-x-0 bottom-0 h-[50%] bg-gradient-to-t from-black/78 via-black/56 to-transparent backdrop-blur-[3px]" />
+
+      <div className="relative z-10 min-h-screen px-4 py-6 text-white sm:px-6 md:px-10 md:py-8">
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between">
+          <span className="text-sm font-semibold uppercase tracking-[0.22em] text-white/90 [font-family:Inter,ui-sans-serif,system-ui,sans-serif]">
+            HOLO
           </span>
-          {status === "closed" && (
-            <button
-              type="button"
-              onClick={handleRetry}
-              className="h-9 border border-neutral-300 bg-white px-3 text-sm font-medium text-neutral-900 transition hover:border-neutral-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-600"
-            >
-              Retry
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div className="mt-10 grid gap-8 md:grid-cols-2 md:gap-10 md:items-start">
-        <div className="grid gap-5 md:pr-2">
-          {status === "connecting" && !errorMessage && (
-            <div className="border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-              Connecting to relay… this can take up to a minute. You can leave this
-              tab open.
-            </div>
-          )}
-
-          {errorMessage && (
-            <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{errorMessage}</div>
-          )}
-
-          <div
-            className={`flex min-h-[260px] flex-col items-center justify-center gap-4 border border-neutral-300 px-6 py-12 text-center ${
-              status !== "connected" ? "opacity-60" : ""
-            }`}
-            onDrop={status === "connected" ? onDrop : undefined}
-            onDragOver={status === "connected" ? onDragOver : undefined}
-            tabIndex={0}
+          <a
+            href="https://github.com/ufraaan/holo"
+            target="_blank"
+            rel="noreferrer"
+            className="cursor-pointer text-sm font-medium text-white/80 underline-offset-4 transition hover:text-white hover:underline"
           >
-            <p className="text-lg font-medium text-neutral-900">Drop a file here</p>
-            <p className="text-sm text-neutral-500">or choose one from your device</p>
-            <label
-              className={`inline-flex h-10 items-center justify-center border px-4 text-sm font-medium tracking-tight transition ${
-                status === "connected"
-                  ? "cursor-pointer border-neutral-300 bg-white text-neutral-900 hover:border-neutral-500 hover:bg-neutral-50"
-                  : "cursor-not-allowed border-neutral-200 bg-neutral-100 text-neutral-400"
-              }`}
-            >
-              <input
-                type="file"
-                className="sr-only"
-                onChange={status === "connected" ? onInputChange : undefined}
-                disabled={status !== "connected"}
-              />
-              Choose file
-            </label>
-            {status !== "connected" && (
-              <p className="text-sm text-neutral-500">Upload is available after connection.</p>
-            )}
-          </div>
+            GitHub
+          </a>
         </div>
 
-        <div className="md:pl-2">
-          <p className="mb-4 text-sm font-semibold uppercase tracking-[0.14em] text-neutral-500">Transfers</p>
-          {Object.keys(transfers).length === 0 ? (
-            <p className="text-sm text-neutral-500">No transfers yet.</p>
-          ) : (
-            <ul className="divide-y divide-neutral-300 border-y border-neutral-300">
-              {sortedTransfers.map((t) => (
-                <li key={t.id} className="py-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="min-w-0">
-                      <p className="truncate font-medium text-neutral-900">{t.name}</p>
-                      <p className="mt-1 text-sm text-neutral-500">
-                        {formatSize(t.size)} ·{" "}
-                        {getTransferState(t)} ·{" "}
-                        {t.progress}%
-                      </p>
-                    </div>
-                    {t.url && (
-                      <a
-                        href={t.url}
-                        download={t.name}
-                        className="inline-flex h-9 items-center justify-center border border-neutral-300 bg-white px-4 text-sm font-medium leading-none text-neutral-900 transition hover:border-neutral-900"
-                      >
-                        Save file
-                      </a>
-                    )}
-                  </div>
-                  <div className="mt-3 h-1.5 w-full overflow-hidden bg-neutral-200">
-                    <div
-                      className="h-full bg-neutral-900 transition-[width] duration-150"
-                      style={{ width: `${t.progress}%` }}
-                    />
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
+        <div className="mx-auto mt-4 sm:mt-8 w-full max-w-6xl rounded-2xl border border-white/20 bg-black/25 p-4 sm:p-6 backdrop-blur-md md:p-8">
+          <Link
+            href="/"
+            className="mb-4 sm:mb-5 inline-flex cursor-pointer items-center text-sm font-medium text-white/80 transition hover:text-white"
+          >
+            ← Go back
+          </Link>
+          <div className="grid gap-4 border-b border-white/25 pb-4 sm:pb-5 md:grid-cols-2 md:items-center">
+            <div className="md:justify-self-start">
+              <div className="inline-flex items-center rounded-lg border border-white/30 bg-white/10 px-3 py-1 font-mono text-xs sm:text-sm text-white/95 break-all">
+                {roomId}
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm md:justify-self-end">
+              <span
+                className={`inline-flex items-center gap-2 font-medium ${
+                  status === "connected"
+                    ? "text-emerald-300"
+                    : status === "connecting"
+                      ? "text-amber-300"
+                      : "text-red-300"
+                }`}
+              >
+                <span
+                  className={`h-2 w-2 rounded-full ${
+                    status === "connected"
+                      ? "bg-emerald-300"
+                      : status === "connecting"
+                        ? "bg-amber-300"
+                        : "bg-red-300"
+                  }`}
+                />
+                {status === "connected"
+                  ? "Connected"
+                  : status === "connecting"
+                  ? "Connecting…"
+                  : "Disconnected"}
+              </span>
+              {status === "closed" && (
+                <button
+                  type="button"
+                  onClick={handleRetry}
+                  className="h-9 rounded-lg border border-white/35 bg-white/15 px-3 text-sm font-medium text-white transition hover:bg-white/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                >
+                  Retry
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="mt-6 sm:mt-10 grid gap-6 sm:gap-8 md:grid-cols-2 md:gap-10 md:items-start">
+            <div className="grid gap-4 sm:gap-5 md:pr-2">
+              {status === "connecting" && !errorMessage && (
+                <div className="rounded-xl border border-amber-300/40 bg-amber-400/15 px-4 py-3 text-sm text-amber-100">
+                  Connecting to relay… this can take up to a minute. You can
+                  leave this tab open.
+                </div>
+              )}
+
+              {errorMessage && (
+                <div className="rounded-xl border border-red-300/40 bg-red-400/15 px-4 py-3 text-sm text-red-100">
+                  {errorMessage}
+                </div>
+              )}
+
+              <div
+                className={`flex min-h-[220px] sm:min-h-[260px] flex-col items-center justify-center gap-3 sm:gap-4 rounded-xl border border-white/25 bg-white/8 px-4 sm:px-6 py-8 sm:py-12 text-center ${
+                  status !== "connected" ? "opacity-60" : ""
+                }`}
+                onDrop={status === "connected" ? onDrop : undefined}
+                onDragOver={status === "connected" ? onDragOver : undefined}
+                tabIndex={0}
+              >
+                <p className="text-base sm:text-lg font-medium text-white">
+                  Drop a file here
+                </p>
+                <p className="text-xs sm:text-sm text-white/75">
+                  or choose one from your device
+                </p>
+                <label
+                  className={`inline-flex h-10 items-center justify-center rounded-lg border px-4 text-sm font-medium tracking-tight transition ${
+                    status === "connected"
+                      ? "cursor-pointer border-white/30 bg-white/25 text-white backdrop-blur-sm hover:bg-white/30"
+                      : "cursor-not-allowed border-white/20 bg-white/10 text-white/45"
+                  }`}
+                >
+                  <input
+                    type="file"
+                    className="sr-only"
+                    onChange={status === "connected" ? onInputChange : undefined}
+                    disabled={status !== "connected"}
+                  />
+                  Choose file
+                </label>
+                {status !== "connected" && (
+                  <p className="text-xs sm:text-sm text-white/70">
+                    Upload is available after connection.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="md:pl-2">
+              <p className="mb-3 sm:mb-4 text-sm font-semibold uppercase tracking-[0.14em] text-white/75">
+                Transfers
+              </p>
+              {Object.keys(transfers).length === 0 ? (
+                <p className="text-sm text-white/75">No transfers yet.</p>
+              ) : (
+                <ul className="divide-y divide-white/20 rounded-xl border border-white/20 bg-black/15 px-3 sm:px-4">
+                  {sortedTransfers.map((t) => (
+                    <li key={t.id} className="py-3 sm:py-4">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
+                        <div className="min-w-0 flex-1 w-full">
+                          <p className="truncate font-medium text-white text-sm sm:text-base">
+                            {t.name}
+                          </p>
+                          <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-white/75">
+                            {formatSize(t.size)} · {getTransferState(t)} ·{" "}
+                            {t.progress}%
+                          </p>
+                        </div>
+                        {t.url && (
+                          <a
+                            href={t.url}
+                            download={t.name}
+                            className="inline-flex h-9 items-center justify-center rounded-lg border border-white/30 bg-white/20 px-3 sm:px-4 text-xs sm:text-sm font-medium leading-none text-white transition hover:bg-white/30 w-full sm:w-auto"
+                          >
+                            Save file
+                          </a>
+                        )}
+                      </div>
+                      <div className="mt-2 sm:mt-3 h-1.5 w-full overflow-hidden rounded-full bg-white/20">
+                        <div
+                          className="h-full bg-white transition-[width] duration-150"
+                          style={{ width: `${t.progress}%` }}
+                        />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </section>

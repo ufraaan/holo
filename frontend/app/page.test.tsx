@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import HomePage from "./page";
+import HomePage from "./(main)/page";
 
 const pushMock = vi.fn();
 
