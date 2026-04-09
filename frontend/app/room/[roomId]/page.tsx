@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
+import BackgroundImage from "../../../components/BackgroundImage";
 
 type TransferDirection = "incoming" | "outgoing";
 
@@ -59,6 +60,7 @@ export default function RoomPage() {
   const roomId = params.roomId;
   const clientId = useClientId();
 
+  const [bgLoaded, setBgLoaded] = useState(false);
   const [status, setStatus] = useState<"connecting" | "connected" | "closed">(
     "connecting",
   );
@@ -322,15 +324,16 @@ export default function RoomPage() {
 
   return (
     <section className="fixed inset-0 z-40 overflow-y-auto">
-      <div
-        className="fixed inset-0 bg-cover bg-center bg-fixed"
-        style={{ backgroundImage: "url('/image.png')" }}
-      />
+      <BackgroundImage src="/landing-backdrop.webp" onLoad={() => setBgLoaded(true)} />
       <div className="fixed inset-0 bg-black/45" />
       <div className="fixed inset-0 bg-gradient-to-b from-black/30 via-black/35 to-black/55" />
       <div className="fixed inset-x-0 bottom-0 h-[50%] bg-gradient-to-t from-black/78 via-black/56 to-transparent backdrop-blur-[3px]" />
 
-      <div className="relative z-10 min-h-screen px-4 py-6 text-white sm:px-6 md:px-10 md:py-8">
+      <div
+        className={`relative z-10 min-h-screen px-4 py-6 text-white sm:px-6 md:px-10 md:py-8 transition-opacity duration-700 ${
+          bgLoaded ? "opacity-100" : "opacity-0"
+        }`}
+      >
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between">
           <span className="text-sm font-semibold uppercase tracking-[0.22em] text-white/90 [font-family:Inter,ui-sans-serif,system-ui,sans-serif]">
             HOLO

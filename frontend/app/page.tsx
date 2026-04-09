@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import BackgroundImage from "../components/BackgroundImage";
 
 function generateRoomId() {
   return Math.random().toString(36).slice(2, 8);
@@ -9,17 +10,14 @@ function generateRoomId() {
 export default function HomePage() {
   const router = useRouter();
   const [roomId, setRoomId] = useState("");
-  const [entered, setEntered] = useState(false);
+  const [bgLoaded, setBgLoaded] = useState(false);
 
   useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const id = requestAnimationFrame(() => setEntered(true));
-    return () => {
-      cancelAnimationFrame(id);
-      document.body.style.overflow = previousOverflow;
-    };
-  }, []);
+    if (bgLoaded) {
+      const timer = setTimeout(() => setBgLoaded(true), 50);
+      return () => clearTimeout(timer);
+    }
+  }, [bgLoaded]);
 
   const handleCreate = useCallback(() => {
     const id = generateRoomId();
@@ -38,16 +36,17 @@ export default function HomePage() {
 
   return (
     <section className="fixed inset-0 z-50 overflow-hidden">
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: "url('/image.png')" }}
-      />
+      <BackgroundImage src="/landing-backdrop.webp" onLoad={() => setBgLoaded(true)} />
       <div className="absolute inset-0 bg-black/35" />
       <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/20 to-black/45" />
       <div className="absolute inset-x-0 bottom-0 h-[48%] bg-gradient-to-t from-black/75 via-black/52 to-transparent backdrop-blur-[3px]" />
 
       <div className="relative z-10 flex h-full min-h-screen flex-col px-6 pb-10 pt-8 text-white md:px-10">
-        <div className="flex w-full items-center justify-between">
+        <div
+          className={`flex w-full items-center justify-between transition-all duration-700 ${
+            bgLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[-20px]"
+          }`}
+        >
           <span className="text-sm font-semibold uppercase tracking-[0.22em] text-white/90 [font-family:Inter,ui-sans-serif,system-ui,sans-serif]">
             HOLO
           </span>
@@ -64,23 +63,32 @@ export default function HomePage() {
         <div className="mx-auto mt-12 flex w-full max-w-3xl flex-1 flex-col items-center justify-center text-center">
           <h1
             className={`text-5xl font-semibold tracking-tight text-white transition-all duration-700 md:text-6xl ${
-              entered ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+              bgLoaded
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-[30px]"
             }`}
+            style={{ transitionDelay: bgLoaded ? "100ms" : "0ms" }}
           >
-            Share a file in <em>seconds</em>
+            Share a file in <em className="not-italic">seconds</em>
           </h1>
           <p
-            className={`mt-4 max-w-2xl text-lg text-white/85 transition-all delay-100 duration-700 ${
-              entered ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+            className={`mt-4 max-w-2xl text-lg text-white/85 transition-all duration-700 ${
+              bgLoaded
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-[30px]"
             }`}
+            style={{ transitionDelay: bgLoaded ? "200ms" : "0ms" }}
           >
             Create a room, share the code, and transfer instantly between devices.
           </p>
 
           <div
-            className={`mt-10 grid w-full max-w-md gap-3 transition-transform delay-200 duration-700 ${
-              entered ? "translate-y-0" : "translate-y-3"
+            className={`mt-10 grid w-full max-w-md gap-3 transition-all duration-700 ${
+              bgLoaded
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-[30px]"
             }`}
+            style={{ transitionDelay: bgLoaded ? "300ms" : "0ms" }}
           >
             <button
               type="button"
@@ -116,11 +124,17 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="pb-2 text-center text-xs font-medium uppercase tracking-[0.14em] text-white/75">
+        <div
+          className={`pb-2 text-center text-xs font-medium uppercase tracking-[0.14em] text-white/75 transition-all duration-700 ${
+            bgLoaded
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 translate-y-[30px]"
+          }`}
+          style={{ transitionDelay: bgLoaded ? "400ms" : "0ms" }}
+        >
           no storage · no accounts · just a room
         </div>
       </div>
     </section>
   );
 }
-
