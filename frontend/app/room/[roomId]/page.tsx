@@ -348,17 +348,23 @@ export default function RoomPage() {
           </a>
         </div>
 
-        <div className="mx-auto mt-4 sm:mt-8 w-full max-w-6xl rounded-2xl border border-white/20 bg-black/25 p-4 sm:p-6 backdrop-blur-md md:p-8">
+        <div className="mx-auto mt-6 sm:mt-8 max-w-6xl">
           <Link
             href="/"
-            className="mb-4 sm:mb-5 inline-flex cursor-pointer items-center text-sm font-medium text-white/80 transition hover:text-white"
+            className="inline-flex cursor-pointer items-center text-sm font-medium text-white/80 transition hover:text-white"
           >
             ← Go back
           </Link>
+        </div>
+
+        <div className="mx-auto mt-4 w-full max-w-6xl rounded-2xl border border-white/20 bg-black/25 p-4 sm:p-6 backdrop-blur-md md:p-8">
           <div className="grid gap-4 border-b border-white/25 pb-4 sm:pb-5 md:grid-cols-2 md:items-center">
             <div className="md:justify-self-start">
-              <div className="inline-flex items-center rounded-lg border border-white/30 bg-white/10 px-3 py-1 font-mono text-xs sm:text-sm text-white/95 break-all">
-                {roomId}
+              <div className="inline-flex items-center gap-2 flex-wrap">
+                <span className="text-xs sm:text-sm text-white/70">Share this code:</span>
+                <div className="inline-flex items-center rounded-lg border border-white/30 bg-white/10 px-3 py-1 font-mono text-xs sm:text-sm text-white/95 break-all">
+                  {roomId}
+                </div>
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm md:justify-self-end">
