@@ -623,14 +623,14 @@ export default function RoomPage() {
                                 <button
                                   type="button"
                                   onClick={() => handleCopyText(ts.text, ts.id)}
-                                  className="h-8 cursor-pointer rounded-md border border-white/25 bg-white/10 px-2.5 text-xs font-medium text-white/80 transition hover:bg-white/20"
+                                  className="h-8 flex cursor-pointer items-center justify-center rounded-md border border-white/25 bg-white/10 px-2.5 text-xs font-medium text-white/80 transition hover:bg-white/20"
                                 >
                                   {copiedId === ts.id ? "Copied!" : "Copy"}
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => handleDownloadText(ts.text, ts.id, ts.timestamp)}
-                                  className="h-8 cursor-pointer rounded-md border border-white/25 bg-white/10 px-2.5 text-xs font-medium text-white/80 transition hover:bg-white/20"
+                                  className="h-8 flex cursor-pointer items-center justify-center rounded-md border border-white/25 bg-white/10 px-2.5 text-xs font-medium text-white/80 transition hover:bg-white/20"
                                 >
                                   Save
                                 </button>
@@ -666,7 +666,7 @@ export default function RoomPage() {
                                 <a
                                   href={t.url}
                                   download={t.name}
-                                  className="shrink-0 h-8 cursor-pointer rounded-md border border-white/25 bg-white/10 px-2.5 text-xs font-medium text-white/80 transition hover:bg-white/20"
+                                  className="shrink-0 h-8 flex cursor-pointer items-center justify-center rounded-md border border-white/25 bg-white/10 px-2.5 text-xs font-medium text-white/80 transition hover:bg-white/20"
                                 >
                                   Save
                                 </a>
