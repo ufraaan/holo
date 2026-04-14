@@ -607,10 +607,10 @@ export default function RoomPage() {
                         {sortedTextShares.map((ts) => (
                           <div
                             key={ts.id}
-                            className="rounded-lg border border-white/20 bg-white/[0.06] p-3 sm:p-4"
+                            className="overflow-hidden rounded-lg border border-white/20 bg-white/[0.06] p-3 sm:p-4"
                           >
                             <div className="flex items-start justify-between gap-2">
-                              <div className="min-w-0 flex-1">
+                              <div className="min-w-0 flex-1 overflow-hidden">
                                 <p className="font-mono text-xs text-white/90 truncate">
                                   {ts.text.slice(0, 60)}
                                   {ts.text.length > 60 ? "…" : ""}
@@ -651,10 +651,10 @@ export default function RoomPage() {
                         {sortedTransfers.map((t) => (
                           <div
                             key={t.id}
-                            className="rounded-lg border border-white/20 bg-white/[0.06] p-3 sm:p-4"
+                            className="overflow-hidden rounded-lg border border-white/20 bg-white/[0.06] p-3 sm:p-4"
                           >
                             <div className="flex items-start justify-between gap-2">
-                              <div className="min-w-0 flex-1">
+                              <div className="min-w-0 flex-1 overflow-hidden">
                                 <p className="truncate font-medium text-white text-sm">
                                   {t.name}
                                 </p>
