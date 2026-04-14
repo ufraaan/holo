@@ -446,14 +446,14 @@ export default function RoomPage() {
         }`}
       >
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between">
-          <span className="text-sm font-semibold uppercase tracking-[0.22em] text-white/90 [font-family:Inter,ui-sans-serif,system-ui,sans-serif]">
+          <span className="text-xs font-semibold uppercase tracking-widest text-white/80">
             HOLO
           </span>
           <a
             href="https://github.com/ufraaan/holo"
             target="_blank"
             rel="noreferrer"
-            className="cursor-pointer text-sm font-medium text-white/80 underline-offset-4 transition hover:text-white hover:underline"
+            className="cursor-pointer text-xs text-white/60 transition hover:text-white"
           >
             GitHub
           </a>
@@ -462,7 +462,7 @@ export default function RoomPage() {
         <div className="mx-auto mt-6 sm:mt-8 max-w-6xl">
           <Link
             href="/"
-            className="inline-flex cursor-pointer items-center text-sm font-medium text-white/80 transition hover:text-white"
+            className="inline-flex cursor-pointer items-center text-xs text-white/60 transition hover:text-white"
           >
             ← Go back
           </Link>
