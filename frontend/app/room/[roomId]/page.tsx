@@ -514,8 +514,8 @@ export default function RoomPage() {
               )}
             </div>
           </div>
-          <div className="mt-6 sm:mt-10 grid gap-6 sm:gap-8 md:grid-cols-2 md:gap-10 md:items-start">
-            <div className="grid gap-4 sm:gap-5 md:pr-2">
+          <div className="mt-6 grid gap-6 md:grid-cols-2 md:gap-8 md:items-start">
+            <div className="grid gap-4 md:pr-2">
               {status === "connecting" && !errorMessage && (
                 <div className="rounded-xl border border-amber-300/40 bg-amber-400/15 px-4 py-3 text-sm text-amber-100">
                   Connecting to relay… this can take up to a minute. You can
@@ -530,23 +530,23 @@ export default function RoomPage() {
               )}
 
               <div
-                className={`flex min-h-[220px] sm:min-h-[260px] flex-col items-center justify-center gap-3 sm:gap-4 rounded-xl border border-white/25 bg-white/8 px-4 sm:px-6 py-8 sm:py-12 text-center ${
+                className={`flex min-h-[180px] flex-col items-center justify-center gap-3 rounded-xl border border-white/25 bg-white/8 px-4 py-8 text-center ${
                   status !== "connected" ? "opacity-60" : ""
                 }`}
                 onDrop={status === "connected" ? onDrop : undefined}
                 onDragOver={status === "connected" ? onDragOver : undefined}
                 tabIndex={0}
               >
-                <p className="text-base sm:text-lg font-medium text-white">
+                <p className="text-base font-medium text-white">
                   Drop a file here
                 </p>
-                <p className="text-xs sm:text-sm text-white/75">
+                <p className="text-xs text-white/75">
                   or choose one from your device
                 </p>
                 <label
-                  className={`inline-flex h-10 items-center justify-center rounded-lg border px-4 text-sm font-medium tracking-tight transition ${
+                  className={`inline-flex h-9 items-center justify-center rounded-lg border px-4 text-sm font-medium transition ${
                     status === "connected"
-                      ? "cursor-pointer border-white/30 bg-white/25 text-white backdrop-blur-sm hover:bg-white/30"
+                      ? "cursor-pointer border-white/30 bg-white/25 text-white hover:bg-white/30"
                       : "cursor-not-allowed border-white/20 bg-white/10 text-white/45"
                   }`}
                 >
@@ -558,33 +558,23 @@ export default function RoomPage() {
                   />
                   Choose file
                 </label>
-                {status !== "connected" && (
-                  <p className="text-xs sm:text-sm text-white/70">
-                    Upload is available after connection.
-                  </p>
-                )}
-              </div>
+                </div>
 
               <div
-                className={`mt-4 sm:mt-5 flex flex-col gap-3 rounded-xl border border-white/25 bg-white/8 px-4 sm:px-5 py-4 ${
+                className={`mt-4 rounded-xl border border-white/25 bg-white/8 px-4 py-4 ${
                   status !== "connected" ? "opacity-60" : ""
                 }`}
               >
-                <div className="flex items-center justify-between">
-                  <p className="text-xs sm:text-sm font-medium text-white/90">
-                    Share text
-                  </p>
-                  <p className="text-xs text-white/60">
-                    Ctrl+Enter to send
-                  </p>
+                <div className="flex items-center gap-2 mb-3">
+                  <input
+                    ref={textNameInputRef}
+                    type="text"
+                    placeholder="Filename (optional)"
+                    className="flex-1 rounded-lg border border-white/25 bg-white/[0.06] px-2.5 py-1.5 text-xs text-white placeholder:text-white/40 focus:border-white/50 focus:outline-none"
+                    disabled={status !== "connected"}
+                  />
+                  <span className="text-xs text-white/40">or Ctrl+Enter</span>
                 </div>
-                <input
-                  ref={textNameInputRef}
-                  type="text"
-                  placeholder="Filename (e.g., snippet.ts)"
-                  className="w-full rounded-lg border border-white/25 bg-white/[0.06] px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-white/50 focus:outline-none focus:ring-1 focus:ring-white/25"
-                  disabled={status !== "connected"}
-                />
                 <textarea
                   ref={textInputRef}
                   onKeyDown={onTextInputKeyDown}
@@ -592,14 +582,14 @@ export default function RoomPage() {
                   className="min-h-[100px] w-full resize-y rounded-lg border border-white/25 bg-white/[0.06] px-3 py-2.5 font-mono text-sm text-white placeholder:text-white/50 focus:border-white/50 focus:outline-none focus:ring-1 focus:ring-white/25"
                   disabled={status !== "connected"}
                 />
-                <div className="flex items-center justify-end gap-3">
+                <div className="mt-3 flex justify-end">
                   <button
                     type="button"
                     onClick={handleSendText}
                     disabled={status !== "connected"}
-                    className={`inline-flex h-9 items-center justify-center rounded-lg border px-4 text-sm font-medium tracking-tight transition ${
+                    className={`h-9 px-4 text-sm font-medium rounded-lg border transition ${
                       status === "connected"
-                        ? "cursor-pointer border-white/30 bg-white/25 text-white backdrop-blur-sm hover:bg-white/35"
+                        ? "cursor-pointer border-white/30 bg-white/25 text-white hover:bg-white/35"
                         : "cursor-not-allowed border-white/20 bg-white/10 text-white/45"
                     }`}
                   >
