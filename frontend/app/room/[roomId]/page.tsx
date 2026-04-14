@@ -17,6 +17,13 @@ interface Transfer {
   url?: string;
 }
 
+interface TextShare {
+  id: string;
+  text: string;
+  timestamp: number;
+  direction: TransferDirection;
+}
+
 const CHUNK_SIZE = 64 * 1024; // 64KiB
 
 // Reuse a single encoder/decoder across all messages to avoid per-call allocation.
@@ -66,6 +73,8 @@ export default function RoomPage() {
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [transfers, setTransfers] = useState<Record<string, Transfer>>({});
+  const [textShares, setTextShares] = useState<Record<string, TextShare>>({});
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const [reconnectKey, setReconnectKey] = useState(0);
   // Accumulate incoming file chunks in a ref so that each new chunk is an O(1)
@@ -186,6 +195,22 @@ export default function RoomPage() {
             }
             return { ...prev, [fileId]: { ...current, progress } };
           });
+        } else if (msg.type === "text-share") {
+          const payload = msg.payload as {
+            id: string;
+            text: string;
+            timestamp: number;
+          };
+          const { id, text, timestamp } = payload;
+          setTextShares((prev) => ({
+            ...prev,
+            [id]: {
+              id,
+              text,
+              timestamp,
+              direction: "incoming",
+            },
+          }));
         }
       } catch {
         // ignore malformed
@@ -287,9 +312,45 @@ export default function RoomPage() {
     }
   };
 
+  const handleSendText = () => {
+    const ws = wsRef.current;
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    const text = textInputRef.current?.value.trim();
+    if (!text) return;
+
+    const id =
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : `t_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const timestamp = Date.now();
+
+    setTextShares((prev) => ({
+      ...prev,
+      [id]: { id, text, timestamp, direction: "outgoing" },
+    }));
+
+    sendJson({
+      type: "text-share",
+      payload: { id, text, timestamp },
+    });
+
+    if (textInputRef.current) {
+      textInputRef.current.value = "";
+    }
+  };
+
+  const textInputRef = useRef<HTMLTextAreaElement>(null);
+
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     void handleFiles(e.target.files);
     e.target.value = "";
+  };
+
+  const onTextInputKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      handleSendText();
+    }
   };
 
   const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -321,6 +382,31 @@ export default function RoomPage() {
       Object.values(transfers).sort((a, b) => a.name.localeCompare(b.name)),
     [transfers],
   );
+
+  const sortedTextShares = useMemo(
+    () =>
+      Object.values(textShares).sort((a, b) => b.timestamp - a.timestamp),
+    [textShares],
+  );
+
+  const handleCopyText = async (text: string, id: string) => {
+    await navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const handleDownloadText = (text: string, id: string, timestamp: number) => {
+    const shortId = id.slice(0, 8);
+    const ts = new Date(timestamp).toISOString().replace(/[:.]/g, "-").slice(0, 19);
+    const filename = `text-${roomId}-${ts}-${shortId}.txt`;
+    const blob = new Blob([text], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <section className="fixed inset-0 z-40 overflow-y-auto">
@@ -453,16 +539,89 @@ export default function RoomPage() {
                   </p>
                 )}
               </div>
+
+              <div
+                className={`mt-4 sm:mt-5 flex flex-col gap-3 rounded-xl border border-white/25 bg-white/8 px-4 sm:px-5 py-4 ${
+                  status !== "connected" ? "opacity-60" : ""
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <p className="text-xs sm:text-sm font-medium text-white/90">
+                    Share text
+                  </p>
+                  <p className="text-xs text-white/60">
+                    Ctrl+Enter to send
+                  </p>
+                </div>
+                <textarea
+                  ref={textInputRef}
+                  onKeyDown={onTextInputKeyDown}
+                  placeholder="Paste or type text to share…"
+                  className="min-h-[100px] w-full resize-y rounded-lg border border-white/25 bg-white/[0.06] px-3 py-2.5 font-mono text-sm text-white placeholder:text-white/50 focus:border-white/50 focus:outline-none focus:ring-1 focus:ring-white/25"
+                  disabled={status !== "connected"}
+                />
+                <div className="flex items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={handleSendText}
+                    disabled={status !== "connected"}
+                    className={`inline-flex h-9 items-center justify-center rounded-lg border px-4 text-sm font-medium tracking-tight transition ${
+                      status === "connected"
+                        ? "cursor-pointer border-white/30 bg-white/25 text-white backdrop-blur-sm hover:bg-white/35"
+                        : "cursor-not-allowed border-white/20 bg-white/10 text-white/45"
+                    }`}
+                  >
+                    Share text
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div className="md:pl-2">
               <p className="mb-3 sm:mb-4 text-sm font-semibold uppercase tracking-[0.14em] text-white/75">
                 Transfers
               </p>
-              {Object.keys(transfers).length === 0 ? (
+              {Object.keys(transfers).length === 0 && Object.keys(textShares).length === 0 ? (
                 <p className="text-sm text-white/75">No transfers yet.</p>
               ) : (
                 <ul className="divide-y divide-white/20 rounded-xl border border-white/20 bg-black/15 px-3 sm:px-4">
+                  {sortedTextShares.map((ts) => (
+                    <li key={ts.id} className="py-3 sm:py-4 first:pt-2 sm:first:pt-3">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
+                        <div className="min-w-0 flex-1 w-full">
+                          <p className="truncate font-medium text-white text-sm sm:text-base">
+                            {ts.text.slice(0, 50)}
+                            {ts.text.length > 50 ? "…" : ""}
+                          </p>
+                          <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-white/75">
+                            {ts.text.length} chars · {ts.direction === "outgoing" ? "Sent" : "Received"}
+                          </p>
+                        </div>
+                        <div className="flex w-full gap-2 sm:w-auto sm:flex-none sm:flex-row">
+                          <button
+                            type="button"
+                            onClick={() => handleCopyText(ts.text, ts.id)}
+                            className="inline-flex h-9 flex-1 cursor-pointer items-center justify-center rounded-lg border border-white/30 bg-white/20 px-3 sm:px-4 text-xs sm:text-sm font-medium leading-none text-white transition hover:bg-white/30 sm:flex-none"
+                          >
+                            {copiedId === ts.id ? "Copied!" : "Copy"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDownloadText(ts.text, ts.id, ts.timestamp)}
+                            className="inline-flex h-9 flex-1 cursor-pointer items-center justify-center rounded-lg border border-white/30 bg-white/20 px-3 sm:px-4 text-xs sm:text-sm font-medium leading-none text-white transition hover:bg-white/30 sm:flex-none"
+                          >
+                            Save
+                          </button>
+                        </div>
+                      </div>
+                      <div className="mt-2 sm:mt-3 max-h-20 overflow-hidden rounded-lg border border-white/20 bg-white/[0.06] px-3 py-2">
+                        <pre className="truncate font-mono text-xs text-white/80 whitespace-pre-wrap break-all">
+                          {ts.text.slice(0, 200)}
+                          {ts.text.length > 200 ? "\n…" : ""}
+                        </pre>
+                      </div>
+                    </li>
+                  ))}
                   {sortedTransfers.map((t) => (
                     <li key={t.id} className="py-3 sm:py-4">
                       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
@@ -471,8 +630,7 @@ export default function RoomPage() {
                             {t.name}
                           </p>
                           <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-white/75">
-                            {formatSize(t.size)} · {getTransferState(t)} ·{" "}
-                            {t.progress}%
+                            {formatSize(t.size)} · {getTransferState(t)} · {t.progress}%
                           </p>
                         </div>
                         {t.url && (
