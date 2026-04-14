@@ -412,9 +412,9 @@ export default function RoomPage() {
   };
 
   const handleDownloadText = (text: string, id: string, timestamp: number) => {
-    const shortId = id.slice(0, 8);
-    const ts = new Date(timestamp).toISOString().replace(/[:.]/g, "-").slice(0, 19);
-    const filename = `text-${roomId}-${ts}-${shortId}.txt`;
+    const shortId = id.slice(0, 6);
+    const ts = new Date(timestamp).toISOString().slice(0, 10).replace(/-/g, "");
+    const filename = `text-${ts}-${shortId}.txt`;
     const blob = new Blob([text], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
