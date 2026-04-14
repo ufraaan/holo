@@ -75,6 +75,7 @@ export default function RoomPage() {
   const [transfers, setTransfers] = useState<Record<string, Transfer>>({});
   const [textShares, setTextShares] = useState<Record<string, TextShare>>({});
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const copiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const [reconnectKey, setReconnectKey] = useState(0);
   // Accumulate incoming file chunks in a ref so that each new chunk is an O(1)
@@ -323,7 +324,8 @@ export default function RoomPage() {
   const handleSendText = () => {
     const ws = wsRef.current;
     if (!ws || ws.readyState !== WebSocket.OPEN) return;
-    const text = textInputRef.current?.value.trim();
+    const rawText = textInputRef.current?.value ?? "";
+    const text = rawText.trim();
     if (!text) return;
 
     const id =
@@ -334,12 +336,12 @@ export default function RoomPage() {
 
     setTextShares((prev) => ({
       ...prev,
-      [id]: { id, text, timestamp, direction: "outgoing" },
+      [id]: { id, text: rawText, timestamp, direction: "outgoing" },
     }));
 
     sendJson({
       type: "text-share",
-      payload: { id, text, timestamp },
+      payload: { id, text: rawText, timestamp },
     });
 
     if (textInputRef.current) {
@@ -399,8 +401,14 @@ export default function RoomPage() {
 
   const handleCopyText = async (text: string, id: string) => {
     await navigator.clipboard.writeText(text);
+    if (copiedTimerRef.current) {
+      clearTimeout(copiedTimerRef.current);
+    }
     setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
+    copiedTimerRef.current = setTimeout(() => {
+      setCopiedId(null);
+      copiedTimerRef.current = null;
+    }, 2000);
   };
 
   const handleDownloadText = (text: string, id: string, timestamp: number) => {
