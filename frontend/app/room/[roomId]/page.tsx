@@ -197,20 +197,28 @@ export default function RoomPage() {
           });
         } else if (msg.type === "text-share") {
           const payload = msg.payload as {
-            id: string;
-            text: string;
-            timestamp: number;
+            id?: unknown;
+            text?: unknown;
+            timestamp?: unknown;
           };
-          const { id, text, timestamp } = payload;
-          setTextShares((prev) => ({
-            ...prev,
-            [id]: {
-              id,
-              text,
-              timestamp,
-              direction: "incoming",
-            },
-          }));
+          const id = payload.id;
+          const text = payload.text;
+          const timestamp = payload.timestamp;
+          if (
+            typeof id === "string" &&
+            typeof text === "string" &&
+            typeof timestamp === "number"
+          ) {
+            setTextShares((prev) => ({
+              ...prev,
+              [id]: {
+                id,
+                text,
+                timestamp,
+                direction: "incoming",
+              },
+            }));
+          }
         }
       } catch {
         // ignore malformed
