@@ -21,6 +21,7 @@ interface TextShare {
   id: string;
   text: string;
   timestamp: number;
+  customName?: string;
   direction: TransferDirection;
 }
 
@@ -200,10 +201,12 @@ export default function RoomPage() {
           const payload = msg.payload as {
             id?: unknown;
             text?: unknown;
+            customName?: unknown;
             timestamp?: unknown;
           };
           const id = payload.id;
           const text = payload.text;
+          const customName = payload.customName;
           const timestamp = payload.timestamp;
           if (
             typeof id === "string" &&
@@ -215,6 +218,7 @@ export default function RoomPage() {
               [id]: {
                 id,
                 text,
+                customName: typeof customName === "string" ? customName : undefined,
                 timestamp,
                 direction: "incoming",
               },
@@ -333,23 +337,28 @@ export default function RoomPage() {
         ? crypto.randomUUID()
         : `t_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const timestamp = Date.now();
+    const customName = textNameInputRef.current?.value.trim() || "";
 
     setTextShares((prev) => ({
       ...prev,
-      [id]: { id, text: rawText, timestamp, direction: "outgoing" },
+      [id]: { id, text: rawText, timestamp, customName, direction: "outgoing" },
     }));
 
     sendJson({
       type: "text-share",
-      payload: { id, text: rawText, timestamp },
+      payload: { id, text: rawText, customName, timestamp },
     });
 
     if (textInputRef.current) {
       textInputRef.current.value = "";
     }
+    if (textNameInputRef.current) {
+      textNameInputRef.current.value = "";
+    }
   };
 
   const textInputRef = useRef<HTMLTextAreaElement>(null);
+  const textNameInputRef = useRef<HTMLInputElement>(null);
 
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     void handleFiles(e.target.files);
@@ -411,10 +420,10 @@ export default function RoomPage() {
     }, 2000);
   };
 
-  const handleDownloadText = (text: string, id: string, timestamp: number) => {
+  const handleDownloadText = (text: string, id: string, timestamp: number, customName?: string) => {
     const shortId = id.slice(0, 6);
     const ts = new Date(timestamp).toISOString().slice(0, 10).replace(/-/g, "");
-    const filename = `text-${ts}-${shortId}.txt`;
+    const filename = customName || `text-${ts}-${shortId}.txt`;
     const blob = new Blob([text], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -569,6 +578,13 @@ export default function RoomPage() {
                     Ctrl+Enter to send
                   </p>
                 </div>
+                <input
+                  ref={textNameInputRef}
+                  type="text"
+                  placeholder="Filename (e.g., snippet.ts)"
+                  className="w-full rounded-lg border border-white/25 bg-white/[0.06] px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-white/50 focus:outline-none focus:ring-1 focus:ring-white/25"
+                  disabled={status !== "connected"}
+                />
                 <textarea
                   ref={textInputRef}
                   onKeyDown={onTextInputKeyDown}
@@ -612,11 +628,11 @@ export default function RoomPage() {
                             <div className="flex items-start justify-between gap-2">
                               <div className="min-w-0 flex-1 overflow-hidden">
                                 <p className="font-mono text-xs text-white/90 truncate">
-                                  {ts.text.slice(0, 60)}
-                                  {ts.text.length > 60 ? "…" : ""}
+                                  {ts.customName || ts.text.slice(0, 60)}
+                                  {(ts.customName ? "" : ts.text.length > 60 ? "…" : "")}
                                 </p>
                                 <p className="mt-1 text-xs text-white/50">
-                                  {ts.text.length} chars · {ts.direction === "outgoing" ? "Sent" : "Received"}
+                                  {ts.customName ? "" : `${ts.text.length} chars · `}{ts.direction === "outgoing" ? "Sent" : "Received"}
                                 </p>
                               </div>
                               <div className="flex shrink-0 gap-2">
@@ -629,7 +645,7 @@ export default function RoomPage() {
                                 </button>
                                 <button
                                   type="button"
-                                  onClick={() => handleDownloadText(ts.text, ts.id, ts.timestamp)}
+                                  onClick={() => handleDownloadText(ts.text, ts.id, ts.timestamp, ts.customName)}
                                   className="h-8 flex cursor-pointer items-center justify-center rounded-md border border-white/25 bg-white/10 px-2.5 text-xs font-medium text-white/80 transition hover:bg-white/20"
                                 >
                                   Save
