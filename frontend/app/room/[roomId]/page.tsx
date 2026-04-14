@@ -565,15 +565,14 @@ export default function RoomPage() {
                   status !== "connected" ? "opacity-60" : ""
                 }`}
               >
-                <div className="flex items-center gap-2 mb-3">
+                <div className="mb-2">
                   <input
                     ref={textNameInputRef}
                     type="text"
                     placeholder="Filename (optional)"
-                    className="flex-1 rounded-lg border border-white/25 bg-white/[0.06] px-2.5 py-1.5 text-xs text-white placeholder:text-white/40 focus:border-white/50 focus:outline-none"
+                    className="w-full rounded-lg border border-white/25 bg-white/[0.06] px-2.5 py-1.5 text-xs text-white placeholder:text-white/40 focus:border-white/50 focus:outline-none"
                     disabled={status !== "connected"}
                   />
-                  <span className="text-xs text-white/40">or Ctrl+Enter</span>
                 </div>
                 <textarea
                   ref={textInputRef}
