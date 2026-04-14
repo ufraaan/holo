@@ -579,7 +579,7 @@ export default function RoomPage() {
                   ref={textInputRef}
                   onKeyDown={onTextInputKeyDown}
                   placeholder="Paste or type text to share…"
-                  className="min-h-[100px] w-full resize-y rounded-lg border border-white/25 bg-white/[0.06] px-3 py-2.5 font-mono text-sm text-white placeholder:text-white/50 focus:border-white/50 focus:outline-none focus:ring-1 focus:ring-white/25"
+                  className="min-h-[80px] w-full resize-y rounded-lg border border-white/25 bg-white/[0.06] px-2.5 py-2 font-mono text-xs text-white placeholder:text-white/40 focus:border-white/50 focus:outline-none"
                   disabled={status !== "connected"}
                 />
                 <div className="mt-3 flex justify-end">
