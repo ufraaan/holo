@@ -594,80 +594,96 @@ export default function RoomPage() {
             </div>
 
             <div className="md:pl-2">
-              <p className="mb-3 sm:mb-4 text-sm font-semibold uppercase tracking-[0.14em] text-white/75">
-                Transfers
-              </p>
               {Object.keys(transfers).length === 0 && Object.keys(textShares).length === 0 ? (
                 <p className="text-sm text-white/75">No transfers yet.</p>
               ) : (
-                <ul className="divide-y divide-white/20 rounded-xl border border-white/20 bg-black/15 px-3 sm:px-4">
-                  {sortedTextShares.map((ts) => (
-                    <li key={ts.id} className="py-3 sm:py-4 first:pt-2 sm:first:pt-3">
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
-                        <div className="min-w-0 flex-1 w-full">
-                          <p className="truncate font-medium text-white text-sm sm:text-base">
-                            {ts.text.slice(0, 50)}
-                            {ts.text.length > 50 ? "…" : ""}
-                          </p>
-                          <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-white/75">
-                            {ts.text.length} chars · {ts.direction === "outgoing" ? "Sent" : "Received"}
-                          </p>
-                        </div>
-                        <div className="flex w-full gap-2 sm:w-auto sm:flex-none sm:flex-row">
-                          <button
-                            type="button"
-                            onClick={() => handleCopyText(ts.text, ts.id)}
-                            className="inline-flex h-9 flex-1 cursor-pointer items-center justify-center rounded-lg border border-white/30 bg-white/20 px-3 sm:px-4 text-xs sm:text-sm font-medium leading-none text-white transition hover:bg-white/30 sm:flex-none"
+                <>
+                  {sortedTextShares.length > 0 && (
+                    <>
+                      <p className="mb-2 sm:mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-white/60">
+                        Text Snippets
+                      </p>
+                      <div className="grid gap-2 sm:gap-3">
+                        {sortedTextShares.map((ts) => (
+                          <div
+                            key={ts.id}
+                            className="rounded-lg border border-white/20 bg-white/[0.06] p-3 sm:p-4"
                           >
-                            {copiedId === ts.id ? "Copied!" : "Copy"}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDownloadText(ts.text, ts.id, ts.timestamp)}
-                            className="inline-flex h-9 flex-1 cursor-pointer items-center justify-center rounded-lg border border-white/30 bg-white/20 px-3 sm:px-4 text-xs sm:text-sm font-medium leading-none text-white transition hover:bg-white/30 sm:flex-none"
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0 flex-1">
+                                <p className="font-mono text-xs text-white/90 truncate">
+                                  {ts.text.slice(0, 60)}
+                                  {ts.text.length > 60 ? "…" : ""}
+                                </p>
+                                <p className="mt-1 text-xs text-white/50">
+                                  {ts.text.length} chars · {ts.direction === "outgoing" ? "Sent" : "Received"}
+                                </p>
+                              </div>
+                              <div className="flex shrink-0 gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => handleCopyText(ts.text, ts.id)}
+                                  className="h-8 cursor-pointer rounded-md border border-white/25 bg-white/10 px-2.5 text-xs font-medium text-white/80 transition hover:bg-white/20"
+                                >
+                                  {copiedId === ts.id ? "Copied!" : "Copy"}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDownloadText(ts.text, ts.id, ts.timestamp)}
+                                  className="h-8 cursor-pointer rounded-md border border-white/25 bg-white/10 px-2.5 text-xs font-medium text-white/80 transition hover:bg-white/20"
+                                >
+                                  Save
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                  {sortedTransfers.length > 0 && (
+                    <>
+                      <p className="mb-2 sm:mb-3 mt-4 sm:mt-5 text-xs font-semibold uppercase tracking-[0.14em] text-white/60">
+                        Files
+                      </p>
+                      <div className="grid gap-2 sm:gap-3">
+                        {sortedTransfers.map((t) => (
+                          <div
+                            key={t.id}
+                            className="rounded-lg border border-white/20 bg-white/[0.06] p-3 sm:p-4"
                           >
-                            Save
-                          </button>
-                        </div>
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0 flex-1">
+                                <p className="truncate font-medium text-white text-sm">
+                                  {t.name}
+                                </p>
+                                <p className="mt-0.5 text-xs text-white/50">
+                                  {formatSize(t.size)} · {getTransferState(t)} · {t.progress}%
+                                </p>
+                              </div>
+                              {t.url && (
+                                <a
+                                  href={t.url}
+                                  download={t.name}
+                                  className="shrink-0 h-8 cursor-pointer rounded-md border border-white/25 bg-white/10 px-2.5 text-xs font-medium text-white/80 transition hover:bg-white/20"
+                                >
+                                  Save
+                                </a>
+                              )}
+                            </div>
+                            <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-white/15">
+                              <div
+                                className="h-full bg-white/60 transition-[width] duration-150"
+                                style={{ width: `${t.progress}%` }}
+                              />
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                      <div className="mt-2 sm:mt-3 max-h-20 overflow-hidden rounded-lg border border-white/20 bg-white/[0.06] px-3 py-2">
-                        <pre className="truncate font-mono text-xs text-white/80 whitespace-pre-wrap break-all">
-                          {ts.text.slice(0, 200)}
-                          {ts.text.length > 200 ? "\n…" : ""}
-                        </pre>
-                      </div>
-                    </li>
-                  ))}
-                  {sortedTransfers.map((t) => (
-                    <li key={t.id} className="py-3 sm:py-4">
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
-                        <div className="min-w-0 flex-1 w-full">
-                          <p className="truncate font-medium text-white text-sm sm:text-base">
-                            {t.name}
-                          </p>
-                          <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-white/75">
-                            {formatSize(t.size)} · {getTransferState(t)} · {t.progress}%
-                          </p>
-                        </div>
-                        {t.url && (
-                          <a
-                            href={t.url}
-                            download={t.name}
-                            className="inline-flex h-9 items-center justify-center rounded-lg border border-white/30 bg-white/20 px-3 sm:px-4 text-xs sm:text-sm font-medium leading-none text-white transition hover:bg-white/30 w-full sm:w-auto"
-                          >
-                            Save file
-                          </a>
-                        )}
-                      </div>
-                      <div className="mt-2 sm:mt-3 h-1.5 w-full overflow-hidden rounded-full bg-white/20">
-                        <div
-                          className="h-full bg-white transition-[width] duration-150"
-                          style={{ width: `${t.progress}%` }}
-                        />
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                    </>
+                  )}
+                </>
               )}
             </div>
           </div>
