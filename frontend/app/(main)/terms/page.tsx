@@ -3,6 +3,11 @@ import { useState } from "react";
 import BackgroundImage from "../../../components/BackgroundImage";
 import Link from "next/link";
 
+export const metadata = {
+  title: "Terms of Service",
+  description: "Holo provides ephemeral file and text sharing with no storage. Open-source, no accounts required. Use at your own responsibility.",
+};
+
 export default function TermsPage() {
   const [bgLoaded, setBgLoaded] = useState(false);
 

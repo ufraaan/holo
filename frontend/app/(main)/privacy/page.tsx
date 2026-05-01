@@ -3,6 +3,11 @@ import { useState } from "react";
 import BackgroundImage from "../../../components/BackgroundImage";
 import Link from "next/link";
 
+export const metadata = {
+  title: "Privacy Policy",
+  description: "Holo stores no data. No accounts, no cookies, no tracking. Files transfer directly between devices and are discarded instantly.",
+};
+
 export default function PrivacyPage() {
   const [bgLoaded, setBgLoaded] = useState(false);
 
