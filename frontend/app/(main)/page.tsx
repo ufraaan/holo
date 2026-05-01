@@ -43,14 +43,28 @@ export default function HomePage() {
           <span className="text-sm font-semibold uppercase tracking-[0.22em] text-white/90 [font-family:Inter,ui-sans-serif,system-ui,sans-serif]">
             HOLO
           </span>
-          <a
-            href="https://github.com/ufraaan/holo"
-            target="_blank"
-            rel="noreferrer"
-            className="cursor-pointer text-sm font-medium text-white/80 underline-offset-4 transition hover:text-white hover:underline"
-          >
-            GitHub
-          </a>
+          <div className="flex items-center gap-4">
+            <a
+              href="/privacy"
+              className="cursor-pointer text-sm font-medium text-white/80 underline-offset-4 transition hover:text-white hover:underline"
+            >
+              Privacy
+            </a>
+            <a
+              href="/terms"
+              className="cursor-pointer text-sm font-medium text-white/80 underline-offset-4 transition hover:text-white hover:underline"
+            >
+              Terms
+            </a>
+            <a
+              href="https://github.com/ufraaan/holo"
+              target="_blank"
+              rel="noreferrer"
+              className="cursor-pointer text-sm font-medium text-white/80 underline-offset-4 transition hover:text-white hover:underline"
+            >
+              GitHub
+            </a>
+          </div>
         </div>
 
         <div className="mx-auto mt-12 flex w-full max-w-3xl flex-1 flex-col items-center justify-center text-center">
