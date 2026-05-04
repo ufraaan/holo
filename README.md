@@ -5,9 +5,18 @@ Minimalist peer‑to‑peer–style file sharing web app.
 - **Backend**: Go WebSocket relay server (memory‑only, no persistence)
 - **Frontend**: Next.js + TypeScript, HTML5 File APIs, clean light UI
 
-<p align="center">
-  <img src="frontend/public/holo-a.png" alt="holo" width="400">
-</p>
+```mermaid
+flowchart LR
+ subgraph Room["Room (in-memory, WebSocket clients)"]
+    direction LR
+        SG["Server (Go)<br>relay"]
+        SB["Sender Browser<br>upload"]
+        RB["Receiver Browser<br>download"]
+  end
+    SB -- upload --> SG
+    SG -- relay --> RB
+    RB -- download --> FB["File Blob"]
+```
 
 ### Structure
 
