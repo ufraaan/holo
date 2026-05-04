@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { FormEvent, useCallback, useState } from "react";
-import BackgroundImage from "../../components/BackgroundImage";
+import BackgroundVideo from "../../components/BackgroundVideo";
 
 function generateRoomId() {
   return Math.random().toString(36).slice(2, 8);
@@ -29,7 +29,7 @@ export default function HomePage() {
 
   return (
     <section className="fixed inset-0 z-50 overflow-hidden">
-      <BackgroundImage src="/landing-backdrop.webp" onLoad={() => setBgLoaded(true)} />
+      <BackgroundVideo onLoad={() => setBgLoaded(true)} />
       <div className="absolute inset-0 bg-black/35" />
       <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/20 to-black/45" />
       <div className="absolute inset-x-0 bottom-0 h-[48%] bg-gradient-to-t from-black/75 via-black/52 to-transparent backdrop-blur-[3px]" />
