@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import BackgroundVideo from "../../../components/BackgroundVideo";
 import { useRoomWebSocket } from "../../../components/room/useRoomWebSocket";
@@ -11,7 +11,9 @@ import TextInputArea from "../../../components/room/TextInputArea";
 import TransferList from "../../../components/room/TransferList";
 
 function useClientId() {
-  return crypto.randomUUID?.() ?? "c_fallback";
+  return useMemo(() => {
+    return crypto.randomUUID?.() ?? "c_fallback";
+  }, []);
 }
 
 export default function RoomPage() {
@@ -73,7 +75,7 @@ export default function RoomPage() {
       <div className="fixed inset-x-0 bottom-0 h-[50%] bg-gradient-to-t from-black/78 via-black/56 to-transparent backdrop-blur-[3px]" />
 
       <div
-        className={`relative z-10 min-h-screen px-4 py-6 text-white sm:px-6 md:px-10 md:py-8 transition-opacity duration-700 ${
+        className={`relative z-10 h-full px-4 py-6 text-white sm:px-6 md:px-10 md:py-8 transition-opacity duration-700 ${
           bgLoaded ? "opacity-100" : "opacity-0"
         }`}
       >
