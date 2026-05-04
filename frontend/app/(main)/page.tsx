@@ -28,13 +28,13 @@ export default function HomePage() {
   );
 
   return (
-    <section className="fixed inset-0 z-50 overflow-hidden">
+    <section className="fixed inset-0 z-50 overflow-y-auto">
       <BackgroundVideo onLoad={() => setBgLoaded(true)} />
       <div className="absolute inset-0 bg-black/35" />
       <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/20 to-black/45" />
       <div className="absolute inset-x-0 bottom-0 h-[48%] bg-gradient-to-t from-black/75 via-black/52 to-transparent backdrop-blur-[3px]" />
 
-      <div className="relative z-10 flex h-full min-h-screen flex-col px-6 pb-10 pt-8 text-white md:px-10">
+      <div className="relative z-10 flex h-full flex-col px-6 pb-10 pt-8 text-white md:px-10">
         <div
           className={`flex w-full items-center justify-between transition-all duration-700 ${
             bgLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[-20px]"

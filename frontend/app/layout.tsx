@@ -17,7 +17,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
         />
       )}
-      <body className="overflow-hidden bg-black">{children}</body>
+      <body>{children}</body>
     </html>
   );
 }
