@@ -2,6 +2,9 @@ import { withSentryConfig } from '@sentry/nextjs';
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  turbopack: {
+    root: process.cwd(),
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
