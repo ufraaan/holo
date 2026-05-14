@@ -5,6 +5,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import BackgroundVideo from "../../../components/BackgroundVideo";
 import { useRoomWebSocket } from "../../../components/room/useRoomWebSocket";
+import ConnectionToast from "../../../components/room/ConnectionToast";
 import RoomHeader from "../../../components/room/RoomHeader";
 import FileDropZone from "../../../components/room/FileDropZone";
 import TextInputArea from "../../../components/room/TextInputArea";
@@ -26,7 +27,7 @@ export default function RoomPage() {
   const textInputRef = useRef<HTMLTextAreaElement>(null);
   const textNameInputRef = useRef<HTMLInputElement>(null);
 
-  const { status, errorMessage, transfers, textShares, handleFiles, handleSendText, handleRetry } =
+  const { status, errorMessage, clientCount, toasts, transfers, textShares, handleFiles, handleSendText, handleRetry } =
     useRoomWebSocket({ roomId, clientId });
 
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,6 +72,7 @@ export default function RoomPage() {
   return (
     <section className="fixed inset-0 z-40 overflow-y-auto">
       <BackgroundVideo onLoad={handleBgLoaded} />
+      <ConnectionToast toasts={toasts} />
       <div className="fixed inset-0 bg-black/45" />
       <div className="fixed inset-0 bg-gradient-to-b from-black/30 via-black/35 to-black/55" />
       <div className="fixed inset-x-0 bottom-0 h-[50%] bg-gradient-to-t from-black/78 via-black/56 to-transparent backdrop-blur-[3px]" />
@@ -104,7 +106,7 @@ export default function RoomPage() {
         </div>
 
         <div className="mx-auto mt-4 w-full max-w-6xl rounded-2xl border border-white/20 bg-black/25 p-4 sm:p-6 backdrop-blur-md md:p-8">
-          <RoomHeader roomId={roomId} status={status} onRetry={handleRetry} />
+          <RoomHeader roomId={roomId} status={status} clientCount={clientCount} onRetry={handleRetry} />
 
           <div className="mt-6 grid gap-6 md:grid-cols-2 md:gap-8 md:items-start">
             <div className="grid gap-4 md:pr-2">
