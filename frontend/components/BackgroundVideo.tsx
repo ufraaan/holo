@@ -23,6 +23,11 @@ export default function BackgroundVideo({
       onLoad?.();
     };
 
+    if (video.readyState >= 2) {
+      handleLoadedData();
+      return;
+    }
+
     video.addEventListener("loadeddata", handleLoadedData);
     return () => video.removeEventListener("loadeddata", handleLoadedData);
   }, [onLoad]);
