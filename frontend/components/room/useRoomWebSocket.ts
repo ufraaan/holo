@@ -12,6 +12,12 @@ import {
 } from "./room-utils";
 
 export type RoomStatus = "connecting" | "connected" | "closed";
+export type { Transfer, TextShare } from "./room-utils";
+
+export interface ConnectionToast {
+  id: string;
+  message: string;
+}
 
 interface UseRoomWebSocketOptions {
   roomId: string;
@@ -21,6 +27,8 @@ interface UseRoomWebSocketOptions {
 interface UseRoomWebSocketReturn {
   status: RoomStatus;
   errorMessage: string | null;
+  clientCount: number;
+  toasts: ConnectionToast[];
   transfers: Record<string, Transfer>;
   textShares: Record<string, TextShare>;
   sendJson: (msg: unknown) => void;
@@ -37,9 +45,14 @@ export function useRoomWebSocket({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [transfers, setTransfers] = useState<Record<string, Transfer>>({});
   const [textShares, setTextShares] = useState<Record<string, TextShare>>({});
+  const [clientCount, setClientCount] = useState(0);
+  const [toasts, setToasts] = useState<ConnectionToast[]>([]);
   const [reconnectKey, setReconnectKey] = useState(0);
   const wsRef = useRef<WebSocket | null>(null);
   const incomingBlobPartsRef = useRef<Record<string, BlobPart[]>>({});
+  const prevClientCountRef = useRef(0);
+  const hasReceivedInitialCount = useRef(false);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const sendJson = useCallback((msg: unknown) => {
     const ws = wsRef.current;
@@ -187,6 +200,36 @@ export function useRoomWebSocket({
           payload?: unknown;
         };
         if (msg.type === "room-state") {
+          const payload = msg.payload as { clientCount?: number } | undefined;
+          if (payload && typeof payload.clientCount === "number") {
+            const current = payload.clientCount;
+            const prev = prevClientCountRef.current;
+            prevClientCountRef.current = current;
+            setClientCount(current);
+
+            if (hasReceivedInitialCount.current && current !== prev) {
+              if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+              const capturedPrev = prev;
+              const capturedCurrent = current;
+              toastTimerRef.current = setTimeout(() => {
+                if (prevClientCountRef.current !== capturedCurrent) return;
+                const message =
+                  capturedCurrent > capturedPrev
+                    ? "someone joined the room"
+                    : "someone left the room";
+                const toast: ConnectionToast = {
+                  id: crypto.randomUUID(),
+                  message,
+                };
+                setToasts((t) => [...t, toast]);
+                setTimeout(() => {
+                  setToasts((t) => t.filter((x) => x.id !== toast.id));
+                }, 3000);
+              }, 1000);
+            } else {
+              hasReceivedInitialCount.current = true;
+            }
+          }
           return;
         } else if (msg.type === "file-meta") {
           const payload = msg.payload as {
@@ -284,6 +327,8 @@ export function useRoomWebSocket({
     () => ({
       status,
       errorMessage,
+      clientCount,
+      toasts,
       transfers,
       textShares,
       sendJson,
@@ -291,6 +336,6 @@ export function useRoomWebSocket({
       handleSendText,
       handleRetry,
     }),
-    [status, errorMessage, transfers, textShares, sendJson, handleFiles, handleSendText, handleRetry],
+    [status, errorMessage, clientCount, toasts, transfers, textShares, sendJson, handleFiles, handleSendText, handleRetry],
   );
 }
