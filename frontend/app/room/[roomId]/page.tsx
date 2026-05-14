@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import BackgroundVideo from "../../../components/BackgroundVideo";
 import { useRoomWebSocket } from "../../../components/room/useRoomWebSocket";
@@ -22,6 +22,7 @@ export default function RoomPage() {
   const clientId = useClientId();
 
   const [bgLoaded, setBgLoaded] = useState(false);
+  const handleBgLoaded = useCallback(() => setBgLoaded(true), []);
   const textInputRef = useRef<HTMLTextAreaElement>(null);
   const textNameInputRef = useRef<HTMLInputElement>(null);
 
@@ -69,7 +70,7 @@ export default function RoomPage() {
 
   return (
     <section className="fixed inset-0 z-40 overflow-y-auto">
-      <BackgroundVideo onLoad={() => setBgLoaded(true)} />
+      <BackgroundVideo onLoad={handleBgLoaded} />
       <div className="fixed inset-0 bg-black/45" />
       <div className="fixed inset-0 bg-gradient-to-b from-black/30 via-black/35 to-black/55" />
       <div className="fixed inset-x-0 bottom-0 h-[50%] bg-gradient-to-t from-black/78 via-black/56 to-transparent backdrop-blur-[3px]" />
