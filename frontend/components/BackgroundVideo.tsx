@@ -18,18 +18,29 @@ export default function BackgroundVideo({
     const video = videoRef.current;
     if (!video) return;
 
-    const handleLoadedData = () => {
+    const finish = () => {
       setIsLoaded(true);
       onLoad?.();
     };
 
     if (video.readyState >= 2) {
-      handleLoadedData();
+      finish();
       return;
     }
 
+    const handleLoadedData = () => finish();
+    const handleError = () => {
+      console.warn("background video failed to load, falling back to poster");
+      finish();
+    };
+
     video.addEventListener("loadeddata", handleLoadedData);
-    return () => video.removeEventListener("loadeddata", handleLoadedData);
+    video.addEventListener("error", handleError);
+
+    return () => {
+      video.removeEventListener("loadeddata", handleLoadedData);
+      video.removeEventListener("error", handleError);
+    };
   }, [onLoad]);
 
   return (
