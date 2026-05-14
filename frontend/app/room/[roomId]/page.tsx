@@ -26,7 +26,7 @@ export default function RoomPage() {
   const textInputRef = useRef<HTMLTextAreaElement>(null);
   const textNameInputRef = useRef<HTMLInputElement>(null);
 
-  const { status, errorMessage, transfers, textShares, handleFiles, handleSendText, handleRetry } =
+  const { status, errorMessage, clientCount, transfers, textShares, handleFiles, handleSendText, handleRetry } =
     useRoomWebSocket({ roomId, clientId });
 
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,7 +104,7 @@ export default function RoomPage() {
         </div>
 
         <div className="mx-auto mt-4 w-full max-w-6xl rounded-2xl border border-white/20 bg-black/25 p-4 sm:p-6 backdrop-blur-md md:p-8">
-          <RoomHeader roomId={roomId} status={status} onRetry={handleRetry} />
+          <RoomHeader roomId={roomId} status={status} clientCount={clientCount} onRetry={handleRetry} />
 
           <div className="mt-6 grid gap-6 md:grid-cols-2 md:gap-8 md:items-start">
             <div className="grid gap-4 md:pr-2">

@@ -12,6 +12,7 @@ import {
 } from "./room-utils";
 
 export type RoomStatus = "connecting" | "connected" | "closed";
+export type { Transfer, TextShare } from "./room-utils";
 
 interface UseRoomWebSocketOptions {
   roomId: string;
@@ -21,6 +22,7 @@ interface UseRoomWebSocketOptions {
 interface UseRoomWebSocketReturn {
   status: RoomStatus;
   errorMessage: string | null;
+  clientCount: number;
   transfers: Record<string, Transfer>;
   textShares: Record<string, TextShare>;
   sendJson: (msg: unknown) => void;
@@ -37,6 +39,7 @@ export function useRoomWebSocket({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [transfers, setTransfers] = useState<Record<string, Transfer>>({});
   const [textShares, setTextShares] = useState<Record<string, TextShare>>({});
+  const [clientCount, setClientCount] = useState(0);
   const [reconnectKey, setReconnectKey] = useState(0);
   const wsRef = useRef<WebSocket | null>(null);
   const incomingBlobPartsRef = useRef<Record<string, BlobPart[]>>({});
@@ -187,6 +190,10 @@ export function useRoomWebSocket({
           payload?: unknown;
         };
         if (msg.type === "room-state") {
+          const payload = msg.payload as { clientCount?: number } | undefined;
+          if (payload && typeof payload.clientCount === "number") {
+            setClientCount(payload.clientCount);
+          }
           return;
         } else if (msg.type === "file-meta") {
           const payload = msg.payload as {
@@ -284,6 +291,7 @@ export function useRoomWebSocket({
     () => ({
       status,
       errorMessage,
+      clientCount,
       transfers,
       textShares,
       sendJson,
@@ -291,6 +299,6 @@ export function useRoomWebSocket({
       handleSendText,
       handleRetry,
     }),
-    [status, errorMessage, transfers, textShares, sendJson, handleFiles, handleSendText, handleRetry],
+    [status, errorMessage, clientCount, transfers, textShares, sendJson, handleFiles, handleSendText, handleRetry],
   );
 }
