@@ -11,6 +11,7 @@ export default function HomePage() {
   const router = useRouter();
   const [roomId, setRoomId] = useState("");
   const [bgLoaded, setBgLoaded] = useState(false);
+  const handleBgLoaded = useCallback(() => setBgLoaded(true), []);
 
   const handleCreate = useCallback(() => {
     const id = generateRoomId();
@@ -29,7 +30,7 @@ export default function HomePage() {
 
   return (
     <section className="fixed inset-0 z-50 overflow-y-auto">
-      <BackgroundVideo onLoad={() => setBgLoaded(true)} />
+      <BackgroundVideo onLoad={handleBgLoaded} />
       <div className="absolute inset-0 bg-black/35" />
       <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/20 to-black/45" />
       <div className="absolute inset-x-0 bottom-0 h-[48%] bg-gradient-to-t from-black/75 via-black/52 to-transparent backdrop-blur-[3px]" />
