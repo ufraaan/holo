@@ -17,6 +17,13 @@ share files and text between devices instantly. no accounts, no storage, just a 
 
 create a room, share the 6-character code, and anything you drop in is relayed directly to the other side. no uploads to disk, no database, no sign-up.
 
+- [how it works](#how-it-works)
+- [structure](#structure)
+- [running locally](#running-locally)
+  - [backend](#backend)
+  - [frontend](#frontend)
+  - [docker](#docker)
+
 ## how it works
 
 a lightweight go server acts as a websocket relay. it never inspects, stores, or processes the data it forwards. it simply groups connections by room ID and broadcasts messages from one client to the others.
