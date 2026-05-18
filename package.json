@@ -1,15 +1,11 @@
 {
   "name": "holo-repo",
   "private": true,
-  "workspaces": ["frontend"],
   "scripts": {
     "prepare": "husky",
     "precommit:checks": "cd backend && go test ./... && cd ../frontend && bun run lint && bun run typecheck && bun run test"
   },
   "devDependencies": {
     "husky": "^9.1.7"
-  },
-  "dependencies": {
-    "postcss": "^8.5.14"
   }
 }
