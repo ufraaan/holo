@@ -6,8 +6,8 @@ cd backend || exit 1
 go test ./... || exit 1
 
 cd ../frontend || exit 1
-npm run lint || exit 1
-npm run typecheck || exit 1
-npm run test || exit 1
+bun run lint || exit 1
+bun run typecheck || exit 1
+bun run test || exit 1
 
 echo "Pre-commit checks passed."
