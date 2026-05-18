@@ -4,6 +4,9 @@
   "workspaces": {
     "": {
       "name": "holo-repo",
+      "dependencies": {
+        "postcss": "^8.5.14",
+      },
       "devDependencies": {
         "husky": "^9.1.7",
       },
