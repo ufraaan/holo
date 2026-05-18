@@ -1,22 +1,23 @@
 frontend:
-  - any-of:
-      - frontend/**/*
+  - changed-files:
+      - any-glob-to-any-file: frontend/**/*
 
 backend:
-  - any-of:
-      - backend/**/*
+  - changed-files:
+      - any-glob-to-any-file: backend/**/*
 
 dependencies:
-  - any-of:
-      - frontend/package.json
-      - frontend/bun.lock
-      - backend/go.mod
-      - backend/go.sum
+  - changed-files:
+      - any-glob-to-any-file:
+          - frontend/package.json
+          - frontend/bun.lock
+          - backend/go.mod
+          - backend/go.sum
 
 ci:
-  - any-of:
-      - .github/**/*
+  - changed-files:
+      - any-glob-to-any-file: .github/**/*
 
 docs:
-  - any-of:
-      - "**/*.md"
+  - changed-files:
+      - any-glob-to-any-file: "**/*.md"
