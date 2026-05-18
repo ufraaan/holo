@@ -150,7 +150,6 @@ export function useRoomWebSocket({
 
   useEffect(() => {
     if (!roomId) return;
-    setErrorMessage(null);
     incomingBlobPartsRef.current = {};
 
     let ws: WebSocket;
