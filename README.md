@@ -75,6 +75,13 @@ holo/
         │   ├── FileDropZone.tsx       # drag-and-drop area for files
         │   ├── TextInputArea.tsx      # where you type text to share
         │   └── TransferList.tsx       # list of incoming and outgoing transfers
+├── docker-compose.yml          # runs both services with one command
+├── backend/
+│   ├── Dockerfile              # multi-stage go build → 16 mb image
+│   └── .dockerignore
+└── frontend/
+    ├── Dockerfile              # standalone next.js build → 316 mb image
+    └── .dockerignore
 ```
 
 | | backend (go) | frontend (Next.js + TypeScript) |
@@ -118,6 +125,28 @@ to point the frontend at a different server address:
 
 ```bash
 NEXT_PUBLIC_WS_URL=ws://localhost:8080/ws bun run dev
+```
+
+### docker
+
+```bash
+docker compose up -d
+```
+
+the frontend runs on `http://localhost:3000`, the websocket relay on `http://localhost:8080`.
+
+| image | size |
+|---|---|
+| `holo-backend` | 16 mb |
+| `holo-frontend` | 316 mb |
+
+> requires [Docker](https://docs.docker.com/engine/install/) to build and run.
+
+to point the frontend at a different server address, pass it as a build arg:
+
+```bash
+docker compose build --build-arg NEXT_PUBLIC_WS_URL=wss://your-domain.com/ws frontend
+docker compose up -d
 ```
 
 ---
