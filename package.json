@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "prepare": "husky",
-    "precommit:checks": "cd backend && go test ./... && cd ../frontend && bun run lint && bun run typecheck && bun run test"
+    "precommit:checks": "cd backend && go test ./... && cd ../frontend && bun run lint && bun run typecheck && bun run test",
+    "test": "cd backend && go test ./... && cd ../frontend && bun run test"
   },
   "devDependencies": {
     "husky": "^9.1.7"

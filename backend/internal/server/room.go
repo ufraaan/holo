@@ -45,7 +45,9 @@ func (r *Room) CloseAll() {
 	defer r.mu.Unlock()
 	for c := range r.clients {
 		close(c.send)
-		_ = c.conn.Close()
+		if c.conn != nil {
+			_ = c.conn.Close()
+		}
 	}
 	r.clients = make(map[*Client]struct{})
 }
@@ -77,9 +79,10 @@ func (r *Room) Broadcast(sender *Client, msg []byte) {
 		select {
 		case c.send <- msg:
 		default:
-			// slow consumer – drop connection
 			close(c.send)
-			_ = c.conn.Close()
+			if c.conn != nil {
+				_ = c.conn.Close()
+			}
 			delete(r.clients, c)
 		}
 	}
@@ -94,9 +97,10 @@ func (r *Room) BroadcastAll(msg []byte) {
 		select {
 		case c.send <- msg:
 		default:
-			// slow consumer – drop connection
 			close(c.send)
-			_ = c.conn.Close()
+			if c.conn != nil {
+				_ = c.conn.Close()
+			}
 			delete(r.clients, c)
 		}
 	}
