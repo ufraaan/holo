@@ -1,0 +1,17 @@
+frontend:
+  - frontend/**/*
+
+backend:
+  - backend/**/*
+
+dependencies:
+  - frontend/package.json
+  - frontend/bun.lock
+  - backend/go.mod
+  - backend/go.sum
+
+ci:
+  - .github/**/*
+
+docs:
+  - "**/*.md"
