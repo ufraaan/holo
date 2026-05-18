@@ -1,0 +1,30 @@
+name: Fix bun lockfile
+
+on:
+  pull_request_target:
+    paths:
+      - frontend/package.json
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: oven-sh/setup-bun@v2
+
+      - run: bun install
+        working-directory: frontend
+
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add frontend/bun.lock
+          git diff --staged --quiet || git commit -m "update bun.lock"
+          git push
