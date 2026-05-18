@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   decodeWsData,
   encodeBinaryToString,
@@ -157,10 +157,12 @@ export function useRoomWebSocket({
       ws = new WebSocket(getWsUrl(roomId, clientId));
     } catch (err) {
       console.error("WebSocket construction failed", err);
-      setStatus("closed");
-      setErrorMessage(
-        "Could not open a WebSocket connection. Check that the relay server is running and NEXT_PUBLIC_WS_URL is correct.",
-      );
+      startTransition(() => {
+        setStatus("closed");
+        setErrorMessage(
+          "Could not open a WebSocket connection. Check that the relay server is running and NEXT_PUBLIC_WS_URL is correct.",
+        );
+      });
       return;
     }
 
