@@ -1,5 +1,12 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+
+beforeAll(() => {
+  vi.spyOn(console, "warn").mockImplementation(() => {});
+});
+afterAll(() => {
+  vi.restoreAllMocks();
+});
 import { useRoomWebSocket } from "./useRoomWebSocket";
 
 let wsClose: () => void = () => {};
@@ -134,7 +141,9 @@ describe("useRoomWebSocket", () => {
       JSON.stringify({ type: "room-state", payload: { clientCount: 3 } }),
     );
 
-    await new Promise((r) => setTimeout(r, 1100));
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 1100));
+    });
 
     expect(result.current.toasts.length).toBeGreaterThanOrEqual(1);
     expect(result.current.toasts[0].message).toBe("someone joined the room");
