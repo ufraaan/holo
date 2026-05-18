@@ -88,6 +88,8 @@ holo/
 
 ## running locally
 
+> see [CONTRIBUTING.md](CONTRIBUTING.md) for detailed setup instructions, codebase conventions, and how to submit changes.
+
 ### backend
 
 ```bash
@@ -104,18 +106,18 @@ the server listens on `http://localhost:8080`. websocket endpoint: `/ws`.
 
 ```bash
 cd frontend
-npm install
-npm run dev
+bun install
+bun run dev
 ```
 
 the app runs on `http://localhost:3000` by default.
 
-> requires [Node.js](https://nodejs.org/) to build and run.
+> requires [Bun](https://bun.sh/) to build and run.
 
 to point the frontend at a different server address:
 
 ```bash
-NEXT_PUBLIC_WS_URL=ws://localhost:8080/ws npm run dev
+NEXT_PUBLIC_WS_URL=ws://localhost:8080/ws bun run dev
 ```
 
 ---
