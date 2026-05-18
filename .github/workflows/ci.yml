@@ -60,3 +60,6 @@ jobs:
       - name: Go tests
         run: go test ./...
 
+      - name: Build
+        run: go build -o /dev/null ./cmd/holo-server/
+
