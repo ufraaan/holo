@@ -1,17 +1,22 @@
 frontend:
-  - frontend/**/*
+  - any-of:
+      - frontend/**/*
 
 backend:
-  - backend/**/*
+  - any-of:
+      - backend/**/*
 
 dependencies:
-  - frontend/package.json
-  - frontend/bun.lock
-  - backend/go.mod
-  - backend/go.sum
+  - any-of:
+      - frontend/package.json
+      - frontend/bun.lock
+      - backend/go.mod
+      - backend/go.sum
 
 ci:
-  - .github/**/*
+  - any-of:
+      - .github/**/*
 
 docs:
-  - "**/*.md"
+  - any-of:
+      - "**/*.md"
