@@ -23,8 +23,14 @@ const CHUNK_SIZE = 64 * 1024;
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
 
+function getDefaultWsUrl(): string {
+  if (typeof window === "undefined") return "ws://localhost:8080/ws";
+  const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+  return `${protocol}//${window.location.host}/ws`;
+}
+
 export function getWsUrl(roomId: string, clientId: string): string {
-  const base = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:8080/ws";
+  const base = process.env.NEXT_PUBLIC_WS_URL ?? getDefaultWsUrl();
   const url = new URL(base);
   url.searchParams.set("roomId", roomId);
   url.searchParams.set("clientId", clientId);
