@@ -8,5 +8,6 @@ export default defineConfig({
     setupFiles: ["./vitest.setup.ts"],
     globals: true,
     include: ["**/*.test.{ts,tsx}"],
+    reporters: ["verbose"],
   },
 });
