@@ -35,6 +35,30 @@ export default function HomePage() {
       <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/20 to-black/45" />
       <div className="absolute inset-x-0 bottom-0 h-[48%] bg-gradient-to-t from-black/75 via-black/52 to-transparent backdrop-blur-[3px]" />
 
+      <style>{`
+        .glass-btn {
+          position: relative;
+          overflow: hidden;
+        }
+        .glass-btn::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+        }
+        .glass-btn::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 1px;
+          height: 100%;
+          background: linear-gradient(180deg, rgba(255,255,255,0.25), transparent, rgba(255,255,255,0.1));
+        }
+      `}</style>
       <div className="relative z-10 flex h-full flex-col px-6 pb-10 pt-8 text-white md:px-10">
         <div
           className={`flex w-full items-center justify-between transition-all duration-700 ${
@@ -101,7 +125,11 @@ export default function HomePage() {
             <button
               type="button"
               onClick={handleCreate}
-              className="h-12 cursor-pointer rounded-xl border border-white/30 bg-white/25 px-4 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="glass-btn h-12 cursor-pointer rounded-xl border border-white/10 bg-white/[0.02] px-4 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              style={{
+                boxShadow:
+                  "0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15)",
+              }}
             >
               Create room
             </button>
@@ -120,11 +148,19 @@ export default function HomePage() {
                 placeholder="Enter room ID"
                 value={roomId}
                 onChange={(e) => setRoomId(e.target.value)}
-                className="h-12 rounded-xl border border-white/30 bg-white/20 px-4 text-sm text-white placeholder:text-white/70 backdrop-blur-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                className="h-12 rounded-xl border border-white/10 bg-white/[0.02] px-4 text-sm text-white placeholder:text-white/70 backdrop-blur-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                style={{
+                  boxShadow:
+                    "0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15)",
+                }}
               />
               <button
                 type="submit"
-                className="h-12 cursor-pointer rounded-xl border border-white/30 bg-black/35 px-5 text-sm font-semibold text-white transition hover:bg-black/45 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                className="glass-btn h-12 cursor-pointer rounded-xl border border-white/10 bg-white/[0.02] px-5 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                style={{
+                  boxShadow:
+                    "0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15)",
+                }}
               >
                 Join
               </button>
