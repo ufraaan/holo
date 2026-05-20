@@ -1,7 +1,10 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import { FormEvent, useCallback, useState } from "react";
 import BackgroundVideo from "../../components/BackgroundVideo";
+
+const titleFont = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["500", "600"] });
 
 function generateRoomId() {
   return Math.random().toString(36).slice(2, 8);
@@ -94,24 +97,24 @@ export default function HomePage() {
 
         <div className="mx-auto mt-12 flex w-full max-w-3xl flex-1 flex-col items-center justify-center text-center">
           <h1
-            className={`text-5xl font-semibold tracking-tight text-white transition-all duration-700 md:text-6xl ${
+            className={`${titleFont.className} text-5xl font-medium tracking-tight text-white/95 transition-all duration-700 md:text-6xl ${
               bgLoaded
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-[30px]"
             }`}
             style={{ transitionDelay: bgLoaded ? "100ms" : "0ms" }}
           >
-            Share a file in <em className="not-italic">seconds</em>
+            Drop, relay, <em className="not-italic">done</em>.
           </h1>
           <p
-            className={`mt-4 max-w-2xl text-lg text-white/85 transition-all duration-700 ${
+            className={`mx-auto mt-6 max-w-lg text-base leading-relaxed text-white/70 transition-all duration-700 ${
               bgLoaded
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-[30px]"
             }`}
             style={{ transitionDelay: bgLoaded ? "200ms" : "0ms" }}
           >
-            Create a room, share the code, and transfer instantly between devices.
+            Share any file or text instantly.<br />Just create a room and share the 6-character code.
           </p>
 
           <div
@@ -169,13 +172,14 @@ export default function HomePage() {
         </div>
 
         <div
-          className={`pb-2 text-center text-xs font-medium uppercase tracking-[0.14em] text-white/75 transition-all duration-700 ${
+          className={`pb-3 text-center text-xs text-white/40 transition-all duration-700 ${
             bgLoaded
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-[30px]"
           }`}
           style={{ transitionDelay: bgLoaded ? "400ms" : "0ms" }}
         >
+          <div className="mx-auto mb-3 h-px w-48 bg-gradient-to-r from-transparent via-white/15 to-transparent" />
           no storage · no accounts · just a room
         </div>
       </div>
