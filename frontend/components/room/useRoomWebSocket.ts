@@ -1,7 +1,6 @@
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   decodeWsData,
-  encodeBinaryToString,
   encodeFileToChunks,
   generateFileId,
   generateTextId,
