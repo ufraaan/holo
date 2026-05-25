@@ -13,7 +13,7 @@
 
 <br>
 
-share files and text between devices instantly. no accounts, no storage, just a room.
+share files and text between devices instantly. no accounts, no storage, just a room. available in 6 languages (en, es, fr, pt, de, hi).
 
 create a room, share the 6-character code, and anything you drop in is relayed directly to the other side. no uploads to disk, no database, no sign-up.
 
@@ -69,19 +69,32 @@ holo/
 │       ├── client.go          # reads from and writes to each websocket
 │       ├── room.go            # keeps track of who's in a room and relays messages
 │       └── hub.go             # manages all rooms and cleans up old ones
-└── frontend/
-    ├── app/
-    │   ├── (main)/page.tsx    # home page with the video background
-    │   └── room/[roomId]/     # the room where you drop files and send text
-    └── components/
-        ├── BackgroundVideo.tsx        # fullscreen video that plays behind everything
-        ├── room/
-        │   ├── useRoomWebSocket.ts    # handles the websocket connection
-        │   ├── room-utils.ts          # splits files into chunks, formats sizes
-        │   ├── RoomHeader.tsx         # shows the room code and connection status
-        │   ├── FileDropZone.tsx       # drag-and-drop area for files
-        │   ├── TextInputArea.tsx      # where you type text to share
-        │   └── TransferList.tsx       # list of incoming and outgoing transfers
+├── frontend/
+│   ├── app/
+│   │   ├── layout.tsx         # root layout, metadata, i18n provider
+│   │   ├── (main)/page.tsx    # home page with the video background
+│   │   ├── (main)/terms/      # terms of service page
+│   │   ├── (main)/privacy/    # privacy policy page
+│   │   └── room/[roomId]/     # the room where you drop files and send text
+│   ├── components/
+│   │   ├── BackgroundVideo.tsx        # fullscreen video that plays behind everything
+│   │   ├── LocaleSwitcher.tsx         # language dropdown
+│   │   └── room/
+│   │       ├── useRoomWebSocket.ts    # handles the websocket connection
+│   │       ├── room-utils.ts          # splits files into chunks, formats sizes
+│   │       ├── RoomHeader.tsx         # shows the room code and connection status
+│   │       ├── ConnectionToast.tsx    # join/leave notifications
+│   │       ├── FileDropZone.tsx       # drag-and-drop area for files
+│   │       ├── TextInputArea.tsx      # where you type text to share
+│   │       └── TransferList.tsx       # list of incoming and outgoing transfers
+│   ├── hooks/
+│   │   └── useOnClickOutside.ts       # generic click-outside handler
+│   ├── i18n/
+│   │   ├── routing.ts                 # next-intl routing config (6 locales)
+│   │   └── request.ts                 # per-locale message loader
+│   ├── messages/                      # translation JSON files (en, es, fr, pt, de, hi)
+│   ├── proxy.ts                       # Next.js 16 proxy (locale detection + WebSocket upgrade)
+│   └── next.config.mjs                # next-intl + Sentry plugin chain
 ├── docker-compose.yml          # runs both services with one command
 ├── backend/
 │   ├── Dockerfile              # multi-stage go build → 16 mb image
@@ -93,8 +106,8 @@ holo/
 
 | | backend (go) | frontend (Next.js + TypeScript) |
 |---|---|---|
-| **what it does** | stateless websocket relay. never inspects or stores data | browser app that chunks files, sends/receives, and renders the UI |
-| **how it works** | each connection runs two goroutines: **readPump** reads messages and pushes them to the room, **writePump** pulls from a buffered channel and writes to the socket | two pages: **landing page** (`/`) with video background and create/join UI, **room page** (`/room/[roomId]`) with file drop, text input, and transfer list |
+| **what it does** | stateless websocket relay. never inspects or stores data | browser app that chunks files, sends/receives, and renders the UI with a 6-locale i18n layer |
+| **how it works** | each connection runs two goroutines: **readPump** reads messages and pushes them to the room, **writePump** pulls from a buffered channel and writes to the socket | four pages: **landing page** (`/`) with video background and create/join UI, **room page** (`/room/[roomId]`) with file drop, text input, and transfer list, **terms** (`/terms`) and **privacy** (`/privacy`) |
 | **connections** | gorilla/websocket with 64 KB buffers, 2 MB max frame size, ping/pong keepalive; room names validated against a profanity filter during handshake | browser websocket API with reconnection support and retry button; room names validated on the landing page before connecting |
 | **file flow** | receives the full frame and forwards raw bytes to every other client in the room | splits files into **64 KB chunks** using `File.slice()`, base64-encodes each, and sends as JSON messages (`file-meta` + `file-chunk`); receiver accumulates chunks into a `Blob` for download |
 | **memory** | holds one chunk per connection at a time; slow consumers get disconnected | sender processes one chunk at a time; receiver holds all chunks until the final one arrives, then assembles |
