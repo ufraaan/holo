@@ -111,7 +111,7 @@ export default function RoomPage() {
           </Link>
         </div>
 
-        <div className="mx-auto mt-4 w-full max-w-6xl rounded-2xl border border-white/20 bg-black/25 p-4 sm:p-6 backdrop-blur-md md:p-8">
+        <div className="mx-auto mt-4 w-full max-w-6xl rounded-2xl border border-white/20 bg-black/25 p-4 sm:p-6 md:p-8">
           <RoomHeader roomId={roomId} status={status} clientCount={clientCount} onRetry={handleRetry} />
 
           <div className="mt-6 grid gap-6 md:grid-cols-2 md:gap-8 md:items-start">

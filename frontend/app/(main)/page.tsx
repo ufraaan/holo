@@ -136,7 +136,7 @@ export default function HomePage() {
             <button
               type="button"
               onClick={handleCreate}
-              className="glass-btn h-12 cursor-pointer rounded-xl border border-white/10 bg-white/[0.02] px-4 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="glass-btn h-12 cursor-pointer rounded-xl border border-white/10 bg-white/[0.02] px-4 text-sm font-semibold text-white transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               style={{
                 boxShadow:
                   "0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15)",
@@ -159,7 +159,7 @@ export default function HomePage() {
                 placeholder={t("enterRoomId")}
                 value={roomId}
                 onChange={(e) => setRoomId(e.target.value)}
-                className="h-12 rounded-xl border border-white/10 bg-white/[0.02] px-4 text-sm text-white placeholder:text-white/70 backdrop-blur-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                className="h-12 rounded-xl border border-white/10 bg-white/[0.02] px-4 text-sm text-white placeholder:text-white/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                 style={{
                   boxShadow:
                     "0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15)",
@@ -167,7 +167,7 @@ export default function HomePage() {
               />
               <button
                 type="submit"
-                className="glass-btn h-12 cursor-pointer rounded-xl border border-white/10 bg-white/[0.02] px-5 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                className="glass-btn h-12 cursor-pointer rounded-xl border border-white/10 bg-white/[0.02] px-5 text-sm font-semibold text-white transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                 style={{
                   boxShadow:
                     "0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15)",
