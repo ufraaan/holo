@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import {
   getWsUrl,
   decodeWsData,
@@ -8,7 +8,6 @@ import {
   generateTextId,
   encodeBinaryToString,
   encodeFileToChunks,
-  type Transfer,
 } from "./room-utils";
 
 describe("getWsUrl", () => {

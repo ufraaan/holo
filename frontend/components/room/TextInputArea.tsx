@@ -1,4 +1,3 @@
-import { ForwardedRef, forwardRef } from "react";
 import { RoomStatus } from "./useRoomWebSocket";
 
 interface TextInputAreaProps {
