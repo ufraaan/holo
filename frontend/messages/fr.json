@@ -1,0 +1,100 @@
+{
+  "Metadata": {
+    "title": "Holo | Partagez fichiers et texte instantanément",
+    "description": "Partagez des fichiers et du texte instantanément entre appareils. Sans compte, sans stockage, juste une salle.",
+    "siteName": "Holo",
+    "appCategory": "Communication",
+    "os": "Tout"
+  },
+  "LegalMetadata": {
+    "termsTitle": "Conditions d'Utilisation",
+    "termsDescription": "Holo permet un partage éphémère de fichiers et de texte sans stockage. Open source, sans compte requis. Utilisez-le sous votre propre responsabilité.",
+    "privacyTitle": "Politique de Confidentialité",
+    "privacyDescription": "Holo ne stocke aucune donnée. Pas de comptes, pas de cookies, pas de suivi. Les fichiers sont transférés directement entre appareils et supprimés instantanément."
+  },
+  "Brand": {
+    "headerLabel": "HOLO",
+    "footer": "pas de stockage · pas de comptes · juste une salle"
+  },
+  "HomePage": {
+    "hero": "Déposez, relayez, terminé.",
+    "subtitle": "Partagez n'importe quel fichier ou texte instantanément.\nCréez une salle et partagez le code à 6 caractères.",
+    "createRoom": "Créer une salle",
+    "or": "ou",
+    "join": "Rejoindre",
+    "enterRoomId": "Entrez l'ID de la salle",
+    "profanityError": "Le nom de la salle contient un langage inapproprié.",
+    "navPrivacy": "Confidentialité",
+    "navTerms": "Conditions",
+    "navGitHub": "GitHub",
+    "footer": "pas de stockage · pas de comptes · juste une salle"
+  },
+  "RoomPage": {
+    "headerLabel": "HOLO",
+    "navGitHub": "GitHub",
+    "backToHome": "← Retour à l'accueil"
+  },
+  "RoomHeader": {
+    "shareCode": "Partagez ce code :",
+    "expandTitle": "afficher le code de la salle en plein écran",
+    "connected": "Connecté",
+    "connecting": "Connexion…",
+    "disconnected": "Déconnecté",
+    "countConnected": "{count} connecté",
+    "retry": "Réessayer",
+    "roomCode": "Code de la salle",
+    "overlayHint": "appuyez n'importe où ou appuyez sur Échap pour fermer"
+  },
+  "FileDropZone": {
+    "connectingBanner": "Connexion au relay… cela peut prendre une minute. Vous pouvez laisser cet onglet ouvert.",
+    "dropPrompt": "Déposez un fichier ici",
+    "choosePrompt": "ou choisissez-en un depuis votre appareil",
+    "chooseFile": "Choisir un fichier"
+  },
+  "TextInputArea": {
+    "filenamePlaceholder": "Nom du fichier (facultatif)",
+    "textPlaceholder": "Collez ou tapez le texte à partager…",
+    "shareText": "Partager le texte"
+  },
+  "TransferList": {
+    "empty": "Aucun transfert pour l'instant.",
+    "textSnippets": "Extraits de texte",
+    "copy": "Copier",
+    "copied": "Copié !",
+    "save": "Enregistrer",
+    "files": "Fichiers",
+    "sent": "Envoyé",
+    "received": "Reçu",
+    "sending": "Envoi",
+    "receiving": "Réception",
+    "chars": "{count} caractères"
+  },
+  "ConnectionToast": {
+    "someoneJoined": "quelqu'un a rejoint la salle",
+    "someoneLeft": "quelqu'un a quitté la salle"
+  },
+  "WebSocketErrors": {
+    "sendFailed": "Impossible d'envoyer des données car la connexion à la salle n'est pas ouverte.",
+    "connectionFailed": "Impossible d'ouvrir une connexion WebSocket. Vérifiez que le serveur relay fonctionne et que NEXT_PUBLIC_WS_URL est correct.",
+    "connectionClosed": "Connexion fermée. Le relay est peut-être hors ligne, inaccessible ou a refusé la liaison.",
+    "wsError": "Une erreur WebSocket s'est produite. Vérifiez la console du navigateur et que le relay Go est accessible."
+  },
+  "LegalNav": {
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "gitHub": "GitHub",
+    "backToHome": "← Retour à l'accueil"
+  },
+  "LegalPages": {
+    "termsHeading": "Conditions d'Utilisation",
+    "privacyHeading": "Politique de Confidentialité",
+    "lastUpdated": "Dernière mise à jour : 1 mai 2026"
+  },
+  "LocaleSwitcher": {
+    "en": "EN",
+    "es": "ES",
+    "fr": "FR",
+    "pt": "PT",
+    "de": "DE"
+  }
+}
