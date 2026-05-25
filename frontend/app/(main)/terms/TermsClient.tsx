@@ -1,9 +1,13 @@
 "use client";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import BackgroundImage from "../../../components/BackgroundImage";
+import LocaleSwitcher from "../../../components/LocaleSwitcher";
 import Link from "next/link";
 
 export default function TermsClient() {
+  const t = useTranslations("LegalNav");
+  const lp = useTranslations("LegalPages");
   const [bgLoaded, setBgLoaded] = useState(false);
 
   return (
@@ -19,17 +23,18 @@ export default function TermsClient() {
             HOLO
           </span>
           <div className="flex items-center gap-4">
+            <LocaleSwitcher />
             <a
               href="/privacy"
               className="cursor-pointer text-sm font-medium text-white/80 underline-offset-4 transition hover:text-white hover:underline"
             >
-              Privacy
+              {t("privacy")}
             </a>
             <a
               href="/terms"
               className="cursor-pointer text-sm font-medium text-white/80 underline-offset-4 transition hover:text-white hover:underline"
             >
-              Terms
+              {t("terms")}
             </a>
             <a
               href="https://github.com/ufraaan/holo"
@@ -37,7 +42,7 @@ export default function TermsClient() {
               rel="noreferrer"
               className="cursor-pointer text-sm font-medium text-white/80 underline-offset-4 transition hover:text-white hover:underline"
             >
-              GitHub
+              {t("gitHub")}
             </a>
           </div>
         </div>
@@ -49,7 +54,7 @@ export default function TermsClient() {
             }`}
             style={{ transitionDelay: bgLoaded ? "100ms" : "0ms" }}
           >
-            Terms of Service
+            {lp("termsHeading")}
           </h1>
           <p
             className={`mt-4 text-sm text-white/85 transition-all duration-700 ${
@@ -57,7 +62,7 @@ export default function TermsClient() {
             }`}
             style={{ transitionDelay: bgLoaded ? "150ms" : "0ms" }}
           >
-            Last updated: May 1, 2026
+            {lp("lastUpdated")}
           </p>
 
           <div
@@ -145,7 +150,7 @@ export default function TermsClient() {
 
             <div className="pt-6 border-t border-white/30">
               <Link href="/" className="text-sm font-medium text-white/80 underline-offset-4 transition hover:text-white hover:underline">
-                ← Back to home
+                {t("backToHome")}
               </Link>
             </div>
           </div>
