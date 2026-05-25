@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   formatSize,
-  getTransferState,
   type TextShare,
   type Transfer,
 } from "./room-utils";
@@ -12,6 +12,7 @@ interface TransferListProps {
 }
 
 export default function TransferList({ transfers, textShares }: TransferListProps) {
+  const t = useTranslations("TransferList");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const copiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -54,7 +55,7 @@ export default function TransferList({ transfers, textShares }: TransferListProp
   );
 
   if (Object.keys(transfers).length === 0 && Object.keys(textShares).length === 0) {
-    return <p className="text-sm text-white/75">No transfers yet.</p>;
+    return <p className="text-sm text-white/75">{t("empty")}</p>;
   }
 
   return (
@@ -62,7 +63,7 @@ export default function TransferList({ transfers, textShares }: TransferListProp
       {sortedTextShares.length > 0 && (
         <>
           <p className="mb-2 sm:mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-white/60">
-            Text Snippets
+            {t("textSnippets")}
           </p>
           <div className="grid gap-2 sm:gap-3">
             {sortedTextShares.map((ts) => (
@@ -77,8 +78,8 @@ export default function TransferList({ transfers, textShares }: TransferListProp
                       {ts.customName ? "" : ts.text.length > 60 ? "…" : ""}
                     </p>
                     <p className="mt-1 text-xs text-white/50">
-                      {ts.customName ? "" : `${ts.text.length} chars · `}
-                      {ts.direction === "outgoing" ? "Sent" : "Received"}
+                      {ts.customName ? "" : `${t("chars", { count: ts.text.length })} · `}
+                      {ts.direction === "outgoing" ? t("sent") : t("received")}
                     </p>
                   </div>
                   <div className="flex shrink-0 gap-2">
@@ -87,14 +88,14 @@ export default function TransferList({ transfers, textShares }: TransferListProp
                       onClick={() => handleCopyText(ts.text, ts.id)}
                       className="h-8 flex cursor-pointer items-center justify-center rounded-md border border-white/25 bg-white/10 px-2.5 text-xs font-medium text-white/80 transition hover:bg-white/20"
                     >
-                      {copiedId === ts.id ? "Copied!" : "Copy"}
+                      {copiedId === ts.id ? t("copied") : t("copy")}
                     </button>
                     <button
                       type="button"
                       onClick={() => handleDownloadText(ts.text, ts.id, ts.timestamp, ts.customName)}
                       className="h-8 flex cursor-pointer items-center justify-center rounded-md border border-white/25 bg-white/10 px-2.5 text-xs font-medium text-white/80 transition hover:bg-white/20"
                     >
-                      Save
+                      {t("save")}
                     </button>
                   </div>
                 </div>
@@ -107,37 +108,37 @@ export default function TransferList({ transfers, textShares }: TransferListProp
       {sortedTransfers.length > 0 && (
         <>
           <p className="mb-2 sm:mb-3 mt-4 sm:mt-5 text-xs font-semibold uppercase tracking-[0.14em] text-white/60">
-            Files
+            {t("files")}
           </p>
           <div className="grid gap-2 sm:gap-3">
-            {sortedTransfers.map((t) => (
+            {sortedTransfers.map((tr) => (
               <div
-                key={t.id}
+                key={tr.id}
                 className="overflow-hidden rounded-lg border border-white/20 bg-white/[0.06] p-3 sm:p-4"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1 overflow-hidden">
                     <p className="truncate font-medium text-white text-sm">
-                      {t.name}
+                      {tr.name}
                     </p>
                     <p className="mt-0.5 text-xs text-white/50">
-                      {formatSize(t.size)} · {getTransferState(t)} · {t.progress}%
+                      {formatSize(tr.size)} · {tr.direction === "outgoing" ? (tr.progress >= 100 ? t("sent") : t("sending")) : (tr.progress >= 100 ? t("received") : t("receiving"))} · {tr.progress}%
                     </p>
                   </div>
-                  {t.url && (
+                  {tr.url && (
                     <a
-                      href={t.url}
-                      download={t.name}
+                      href={tr.url}
+                      download={tr.name}
                       className="shrink-0 h-8 flex cursor-pointer items-center justify-center rounded-md border border-white/25 bg-white/10 px-2.5 text-xs font-medium text-white/80 transition hover:bg-white/20"
                     >
-                      Save
+                      {t("save")}
                     </a>
                   )}
                 </div>
                 <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-white/15">
                   <div
                     className="h-full bg-white/60 transition-[width] duration-150"
-                    style={{ width: `${t.progress}%` }}
+                    style={{ width: `${tr.progress}%` }}
                   />
                 </div>
               </div>
