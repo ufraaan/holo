@@ -65,13 +65,6 @@ export function formatSize(size: number): string {
   return `${s.toFixed(s >= 10 || idx === 0 ? 0 : 1)} ${units[idx]}`;
 }
 
-export function getTransferState(transfer: Transfer): string {
-  if (transfer.progress >= 100) {
-    return transfer.direction === "outgoing" ? "Sent" : "Received";
-  }
-  return transfer.direction === "outgoing" ? "Sending" : "Receiving";
-}
-
 export function generateFileId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
     return crypto.randomUUID();
