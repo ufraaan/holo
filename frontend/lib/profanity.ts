@@ -1,3 +1,6 @@
+// Warning: this file contains profanity. The list below is necessary for the
+// profanity filter to work. Stop reading here if you'd rather not see it.
+
 const profanitySet = new Set([
   "4r5e", "5h1t", "5hit", "a55", "anal", "anus", "ar5e", "arrse",   "arse", "arsehole", "arses",
   "ass", "ass-fucker", "asses", "assfucker", "assfukka", "asshat", "asshole", "assholes",
