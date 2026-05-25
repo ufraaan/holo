@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { RoomStatus } from "./useRoomWebSocket";
 
 interface TextInputAreaProps {
@@ -15,6 +16,7 @@ export default function TextInputArea({
   textNameInputRef,
   textInputRef,
 }: TextInputAreaProps) {
+  const t = useTranslations("TextInputArea");
   return (
     <div
       className={`mt-4 rounded-xl border border-white/25 bg-white/8 px-4 py-4 ${
@@ -25,7 +27,7 @@ export default function TextInputArea({
         <input
           ref={textNameInputRef}
           type="text"
-          placeholder="Filename (optional)"
+          placeholder={t("filenamePlaceholder")}
           className="w-full rounded-lg border border-white/25 bg-white/[0.06] px-2.5 py-1.5 text-xs text-white placeholder:text-white/40 focus:border-white/50 focus:outline-none"
           disabled={status !== "connected"}
         />
@@ -33,7 +35,7 @@ export default function TextInputArea({
       <textarea
         ref={textInputRef}
         onKeyDown={onKeyDown}
-        placeholder="Paste or type text to share…"
+        placeholder={t("textPlaceholder")}
         className="min-h-[80px] w-full resize-y rounded-lg border border-white/25 bg-white/[0.06] px-2.5 py-2 font-mono text-xs text-white placeholder:text-white/40 focus:border-white/50 focus:outline-none"
         disabled={status !== "connected"}
       />
@@ -48,7 +50,7 @@ export default function TextInputArea({
               : "cursor-not-allowed border-white/20 bg-white/10 text-white/45"
           }`}
         >
-          Share text
+          {t("shareText")}
         </button>
       </div>
     </div>
