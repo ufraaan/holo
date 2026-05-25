@@ -49,7 +49,7 @@ export default function LocaleSwitcher() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-1.5 min-w-[130px] overflow-hidden rounded-xl border border-white/15 bg-black/75 backdrop-blur-xl shadow-xl shadow-black/30">
+        <div className="absolute right-0 top-full z-50 mt-1.5 min-w-[130px] overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur-md shadow-xl shadow-black/30">
           {routing.locales.map((loc) => {
             const isActive = loc === locale;
             return (
