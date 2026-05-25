@@ -2,6 +2,7 @@
   "name": "holo-frontend",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -9,7 +10,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "check": "bun run lint && bun run typecheck && bun run test"
   },
   "dependencies": {
     "@sentry/nextjs": "^10.53.1",
