@@ -1,3 +1,6 @@
+// Warning: this file contains profanity. The list below is necessary for the
+// profanity filter to work. Stop reading here if you'd rather not see it.
+
 package server
 
 import (
