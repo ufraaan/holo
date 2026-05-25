@@ -11,6 +11,7 @@ const localeLabels: Record<string, string> = {
   fr: "Français",
   pt: "Português",
   de: "Deutsch",
+  hi: "हिन्दी",
 };
 
 export default function LocaleSwitcher() {

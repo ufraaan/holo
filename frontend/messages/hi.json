@@ -1,0 +1,101 @@
+{
+  "Metadata": {
+    "title": "Holo | सरल फ़ाइल और टेक्स्ट साझाकरण",
+    "description": "डिवाइसों के बीच तुरंत फ़ाइलें और टेक्स्ट साझा करें। कोई खाता नहीं, कोई स्टोरेज नहीं - बस एक रूम।",
+    "siteName": "Holo",
+    "appCategory": "Communication",
+    "os": "All"
+  },
+  "LegalMetadata": {
+    "termsTitle": "सेवा की शर्तें",
+    "termsDescription": "Holo बिना स्टोरेज के अस्थायी फ़ाइल और टेक्स्ट साझाकरण प्रदान करता है। ओपन-सोर्स, किसी खाते की आवश्यकता नहीं। अपनी जिम्मेदारी पर उपयोग करें।",
+    "privacyTitle": "गोपनीयता नीति",
+    "privacyDescription": "Holo कोई डेटा स्टोर नहीं करता। कोई खाता नहीं, कोई कुकी नहीं, कोई ट्रैकिंग नहीं। फ़ाइलें सीधे डिवाइसों के बीच स्थानांतरित होती हैं और तुरंत हटा दी जाती हैं।"
+  },
+  "Brand": {
+    "headerLabel": "HOLO",
+    "footer": "कोई स्टोरेज नहीं · कोई खाता नहीं · बस एक रूम"
+  },
+  "HomePage": {
+    "hero": "ड्रॉप करें, रिले करें, हो गया।",
+    "subtitle": "कोई भी फ़ाइल या टेक्स्ट तुरंत साझा करें।\nबस एक रूम बनाएं और 6-अक्षर का कोड साझा करें।",
+    "createRoom": "रूम बनाएं",
+    "or": "या",
+    "join": "ज्वाइन करें",
+    "enterRoomId": "रूम आईडी दर्ज करें",
+    "profanityError": "रूम नाम में अनुचित भाषा है।",
+    "navPrivacy": "गोपनीयता",
+    "navTerms": "शर्तें",
+    "navGitHub": "GitHub",
+    "footer": "कोई स्टोरेज नहीं · कोई खाता नहीं · बस एक रूम"
+  },
+  "RoomPage": {
+    "headerLabel": "HOLO",
+    "navGitHub": "GitHub",
+    "backToHome": "← वापस जाएं"
+  },
+  "RoomHeader": {
+    "shareCode": "यह कोड साझा करें:",
+    "expandTitle": "रूम कोड पूर्ण स्क्रीन दिखाएं",
+    "connected": "कनेक्टेड",
+    "connecting": "कनेक्ट हो रहा है…",
+    "disconnected": "डिस्कनेक्टेड",
+    "countConnected": "{count} कनेक्टेड",
+    "retry": "पुनः प्रयास करें",
+    "roomCode": "रूम कोड",
+    "overlayHint": "कहीं भी टैप करें या बंद करने के लिए esc दबाएं"
+  },
+  "FileDropZone": {
+    "connectingBanner": "रिले से कनेक्ट हो रहा है… इसमें एक मिनट तक लग सकता है। आप यह टैब खुला छोड़ सकते हैं।",
+    "dropPrompt": "यहां फ़ाइल ड्रॉप करें",
+    "choosePrompt": "या अपने डिवाइस से एक चुनें",
+    "chooseFile": "फ़ाइल चुनें"
+  },
+  "TextInputArea": {
+    "filenamePlaceholder": "फ़ाइल का नाम (वैकल्पिक)",
+    "textPlaceholder": "साझा करने के लिए टेक्स्ट पेस्ट या टाइप करें…",
+    "shareText": "टेक्स्ट साझा करें"
+  },
+  "TransferList": {
+    "empty": "अभी तक कोई ट्रांसफर नहीं।",
+    "textSnippets": "टेक्स्ट स्निपेट",
+    "copy": "कॉपी करें",
+    "copied": "कॉपी हो गया!",
+    "save": "सेव करें",
+    "files": "फ़ाइलें",
+    "sent": "भेजा गया",
+    "received": "प्राप्त हुआ",
+    "sending": "भेज रहा है",
+    "receiving": "प्राप्त कर रहा है",
+    "chars": "{count} अक्षर"
+  },
+  "ConnectionToast": {
+    "someoneJoined": "कोई रूम में शामिल हुआ",
+    "someoneLeft": "कोई रूम छोड़कर गया"
+  },
+  "WebSocketErrors": {
+    "sendFailed": "रूम कनेक्शन खुला न होने के कारण डेटा भेजने में असमर्थ।",
+    "connectionFailed": "WebSocket कनेक्शन नहीं खोल सका। जांचें कि रिले सर्वर चल रहा है और NEXT_PUBLIC_WS_URL सही है।",
+    "connectionClosed": "कनेक्शन बंद हो गया। रिले ऑफ़लाइन हो सकता है, पहुंच से बाहर हो सकता है, या हैंडशेक को अस्वीकार कर सकता है।",
+    "wsError": "एक WebSocket त्रुटि हुई। ब्राउज़र कंसोल जांचें और सुनिश्चित करें कि Go रिले पहुंच योग्य है।"
+  },
+  "LegalNav": {
+    "privacy": "गोपनीयता",
+    "terms": "शर्तें",
+    "gitHub": "GitHub",
+    "backToHome": "← वापस होम पर जाएं"
+  },
+  "LegalPages": {
+    "termsHeading": "सेवा की शर्तें",
+    "privacyHeading": "गोपनीयता नीति",
+    "lastUpdated": "अंतिम अपडेट: 1 मई, 2026"
+  },
+  "LocaleSwitcher": {
+    "en": "EN",
+    "es": "ES",
+    "fr": "FR",
+    "pt": "PT",
+    "de": "DE",
+    "hi": "HI"
+  }
+}
