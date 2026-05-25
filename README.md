@@ -95,7 +95,7 @@ holo/
 |---|---|---|
 | **what it does** | stateless websocket relay. never inspects or stores data | browser app that chunks files, sends/receives, and renders the UI |
 | **how it works** | each connection runs two goroutines: **readPump** reads messages and pushes them to the room, **writePump** pulls from a buffered channel and writes to the socket | two pages: **landing page** (`/`) with video background and create/join UI, **room page** (`/room/[roomId]`) with file drop, text input, and transfer list |
-| **connections** | gorilla/websocket with 64 KB buffers, 2 MB max frame size, ping/pong keepalive | browser websocket API with reconnection support and retry button |
+| **connections** | gorilla/websocket with 64 KB buffers, 2 MB max frame size, ping/pong keepalive; room names validated against a profanity filter during handshake | browser websocket API with reconnection support and retry button; room names validated on the landing page before connecting |
 | **file flow** | receives the full frame and forwards raw bytes to every other client in the room | splits files into **64 KB chunks** using `File.slice()`, base64-encodes each, and sends as JSON messages (`file-meta` + `file-chunk`); receiver accumulates chunks into a `Blob` for download |
 | **memory** | holds one chunk per connection at a time; slow consumers get disconnected | sender processes one chunk at a time; receiver holds all chunks until the final one arrives, then assembles |
 | **lifecycle** | rooms auto-expire after **10 minutes** of inactivity, garbage collector runs every minute | ephemeral. refresh the page and you start fresh |
