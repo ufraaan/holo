@@ -19,7 +19,7 @@ export default function TextInputArea({
   const t = useTranslations("TextInputArea");
   return (
     <div
-      className={`mt-4 rounded-xl border border-white/25 bg-white/8 px-4 py-4 ${
+      className={`mt-4 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-4 ${
         status !== "connected" ? "opacity-60" : ""
       }`}
     >
@@ -28,7 +28,7 @@ export default function TextInputArea({
           ref={textNameInputRef}
           type="text"
           placeholder={t("filenamePlaceholder")}
-          className="w-full rounded-lg border border-white/25 bg-white/[0.06] px-2.5 py-1.5 text-xs text-white placeholder:text-white/40 focus:border-white/50 focus:outline-none"
+          className="w-full rounded-xl border border-white/10 bg-white/[0.02] px-3 py-2 text-sm text-white placeholder:text-white/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           disabled={status !== "connected"}
         />
       </div>
@@ -36,7 +36,7 @@ export default function TextInputArea({
         ref={textInputRef}
         onKeyDown={onKeyDown}
         placeholder={t("textPlaceholder")}
-        className="min-h-[80px] w-full resize-y rounded-lg border border-white/25 bg-white/[0.06] px-2.5 py-2 font-mono text-xs text-white placeholder:text-white/40 focus:border-white/50 focus:outline-none"
+        className="min-h-[80px] w-full resize-y rounded-xl border border-white/10 bg-white/[0.02] px-3 py-2 font-mono text-sm text-white placeholder:text-white/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
         disabled={status !== "connected"}
       />
       <div className="mt-3 flex justify-end">
@@ -44,10 +44,10 @@ export default function TextInputArea({
           type="button"
           onClick={onSend}
           disabled={status !== "connected"}
-          className={`h-9 px-4 text-sm font-medium rounded-lg border transition ${
+          className={`h-9 px-4 text-sm font-medium rounded-xl border transition ${
             status === "connected"
-              ? "cursor-pointer border-white/30 bg-white/25 text-white hover:bg-white/35"
-              : "cursor-not-allowed border-white/20 bg-white/10 text-white/45"
+              ? "cursor-pointer border-white/10 bg-white/[0.02] text-white hover:bg-white/10"
+              : "cursor-not-allowed border-white/10 bg-white/[0.02] text-white/45"
           }`}
         >
           {t("shareText")}
