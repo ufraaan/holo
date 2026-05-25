@@ -18,9 +18,7 @@
     "react-dom": "19.2.4"
   },
   "overrides": {
-    "next": {
-      "postcss": "^8.5.14"
-    },
+    "postcss": "^8.5.14",
     "fast-uri": "^3.1.2"
   },
   "devDependencies": {
