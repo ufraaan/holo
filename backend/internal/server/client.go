@@ -52,6 +52,16 @@ func NewWSHandler(hub *Hub) http.Handler {
 			return
 		}
 
+		if containsProfanity(roomID) {
+			logError("ws_profane_room_name", logFields{
+				"remoteAddr": r.RemoteAddr,
+				"roomId":     roomID,
+				"clientId":   clientID,
+			})
+			http.Error(w, "Room name contains inappropriate language.", http.StatusBadRequest)
+			return
+		}
+
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			logError("ws_upgrade_error", logFields{
