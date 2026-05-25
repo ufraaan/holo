@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import BackgroundVideo from "../../../components/BackgroundVideo";
+import LocaleSwitcher from "../../../components/LocaleSwitcher";
 import { useRoomWebSocket } from "../../../components/room/useRoomWebSocket";
 import ConnectionToast from "../../../components/room/ConnectionToast";
 import RoomHeader from "../../../components/room/RoomHeader";
@@ -18,6 +20,7 @@ function useClientId() {
 }
 
 export default function RoomPage() {
+  const t = useTranslations("RoomPage");
   const params = useParams<{ roomId: string }>();
   const roomId = params.roomId;
   const clientId = useClientId();
@@ -84,16 +87,19 @@ export default function RoomPage() {
       >
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between">
           <span className="text-xs font-semibold uppercase tracking-widest text-white/80">
-            HOLO
+            {t("headerLabel")}
           </span>
-          <a
-            href="https://github.com/ufraaan/holo"
-            target="_blank"
-            rel="noreferrer"
-            className="cursor-pointer text-xs text-white/60 transition hover:text-white"
-          >
-            GitHub
-          </a>
+          <div className="flex items-center gap-4">
+            <LocaleSwitcher />
+            <a
+              href="https://github.com/ufraaan/holo"
+              target="_blank"
+              rel="noreferrer"
+              className="cursor-pointer text-xs text-white/60 transition hover:text-white"
+            >
+              {t("navGitHub")}
+            </a>
+          </div>
         </div>
 
         <div className="mx-auto mt-6 sm:mt-8 max-w-6xl">
@@ -101,7 +107,7 @@ export default function RoomPage() {
             href="/"
             className="inline-flex cursor-pointer items-center text-xs text-white/60 transition hover:text-white"
           >
-            ← Go back
+            {t("backToHome")}
           </Link>
         </div>
 
