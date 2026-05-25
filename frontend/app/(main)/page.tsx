@@ -3,16 +3,15 @@ import { useRouter } from "next/navigation";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { FormEvent, useCallback, useState } from "react";
 import BackgroundVideo from "../../components/BackgroundVideo";
+import { generateRoomId } from "../../components/room/room-utils";
+import { containsProfanity } from "../../lib/profanity";
 
 const titleFont = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["500", "600"] });
-
-function generateRoomId() {
-  return Math.random().toString(36).slice(2, 8);
-}
 
 export default function HomePage() {
   const router = useRouter();
   const [roomId, setRoomId] = useState("");
+  const [joinError, setJoinError] = useState("");
   const [bgLoaded, setBgLoaded] = useState(false);
   const handleBgLoaded = useCallback(() => setBgLoaded(true), []);
 
@@ -26,6 +25,11 @@ export default function HomePage() {
       e.preventDefault();
       const trimmed = roomId.trim();
       if (!trimmed) return;
+      if (containsProfanity(trimmed)) {
+        setJoinError("Room name contains inappropriate language.");
+        return;
+      }
+      setJoinError("");
       router.push(`/room/${trimmed}`);
     },
     [roomId, router],
@@ -168,6 +172,11 @@ export default function HomePage() {
                 Join
               </button>
             </form>
+            {joinError && (
+              <p className="mt-2 text-center text-sm text-red-300">
+                {joinError}
+              </p>
+            )}
           </div>
         </div>
 

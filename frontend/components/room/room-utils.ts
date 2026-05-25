@@ -1,3 +1,5 @@
+import { containsProfanity } from "../../lib/profanity";
+
 export type TransferDirection = "incoming" | "outgoing";
 
 export interface Transfer {
@@ -121,3 +123,11 @@ export function encodeBinaryToString(buf: Uint8Array): string {
 }
 
 export { textEncoder, textDecoder };
+
+export function generateRoomId(): string {
+  let id: string;
+  do {
+    id = Math.random().toString(36).slice(2, 8);
+  } while (containsProfanity(id));
+  return id;
+}
