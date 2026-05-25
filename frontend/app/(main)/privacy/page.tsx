@@ -1,9 +1,13 @@
+import { getTranslations } from "next-intl/server";
 import PrivacyClient from "./PrivacyClient";
 
-export const metadata = {
-  title: "Privacy Policy",
-  description: "Holo stores no data. No accounts, no cookies, no tracking. Files transfer directly between devices and are discarded instantly.",
-};
+export async function generateMetadata() {
+  const t = await getTranslations("LegalMetadata");
+  return {
+    title: t("privacyTitle"),
+    description: t("privacyDescription"),
+  };
+}
 
 export default function PrivacyPage() {
   return <PrivacyClient />;
