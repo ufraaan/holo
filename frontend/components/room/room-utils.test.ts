@@ -3,7 +3,6 @@ import {
   getWsUrl,
   decodeWsData,
   formatSize,
-  getTransferState,
   generateFileId,
   generateTextId,
   encodeBinaryToString,
@@ -67,41 +66,6 @@ describe("formatSize", () => {
 
   it("handles large sizes", () => {
     expect(formatSize(1073741824)).toBe("1.0 GB");
-  });
-});
-
-describe("getTransferState", () => {
-  const base = {
-    id: "x",
-    name: "test.txt",
-    size: 100,
-    mime: "text/plain",
-    progress: 0,
-    direction: "incoming" as const,
-  };
-
-  it('returns "Sending" for outgoing under 100', () => {
-    expect(
-      getTransferState({ ...base, direction: "outgoing", progress: 50 }),
-    ).toBe("Sending");
-  });
-
-  it('returns "Receiving" for incoming under 100', () => {
-    expect(
-      getTransferState({ ...base, direction: "incoming", progress: 50 }),
-    ).toBe("Receiving");
-  });
-
-  it('returns "Sent" for outgoing at 100', () => {
-    expect(
-      getTransferState({ ...base, direction: "outgoing", progress: 100 }),
-    ).toBe("Sent");
-  });
-
-  it('returns "Received" for incoming at 100', () => {
-    expect(
-      getTransferState({ ...base, direction: "incoming", progress: 100 }),
-    ).toBe("Received");
   });
 });
 

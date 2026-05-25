@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { RoomStatus } from "./useRoomWebSocket";
 
 interface RoomHeaderProps {
@@ -9,6 +10,7 @@ interface RoomHeaderProps {
 }
 
 export default function RoomHeader({ roomId, status, clientCount, onRetry }: RoomHeaderProps) {
+  const t = useTranslations("RoomHeader");
   const [showDisplay, setShowDisplay] = useState(false);
 
   const close = useCallback(() => setShowDisplay(false), []);
@@ -27,7 +29,7 @@ export default function RoomHeader({ roomId, status, clientCount, onRetry }: Roo
       <div className="grid gap-4 border-b border-white/25 pb-4 sm:pb-5 md:grid-cols-2 md:items-center">
         <div className="md:justify-self-start">
           <div className="inline-flex items-center gap-2 flex-wrap">
-            <span className="text-xs sm:text-sm text-white/70">Share this code:</span>
+            <span className="text-xs sm:text-sm text-white/70">{t("shareCode")}</span>
             <div className="inline-flex items-center rounded-lg border border-white/30 bg-white/10 px-3 py-1 font-mono text-xs sm:text-sm text-white/95 break-all">
               {roomId}
             </div>
@@ -35,7 +37,7 @@ export default function RoomHeader({ roomId, status, clientCount, onRetry }: Roo
               type="button"
               onClick={() => setShowDisplay(true)}
               className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-white/25 bg-white/10 transition hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-              title="show room code fullscreen"
+              title={t("expandTitle")}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -75,14 +77,14 @@ export default function RoomHeader({ roomId, status, clientCount, onRetry }: Roo
               }`}
             />
             {status === "connected"
-              ? "Connected"
+              ? t("connected")
               : status === "connecting"
-                ? "Connecting…"
-                : "Disconnected"}
+                ? t("connecting")
+                : t("disconnected")}
           </span>
           {status === "connected" && clientCount > 0 && (
             <span className="text-white/60">
-              {clientCount} connected
+              {t("countConnected", { count: clientCount })}
             </span>
           )}
           {status === "closed" && (
@@ -91,7 +93,7 @@ export default function RoomHeader({ roomId, status, clientCount, onRetry }: Roo
               onClick={onRetry}
               className="h-9 rounded-lg border border-white/35 bg-white/15 px-3 text-sm font-medium text-white transition hover:bg-white/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
-              Retry
+              {t("retry")}
             </button>
           )}
         </div>
@@ -104,14 +106,14 @@ export default function RoomHeader({ roomId, status, clientCount, onRetry }: Roo
         >
           <div className="flex flex-col items-center gap-4 px-6">
             <span className="text-xs font-medium uppercase tracking-[0.2em] text-white/50">
-              Room code
+              {t("roomCode")}
             </span>
             <span className="select-all text-6xl sm:text-8xl md:text-9xl font-bold tracking-widest text-white">
               {roomId}
             </span>
           </div>
           <span className="absolute bottom-12 text-xs text-white/40">
-            tap anywhere or press esc to close
+            {t("overlayHint")}
           </span>
         </div>
       )}
