@@ -4,7 +4,7 @@ thanks for taking the time to contribute! here's how to get started.
 
 ## project overview
 
-holo is an ephemeral file and text sharing tool. a Go relay server forwards WebSocket messages between browsers. the frontend is a Next.js app that chunks files and renders the UI.
+holo is an ephemeral file and text sharing tool. a Go relay server forwards WebSocket messages between browsers. the frontend is a Next.js app that chunks files and renders the UI with internationalisation (next-intl, currently supports 6 locales: en, es, fr, pt, de, hi).
 
 ## prerequisites
 
@@ -63,7 +63,9 @@ open `http://localhost:3000`.
 
 ```bash
 # frontend
-cd frontend && bun run lint    # eslint
+cd frontend && bun run check    # lint + typecheck + test (shortcut)
+# or individually:
+bun run lint                    # eslint
 bun run typecheck               # tsc --noEmit
 bun run test                    # vitest
 
@@ -87,19 +89,30 @@ holo/
 ├── frontend/
 │   ├── app/
 │   │   ├── (main)/page.tsx        # landing page (create/join room)
+│   │   ├── (main)/terms/          # terms of service page
+│   │   ├── (main)/privacy/        # privacy policy page
 │   │   ├── room/[roomId]/page.tsx # room page (file drop, text, transfers)
-│   │   ├── layout.tsx             # root layout, metadata, analytics
+│   │   ├── layout.tsx             # root layout, metadata, i18n provider
 │   │   └── globals.css            # Tailwind v4 + keyframes
-│   └── components/
-│       ├── BackgroundVideo.tsx     # fullscreen background
-│       └── room/
-│           ├── useRoomWebSocket.ts # WebSocket connection and reconnection
-│           ├── room-utils.ts       # chunking, encoding, formatting
-│           ├── RoomHeader.tsx      # room code, status, fullscreen overlay
-│           ├── FileDropZone.tsx    # drag-and-drop + file input
-│           ├── TextInputArea.tsx   # text compose + send
-│           ├── TransferList.tsx    # file/text transfer list with progress
-│           └── ConnectionToast.tsx # join/leave notifications
+│   ├── components/
+│   │   ├── BackgroundVideo.tsx     # fullscreen background
+│   │   ├── LocaleSwitcher.tsx      # language dropdown
+│   │   └── room/
+│   │       ├── useRoomWebSocket.ts # WebSocket connection and reconnection
+│   │       ├── room-utils.ts       # chunking, encoding, formatting
+│   │       ├── RoomHeader.tsx      # room code, status, fullscreen overlay
+│   │       ├── FileDropZone.tsx    # drag-and-drop + file input
+│   │       ├── TextInputArea.tsx   # text compose + send
+│   │       ├── TransferList.tsx    # file/text transfer list with progress
+│   │       └── ConnectionToast.tsx # join/leave notifications
+│   ├── hooks/
+│   │   └── useOnClickOutside.ts    # generic click-outside handler
+│   ├── i18n/
+│   │   ├── routing.ts             # next-intl routing config (5+1 locales)
+│   │   └── request.ts             # per-locale message loader
+│   ├── messages/                   # translation JSON files (en, es, fr, pt, de, hi)
+│   ├── proxy.ts                    # Next.js 16 proxy (locale detection + WebSocket upgrade)
+│   └── next.config.mjs             # next-intl + Sentry plugin chain
 └── .github/
     └── workflows/ci.yml           # CI: lint, typecheck, test, build
 ```
@@ -118,7 +131,7 @@ holo/
 
    ```bash
    cd backend   && go test ./... && go vet ./...
-   cd ../frontend && bun run lint && bun run typecheck && bun run test
+   cd ../frontend && bun run check
    ```
 
    these same checks run in CI and as a pre-commit hook.
@@ -160,9 +173,7 @@ before opening a PR:
 
 - [ ] the branch is up to date with `master`
 - [ ] `go test ./...` passes
-- [ ] `bun run lint` — 0 errors
-- [ ] `bun run typecheck` — 0 errors
-- [ ] `bun run test` — all passing
+- [ ] `bun run check` — 0 failures
 - [ ] no secrets or credentials committed
 
 ## need help?
