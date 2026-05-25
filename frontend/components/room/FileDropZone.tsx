@@ -32,7 +32,7 @@ export default function FileDropZone({
       )}
 
       <div
-        className={`flex min-h-[180px] flex-col items-center justify-center gap-3 rounded-xl border border-white/25 bg-white/8 px-4 py-8 text-center ${
+        className={`flex min-h-[180px] flex-col items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-8 text-center ${
           status !== "connected" ? "opacity-60" : ""
         }`}
         onDrop={status === "connected" ? onDrop : undefined}
@@ -42,10 +42,10 @@ export default function FileDropZone({
         <p className="text-base font-medium text-white">{t("dropPrompt")}</p>
         <p className="text-xs text-white/75">{t("choosePrompt")}</p>
         <label
-          className={`inline-flex h-9 items-center justify-center rounded-lg border px-4 text-sm font-medium transition ${
+          className={`inline-flex h-9 items-center justify-center rounded-xl border px-4 text-sm font-medium transition ${
             status === "connected"
-              ? "cursor-pointer border-white/30 bg-white/25 text-white hover:bg-white/30"
-              : "cursor-not-allowed border-white/20 bg-white/10 text-white/45"
+              ? "cursor-pointer border-white/10 bg-white/[0.02] text-white hover:bg-white/10"
+              : "cursor-not-allowed border-white/10 bg-white/[0.02] text-white/45"
           }`}
         >
           <input
