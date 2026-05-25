@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 interface BackgroundVideoProps {
@@ -59,10 +60,12 @@ export default function BackgroundVideo({
       </video>
 
       {!isLoaded && poster && (
-        <img
+        <Image
           src={poster}
           alt=""
-          className="fixed inset-0 z-0 h-full w-full object-cover"
+          fill
+          className="fixed inset-0 z-0 object-cover"
+          priority
         />
       )}
     </>

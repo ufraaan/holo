@@ -44,7 +44,7 @@ class MockWebSocket {
     };
   }
 
-  send(_data: string | ArrayBuffer) {}
+  send() {}
 
   close() {
     this.readyState = MockWebSocket.CLOSED;
