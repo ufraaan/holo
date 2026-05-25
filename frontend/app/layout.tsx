@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import Script from "next/script";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -9,24 +11,25 @@ export async function generateMetadata(): Promise<Metadata> {
   const rawUrl = headersList.get("x-url") || "https://holo.ufraan.dev";
   const canonicalUrl = new URL(rawUrl);
   canonicalUrl.search = "";
+  const t = await getTranslations("Metadata");
 
   return {
-    title: "Holo | Simple File & Text Sharing",
-    description: "Share files and text instantly between devices. No accounts, no storage - just a room.",
+    title: t("title"),
+    description: t("description"),
     icons: {
       icon: "/favicon.ico",
     },
     openGraph: {
-      title: "Holo | Simple File & Text Sharing",
-      description: "Share files and text instantly between devices. No accounts, no storage - just a room.",
+      title: t("title"),
+      description: t("description"),
       url: "https://holo.ufraan.dev",
-      siteName: "Holo",
+      siteName: t("siteName"),
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
-      title: "Holo | Simple File & Text Sharing",
-      description: "Share files and text instantly between devices. No accounts, no storage - just a room.",
+      title: t("title"),
+      description: t("description"),
     },
     alternates: {
       canonical: canonicalUrl.toString().replace(/\/$/, ""),
@@ -34,9 +37,13 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+  const t = await getTranslations("Metadata");
+
   return (
-    <html lang="en">
+    <html lang={locale}>
       <head>
         <script
           type="application/ld+json"
@@ -44,12 +51,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebApplication",
-              name: "Holo",
+              name: t("siteName"),
               url: "https://holo.ufraan.dev",
-              description:
-                "Share files and text instantly between devices. No accounts, no storage - just a room.",
-              applicationCategory: "Communication",
-              operatingSystem: "All",
+              description: t("description"),
+              applicationCategory: t("appCategory"),
+              operatingSystem: t("os"),
             }),
           }}
         />
@@ -62,7 +68,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
           />
         )}
-      <body>{children}</body>
+      <body>
+        <NextIntlClientProvider messages={messages}>
+          {children}
+        </NextIntlClientProvider>
+      </body>
     </html>
   );
 }

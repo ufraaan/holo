@@ -2,7 +2,9 @@
 import { useRouter } from "next/navigation";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { FormEvent, useCallback, useState } from "react";
+import { useTranslations } from "next-intl";
 import BackgroundVideo from "../../components/BackgroundVideo";
+import LocaleSwitcher from "../../components/LocaleSwitcher";
 import { generateRoomId } from "../../components/room/room-utils";
 import { containsProfanity } from "../../lib/profanity";
 
@@ -10,6 +12,7 @@ const titleFont = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["500", "600"]
 
 export default function HomePage() {
   const router = useRouter();
+  const t = useTranslations("HomePage");
   const [roomId, setRoomId] = useState("");
   const [joinError, setJoinError] = useState("");
   const [bgLoaded, setBgLoaded] = useState(false);
@@ -26,13 +29,13 @@ export default function HomePage() {
       const trimmed = roomId.trim();
       if (!trimmed) return;
       if (containsProfanity(trimmed)) {
-        setJoinError("Room name contains inappropriate language.");
+        setJoinError(t("profanityError"));
         return;
       }
       setJoinError("");
       router.push(`/room/${trimmed}`);
     },
-    [roomId, router],
+    [roomId, router, t],
   );
 
   return (
@@ -76,17 +79,18 @@ export default function HomePage() {
             HOLO
           </span>
           <div className="flex items-center gap-4">
+            <LocaleSwitcher />
             <a
               href="/privacy"
               className="cursor-pointer text-sm font-medium text-white/80 underline-offset-4 transition hover:text-white hover:underline"
             >
-              Privacy
+              {t("navPrivacy")}
             </a>
             <a
               href="/terms"
               className="cursor-pointer text-sm font-medium text-white/80 underline-offset-4 transition hover:text-white hover:underline"
             >
-              Terms
+              {t("navTerms")}
             </a>
             <a
               href="https://github.com/ufraaan/holo"
@@ -94,7 +98,7 @@ export default function HomePage() {
               rel="noreferrer"
               className="cursor-pointer text-sm font-medium text-white/80 underline-offset-4 transition hover:text-white hover:underline"
             >
-              GitHub
+              {t("navGitHub")}
             </a>
           </div>
         </div>
@@ -108,7 +112,7 @@ export default function HomePage() {
             }`}
             style={{ transitionDelay: bgLoaded ? "100ms" : "0ms" }}
           >
-            Drop, relay, <em className="not-italic">done</em>.
+            {t("hero")}
           </h1>
           <p
             className={`mx-auto mt-6 max-w-lg text-base leading-relaxed text-white/70 transition-all duration-700 ${
@@ -118,7 +122,7 @@ export default function HomePage() {
             }`}
             style={{ transitionDelay: bgLoaded ? "200ms" : "0ms" }}
           >
-            Share any file or text instantly.<br />Just create a room and share the 6-character code.
+            {t("subtitle")}
           </p>
 
           <div
@@ -132,30 +136,30 @@ export default function HomePage() {
             <button
               type="button"
               onClick={handleCreate}
-              className="glass-btn h-12 cursor-pointer rounded-xl border border-white/10 bg-white/[0.02] px-4 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="glass-btn h-12 cursor-pointer rounded-xl border border-white/10 bg-white/[0.02] px-4 text-sm font-semibold text-white transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               style={{
                 boxShadow:
                   "0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15)",
               }}
             >
-              Create room
+              {t("createRoom")}
             </button>
 
             <div className="flex items-center gap-3 text-sm text-white/80 before:h-px before:flex-1 before:bg-white/35 after:h-px after:flex-1 after:bg-white/35">
-              or
+              {t("or")}
             </div>
 
             <form onSubmit={handleJoin} className="mx-auto grid w-full max-w-md grid-cols-[1fr_auto] gap-3">
               <label className="sr-only" htmlFor="join-room-id">
-                Enter room ID
+                {t("enterRoomId")}
               </label>
               <input
                 id="join-room-id"
                 type="text"
-                placeholder="Enter room ID"
+                placeholder={t("enterRoomId")}
                 value={roomId}
                 onChange={(e) => setRoomId(e.target.value)}
-                className="h-12 rounded-xl border border-white/10 bg-white/[0.02] px-4 text-sm text-white placeholder:text-white/70 backdrop-blur-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                className="h-12 rounded-xl border border-white/10 bg-white/[0.02] px-4 text-sm text-white placeholder:text-white/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                 style={{
                   boxShadow:
                     "0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15)",
@@ -163,13 +167,13 @@ export default function HomePage() {
               />
               <button
                 type="submit"
-                className="glass-btn h-12 cursor-pointer rounded-xl border border-white/10 bg-white/[0.02] px-5 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                className="glass-btn h-12 cursor-pointer rounded-xl border border-white/10 bg-white/[0.02] px-5 text-sm font-semibold text-white transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                 style={{
                   boxShadow:
                     "0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15)",
                 }}
               >
-                Join
+                {t("join")}
               </button>
             </form>
             {joinError && (
@@ -189,7 +193,7 @@ export default function HomePage() {
           style={{ transitionDelay: bgLoaded ? "400ms" : "0ms" }}
         >
           <div className="mx-auto mb-3 h-px w-48 bg-gradient-to-r from-transparent via-white/15 to-transparent" />
-          no storage · no accounts · just a room
+          {t("footer")}
         </div>
       </div>
     </section>

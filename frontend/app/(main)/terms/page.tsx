@@ -1,9 +1,13 @@
+import { getTranslations } from "next-intl/server";
 import TermsClient from "./TermsClient";
 
-export const metadata = {
-  title: "Terms of Service",
-  description: "Holo provides ephemeral file and text sharing with no storage. Open-source, no accounts required. Use at your own responsibility.",
-};
+export async function generateMetadata() {
+  const t = await getTranslations("LegalMetadata");
+  return {
+    title: t("termsTitle"),
+    description: t("termsDescription"),
+  };
+}
 
 export default function TermsPage() {
   return <TermsClient />;

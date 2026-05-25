@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   decodeWsData,
@@ -15,7 +16,7 @@ export type { Transfer, TextShare } from "./room-utils";
 
 export interface ConnectionToast {
   id: string;
-  message: string;
+  type: "joined" | "left";
 }
 
 interface UseRoomWebSocketOptions {
@@ -40,6 +41,7 @@ export function useRoomWebSocket({
   roomId,
   clientId,
 }: UseRoomWebSocketOptions): UseRoomWebSocketReturn {
+  const t = useTranslations("WebSocketErrors");
   const [status, setStatus] = useState<RoomStatus>("connecting");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [transfers, setTransfers] = useState<Record<string, Transfer>>({});
@@ -56,14 +58,12 @@ export function useRoomWebSocket({
   const sendJson = useCallback((msg: unknown) => {
     const ws = wsRef.current;
     if (!ws || ws.readyState !== WebSocket.OPEN) {
-      setErrorMessage(
-        "Unable to send data because the room connection is not open.",
-      );
+      setErrorMessage(t("sendFailed"));
       return;
     }
     const text = JSON.stringify(msg);
     ws.send(textEncoder.encode(text));
-  }, []);
+  }, [t]);
 
   const handleFiles = useCallback(
     async (files: FileList | null) => {
@@ -158,9 +158,7 @@ export function useRoomWebSocket({
       console.error("WebSocket construction failed", err);
       startTransition(() => {
         setStatus("closed");
-        setErrorMessage(
-          "Could not open a WebSocket connection. Check that the relay server is running and NEXT_PUBLIC_WS_URL is correct.",
-        );
+        setErrorMessage(t("connectionFailed"));
       });
       return;
     }
@@ -174,9 +172,7 @@ export function useRoomWebSocket({
     };
     ws.onclose = (ev) => {
       setStatus("closed");
-      const reason =
-        ev.reason ||
-        "Connection closed. The relay may be offline, unreachable, or refused the handshake.";
+      const reason = ev.reason || t("connectionClosed");
       setErrorMessage(reason);
       console.warn("WebSocket closed", {
         code: ev.code,
@@ -186,9 +182,7 @@ export function useRoomWebSocket({
     };
     ws.onerror = (ev) => {
       setStatus("closed");
-      setErrorMessage(
-        "A WebSocket error occurred. Check the browser console and that the Go relay is reachable.",
-      );
+      setErrorMessage(t("wsError"));
       console.error("WebSocket error", ev);
     };
     ws.onmessage = async (ev) => {
@@ -213,13 +207,9 @@ export function useRoomWebSocket({
               const capturedCurrent = current;
               toastTimerRef.current = setTimeout(() => {
                 if (prevClientCountRef.current !== capturedCurrent) return;
-                const message =
-                  capturedCurrent > capturedPrev
-                    ? "someone joined the room"
-                    : "someone left the room";
                 const toast: ConnectionToast = {
                   id: crypto.randomUUID(),
-                  message,
+                  type: capturedCurrent > capturedPrev ? "joined" : "left",
                 };
                 setToasts((t) => [...t, toast]);
                 setTimeout(() => {
@@ -321,7 +311,7 @@ export function useRoomWebSocket({
       wsRef.current = null;
       incomingBlobPartsRef.current = {};
     };
-  }, [roomId, clientId, reconnectKey]);
+  }, [roomId, clientId, reconnectKey, t]);
 
   return useMemo(
     () => ({

@@ -1,5 +1,14 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { ReactNode } from "react";
+import messages from "../../messages/en.json";
+
+const I18nProvider = ({ children }: { children: ReactNode }) => (
+  <NextIntlClientProvider locale="en" messages={messages} timeZone="UTC">
+    {children}
+  </NextIntlClientProvider>
+);
 
 beforeAll(() => {
   vi.spyOn(console, "warn").mockImplementation(() => {});
@@ -78,16 +87,18 @@ function connect() {
 
 describe("useRoomWebSocket", () => {
   it("starts in connecting status", () => {
-    const { result } = renderHook(() =>
-      useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+    const { result } = renderHook(
+      () => useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+      { wrapper: I18nProvider },
     );
 
     expect(result.current.status).toBe("connecting");
   });
 
   it("transitions to connected on open", () => {
-    const { result } = renderHook(() =>
-      useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+    const { result } = renderHook(
+      () => useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+      { wrapper: I18nProvider },
     );
 
     connect();
@@ -97,8 +108,9 @@ describe("useRoomWebSocket", () => {
   });
 
   it("transitions to closed on close", () => {
-    const { result } = renderHook(() =>
-      useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+    const { result } = renderHook(
+      () => useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+      { wrapper: I18nProvider },
     );
 
     connect();
@@ -111,8 +123,9 @@ describe("useRoomWebSocket", () => {
   });
 
   it("updates clientCount on room-state", async () => {
-    const { result } = renderHook(() =>
-      useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+    const { result } = renderHook(
+      () => useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+      { wrapper: I18nProvider },
     );
 
     connect();
@@ -127,8 +140,9 @@ describe("useRoomWebSocket", () => {
   });
 
   it("shows toast when client count changes", async () => {
-    const { result } = renderHook(() =>
-      useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+    const { result } = renderHook(
+      () => useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+      { wrapper: I18nProvider },
     );
 
     connect();
@@ -146,12 +160,13 @@ describe("useRoomWebSocket", () => {
     });
 
     expect(result.current.toasts.length).toBeGreaterThanOrEqual(1);
-    expect(result.current.toasts[0].message).toBe("someone joined the room");
+    expect(result.current.toasts[0].type).toBe("joined");
   });
 
   it("adds incoming transfer on file-meta", async () => {
-    const { result } = renderHook(() =>
-      useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+    const { result } = renderHook(
+      () => useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+      { wrapper: I18nProvider },
     );
 
     connect();
@@ -171,8 +186,9 @@ describe("useRoomWebSocket", () => {
   });
 
   it("completes incoming file on file-chunk with final", async () => {
-    const { result } = renderHook(() =>
-      useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+    const { result } = renderHook(
+      () => useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+      { wrapper: I18nProvider },
     );
 
     connect();
@@ -199,8 +215,9 @@ describe("useRoomWebSocket", () => {
   });
 
   it("adds incoming text-share", async () => {
-    const { result } = renderHook(() =>
-      useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+    const { result } = renderHook(
+      () => useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+      { wrapper: I18nProvider },
     );
 
     connect();
@@ -221,8 +238,9 @@ describe("useRoomWebSocket", () => {
 
   it("sendJson sends JSON text over the socket", () => {
     const sendSpy = vi.fn();
-    const { result } = renderHook(() =>
-      useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+    const { result } = renderHook(
+      () => useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+      { wrapper: I18nProvider },
     );
 
     connect();
@@ -236,8 +254,9 @@ describe("useRoomWebSocket", () => {
   });
 
   it("handleRetry reconnects", () => {
-    const { result } = renderHook(() =>
-      useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+    const { result } = renderHook(
+      () => useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+      { wrapper: I18nProvider },
     );
 
     connect();
@@ -251,8 +270,9 @@ describe("useRoomWebSocket", () => {
   });
 
   it("sets error when sendJson is called while not open", () => {
-    const { result } = renderHook(() =>
-      useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+    const { result } = renderHook(
+      () => useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+      { wrapper: I18nProvider },
     );
 
     act(() => {
@@ -263,8 +283,9 @@ describe("useRoomWebSocket", () => {
   });
 
   it("handles text-share with customName", async () => {
-    const { result } = renderHook(() =>
-      useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+    const { result } = renderHook(
+      () => useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+      { wrapper: I18nProvider },
     );
 
     connect();
