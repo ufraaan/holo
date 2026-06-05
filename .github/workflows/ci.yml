@@ -63,3 +63,29 @@ jobs:
       - name: Build
         run: go build -o /dev/null ./cmd/holo-server/
 
+  e2e:
+    name: E2E (Playwright)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: backend/go.mod
+
+      - name: Install deps
+        run: bun install --frozen-lockfile
+
+      - name: Install Playwright Chromium
+        run: bun run playwright install chromium
+
+      - name: Run e2e tests
+        run: bun run test:e2e
+        env:
+          CI: true
+
