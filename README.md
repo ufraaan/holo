@@ -113,6 +113,17 @@ holo/
 | **memory** | holds one chunk per connection at a time; slow consumers get disconnected | sender processes one chunk at a time; receiver holds all chunks until the final one arrives, then assembles |
 | **lifecycle** | rooms auto-expire after **10 minutes** of inactivity, garbage collector runs every minute | ephemeral. refresh the page and you start fresh |
 
+## scalability
+
+the relay is i/o bound, not compute bound. it never touches disk, runs no queries, and keeps no state.
+
+- **~900 clients per room** before the join/leave broadcast storm starts a cascade
+- **10,000+ concurrent connections** across multiple rooms (tested, no failure)
+- **relay latency ~0.1ms** at low room sizes
+- could run on a raspberry pi - a gigabit ethernet port is the real bottleneck
+
+see [LOAD_TEST.md](LOAD_TEST.md) for the full breakdown.
+
 ## running locally
 
 > see [CONTRIBUTING.md](CONTRIBUTING.md) for detailed setup instructions, codebase conventions, and how to submit changes.
