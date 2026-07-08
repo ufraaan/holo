@@ -73,6 +73,13 @@
     "someoneJoined": "alguém entrou na sala",
     "someoneLeft": "alguém saiu da sala"
   },
+  "ChatBox": {
+    "transfers": "Transferências",
+    "chat": "Chat",
+    "messageInput": "Digite uma mensagem\u2026",
+    "send": "Enviar",
+    "empty": "Nenhuma mensagem ainda."
+  },
   "WebSocketErrors": {
     "sendFailed": "Não foi possível enviar dados porque a conexão com a sala não está aberta.",
     "connectionFailed": "Não foi possível abrir uma conexão WebSocket. Verifique se o servidor relay está funcionando e se NEXT_PUBLIC_WS_URL está correto.",
