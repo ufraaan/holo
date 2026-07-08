@@ -54,7 +54,7 @@ text shares and chat messages work the same way, but as single messages rather t
 all communication uses JSON messages over the websocket:
 
 | type | purpose | payload |
-|---|---|---|---|
+|---|---|---|
 | `file-meta` | announces a new file transfer | `fileId`, `name`, `size`, `mime` |
 | `file-chunk` | carries one 64 KB chunk | `fileId`, `chunk` (base64), `offset`, `final` |
 | `text` | sends a text share | `text`, `customName?` |
