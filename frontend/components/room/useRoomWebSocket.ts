@@ -3,10 +3,13 @@ import { startTransition, useCallback, useEffect, useMemo, useRef, useState } fr
 import {
   decodeWsData,
   encodeFileToChunks,
+  generateChatId,
   generateFileId,
   generateTextId,
+  getChatName,
   getWsUrl,
   textEncoder,
+  type ChatMessage,
   type TextShare,
   type Transfer,
 } from "./room-utils";
@@ -31,9 +34,13 @@ interface UseRoomWebSocketReturn {
   toasts: ConnectionToast[];
   transfers: Record<string, Transfer>;
   textShares: Record<string, TextShare>;
+  chatMessages: ChatMessage[];
+  currentSenderId: string;
+  currentSenderName: string;
   sendJson: (msg: unknown) => void;
   handleFiles: (files: FileList | null) => Promise<void>;
   handleSendText: (text: string, customName: string) => { id: string; timestamp: number };
+  sendChatMessage: (text: string) => void;
   handleRetry: () => void;
 }
 
@@ -46,6 +53,7 @@ export function useRoomWebSocket({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [transfers, setTransfers] = useState<Record<string, Transfer>>({});
   const [textShares, setTextShares] = useState<Record<string, TextShare>>({});
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [clientCount, setClientCount] = useState(0);
   const [toasts, setToasts] = useState<ConnectionToast[]>([]);
   const [reconnectKey, setReconnectKey] = useState(0);
@@ -134,6 +142,25 @@ export function useRoomWebSocket({
       return { id, timestamp };
     },
     [sendJson],
+  );
+
+  const sendChatMessage = useCallback(
+    (text: string) => {
+      const id = generateChatId();
+      const timestamp = Date.now();
+      const senderName = getChatName(clientId);
+
+      setChatMessages((prev) => [
+        ...prev,
+        { id, text, senderId: clientId, senderName, timestamp },
+      ]);
+
+      sendJson({
+        type: "chat-message",
+        payload: { id, text, senderId: clientId, senderName, timestamp },
+      });
+    },
+    [clientId, sendJson],
   );
 
   const handleRetry = useCallback(() => {
@@ -289,22 +316,47 @@ export function useRoomWebSocket({
             typeof text === "string" &&
             typeof timestamp === "number"
           ) {
-            setTextShares((prev) => ({
-              ...prev,
-              [id]: {
-                id,
-                text,
-                customName: typeof customName === "string" ? customName : undefined,
-                timestamp,
-                direction: "incoming",
-              },
-            }));
+              setTextShares((prev) => ({
+                ...prev,
+                [id]: {
+                  id,
+                  text,
+                  customName: typeof customName === "string" ? customName : undefined,
+                  timestamp,
+                  direction: "incoming",
+                },
+              }));
+            }
+          } else if (msg.type === "chat-message") {
+            const payload = msg.payload as {
+              id?: unknown;
+              text?: unknown;
+              senderId?: unknown;
+              senderName?: unknown;
+              timestamp?: unknown;
+            };
+            const id = payload.id;
+            const text = payload.text;
+            const senderId = payload.senderId;
+            const senderName = payload.senderName;
+            const timestamp = payload.timestamp;
+            if (
+              typeof id === "string" &&
+              typeof text === "string" &&
+              typeof senderId === "string" &&
+              typeof senderName === "string" &&
+              typeof timestamp === "number"
+            ) {
+              setChatMessages((prev) => [
+                ...prev,
+                { id, text, senderId, senderName, timestamp },
+              ]);
+            }
           }
+        } catch {
+          // ignore malformed
         }
-      } catch {
-        // ignore malformed
-      }
-    };
+      };
 
     return () => {
       ws.close();
@@ -321,11 +373,15 @@ export function useRoomWebSocket({
       toasts,
       transfers,
       textShares,
+      chatMessages,
+      currentSenderId: clientId,
+      currentSenderName: getChatName(clientId),
       sendJson,
       handleFiles,
       handleSendText,
+      sendChatMessage,
       handleRetry,
     }),
-    [status, errorMessage, clientCount, toasts, transfers, textShares, sendJson, handleFiles, handleSendText, handleRetry],
+    [status, errorMessage, clientCount, toasts, transfers, textShares, chatMessages, sendJson, handleFiles, handleSendText, sendChatMessage, handleRetry, clientId],
   );
 }

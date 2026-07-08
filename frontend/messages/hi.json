@@ -73,6 +73,13 @@
     "someoneJoined": "कोई रूम में शामिल हुआ",
     "someoneLeft": "कोई रूम छोड़कर गया"
   },
+  "ChatBox": {
+    "transfers": "ट्रांसफर",
+    "chat": "चैट",
+    "messageInput": "संदेश लिखें\u2026",
+    "send": "भेजें",
+    "empty": "अभी तक कोई संदेश नहीं।"
+  },
   "WebSocketErrors": {
     "sendFailed": "रूम कनेक्शन खुला न होने के कारण डेटा भेजने में असमर्थ।",
     "connectionFailed": "WebSocket कनेक्शन नहीं खोल सका। जांचें कि रिले सर्वर चल रहा है और NEXT_PUBLIC_WS_URL सही है।",

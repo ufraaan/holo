@@ -16,6 +16,14 @@ function I18nProvider({ children }: { children: ReactNode }) {
   );
 }
 
+const defaultChatProps = {
+  chatMessages: [],
+  onSendChatMessage: vi.fn(),
+  status: "connected" as const,
+  currentSenderId: "me",
+  currentSenderName: "Aki",
+};
+
 describe("ConnectionToast", () => {
   it("renders nothing when toasts is empty", () => {
     const { container } = render(
@@ -286,10 +294,10 @@ describe("TextInputArea", () => {
 });
 
 describe("TransferList", () => {
-  it("shows empty state", () => {
+  it("shows empty state on transfers tab", () => {
     render(
       <I18nProvider>
-        <TransferList transfers={{}} textShares={{}} />
+        <TransferList transfers={{}} textShares={{}} {...defaultChatProps} />
       </I18nProvider>,
     );
     expect(screen.getByText("No transfers yet.")).toBeInTheDocument();
@@ -304,6 +312,7 @@ describe("TransferList", () => {
             t1: { id: "t1", text: "older", timestamp: 100, direction: "incoming" },
             t2: { id: "t2", text: "newer", timestamp: 200, direction: "incoming" },
           }}
+          {...defaultChatProps}
         />
       </I18nProvider>,
     );
@@ -320,6 +329,7 @@ describe("TransferList", () => {
           textShares={{
             t1: { id: "t1", text: "hello world", timestamp: 1000, direction: "incoming" },
           }}
+          {...defaultChatProps}
         />
       </I18nProvider>,
     );
@@ -336,6 +346,7 @@ describe("TransferList", () => {
           textShares={{
             t1: { id: "t1", text: "sent text", timestamp: 1000, direction: "outgoing" },
           }}
+          {...defaultChatProps}
         />
       </I18nProvider>,
     );
@@ -351,6 +362,7 @@ describe("TransferList", () => {
             a: { id: "a", name: "alpha.txt", size: 100, mime: "text/plain", progress: 100, direction: "outgoing" },
           }}
           textShares={{}}
+          {...defaultChatProps}
         />
       </I18nProvider>,
     );
@@ -367,10 +379,39 @@ describe("TransferList", () => {
             f1: { id: "f1", name: "doc.pdf", size: 500, mime: "application/pdf", progress: 100, url: "blob:abc", direction: "incoming" },
           }}
           textShares={{}}
+          {...defaultChatProps}
         />
       </I18nProvider>,
     );
     const link = screen.getByText("Save");
     expect(link.closest("a")).toHaveAttribute("download", "doc.pdf");
+  });
+
+  it("switches to chat tab and shows empty chat state", () => {
+    render(
+      <I18nProvider>
+        <TransferList transfers={{}} textShares={{}} {...defaultChatProps} />
+      </I18nProvider>,
+    );
+    fireEvent.click(screen.getByText("Chat"));
+    expect(screen.getByText("No messages yet.")).toBeInTheDocument();
+  });
+
+  it("shows chat messages on chat tab", () => {
+    render(
+      <I18nProvider>
+        <TransferList
+          transfers={{}}
+          textShares={{}}
+          {...defaultChatProps}
+          chatMessages={[
+            { id: "c1", text: "hello", senderId: "other", senderName: "Ken", timestamp: 100 },
+          ]}
+        />
+      </I18nProvider>,
+    );
+    fireEvent.click(screen.getByText("Chat"));
+    expect(screen.getByText("hello")).toBeInTheDocument();
+    expect(screen.getByText("Ken")).toBeInTheDocument();
   });
 });

@@ -30,7 +30,7 @@ export default function RoomPage() {
   const textInputRef = useRef<HTMLTextAreaElement>(null);
   const textNameInputRef = useRef<HTMLInputElement>(null);
 
-  const { status, errorMessage, clientCount, toasts, transfers, textShares, handleFiles, handleSendText, handleRetry } =
+  const { status, errorMessage, clientCount, toasts, transfers, textShares, chatMessages, currentSenderId, currentSenderName, handleFiles, handleSendText, sendChatMessage, handleRetry } =
     useRoomWebSocket({ roomId, clientId });
 
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -133,7 +133,15 @@ export default function RoomPage() {
             </div>
 
             <div className="md:pl-2">
-              <TransferList transfers={transfers} textShares={textShares} />
+              <TransferList
+                transfers={transfers}
+                textShares={textShares}
+                chatMessages={chatMessages}
+                onSendChatMessage={sendChatMessage}
+                status={status}
+                currentSenderId={currentSenderId}
+                currentSenderName={currentSenderName}
+              />
             </div>
           </div>
         </div>
