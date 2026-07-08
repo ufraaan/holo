@@ -73,6 +73,13 @@
     "someoneJoined": "jemand ist dem Raum beigetreten",
     "someoneLeft": "jemand hat den Raum verlassen"
   },
+  "ChatBox": {
+    "transfers": "Übertragungen",
+    "chat": "Chat",
+    "messageInput": "Gib eine Nachricht ein\u2026",
+    "send": "Senden",
+    "empty": "Noch keine Nachrichten."
+  },
   "WebSocketErrors": {
     "sendFailed": "Daten können nicht gesendet werden, da die Raumverbindung nicht offen ist.",
     "connectionFailed": "WebSocket-Verbindung konnte nicht geöffnet werden. Überprüfen Sie, ob der Relay-Server läuft und NEXT_PUBLIC_WS_URL korrekt ist.",
