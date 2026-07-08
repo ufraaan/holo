@@ -301,4 +301,62 @@ describe("useRoomWebSocket", () => {
       expect(result.current.textShares["t2"].customName).toBe("alice");
     });
   });
+
+  it("adds incoming chat-message", async () => {
+    const { result } = renderHook(
+      () => useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+      { wrapper: I18nProvider },
+    );
+
+    connect();
+
+    await receiveMessage(
+      JSON.stringify({
+        type: "chat-message",
+        payload: { id: "c1", text: "hello", senderId: "other", senderName: "Ken", timestamp: 1000 },
+      }),
+    );
+
+    await waitFor(() => {
+      expect(result.current.chatMessages.length).toBe(1);
+    });
+    expect(result.current.chatMessages[0].text).toBe("hello");
+    expect(result.current.chatMessages[0].senderName).toBe("Ken");
+  });
+
+  it("sendChatMessage adds message locally and sends over socket", () => {
+    const sendSpy = vi.fn();
+    const { result } = renderHook(
+      () => useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+      { wrapper: I18nProvider },
+    );
+
+    connect();
+    MockWebSocket.instances[0].send = sendSpy;
+
+    act(() => {
+      result.current.sendChatMessage("hey folks");
+    });
+
+    expect(result.current.chatMessages.length).toBe(1);
+    expect(result.current.chatMessages[0].text).toBe("hey folks");
+    expect(sendSpy).toHaveBeenCalledOnce();
+
+    const raw = sendSpy.mock.calls[0][0];
+    const decoded = typeof raw === "string" ? raw : new TextDecoder().decode(raw);
+    const sent = JSON.parse(decoded);
+    expect(sent.type).toBe("chat-message");
+    expect(sent.payload.text).toBe("hey folks");
+    expect(sent.payload.senderId).toBe("test-client");
+  });
+
+  it("exposes currentSenderId and currentSenderName", () => {
+    const { result } = renderHook(
+      () => useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+      { wrapper: I18nProvider },
+    );
+
+    expect(result.current.currentSenderId).toBe("test-client");
+    expect(result.current.currentSenderName).toBeTruthy();
+  });
 });
