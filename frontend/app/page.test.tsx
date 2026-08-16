@@ -37,6 +37,17 @@ describe("HomePage", () => {
     expect(pushMock).toHaveBeenCalledWith("/room/abc123");
   });
 
+  it("joins a room using lowercase version of entered room id", () => {
+    render(<HomePage />, { wrapper: I18nProvider });
+
+    fireEvent.change(screen.getByPlaceholderText("Enter room ID"), {
+      target: { value: "AbC123" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Join" }));
+
+    expect(pushMock).toHaveBeenCalledWith("/room/abc123");
+  });
+
   it("does not join when room id is blank", () => {
     render(<HomePage />, { wrapper: I18nProvider });
 
