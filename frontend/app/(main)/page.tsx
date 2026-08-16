@@ -26,7 +26,7 @@ export default function HomePage() {
   const handleJoin = useCallback(
     (e: FormEvent) => {
       e.preventDefault();
-      const trimmed = roomId.trim();
+      const trimmed = roomId.trim().toLowerCase();
       if (!trimmed) return;
       if (containsProfanity(trimmed)) {
         setJoinError(t("profanityError"));
@@ -158,7 +158,7 @@ export default function HomePage() {
                 type="text"
                 placeholder={t("enterRoomId")}
                 value={roomId}
-                onChange={(e) => setRoomId(e.target.value)}
+                onChange={(e) => setRoomId(e.target.value.toLowerCase())}
                 className="h-12 rounded-xl border border-white/10 bg-white/[0.02] px-4 text-sm text-white placeholder:text-white/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                 style={{
                   boxShadow:
