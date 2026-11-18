@@ -106,9 +106,6 @@ test("three peers chat and receive byte-identical files without WebSocket file t
     await saveAndCheck(alice, "friends.pdf", content, info.outputPath("alice.pdf"));
     await saveAndCheck(bob, "friends.pdf", content, info.outputPath("bob.pdf"));
     await expect(sender.getByRole("group").filter({ has: sender.getByText("friends.pdf", { exact: true }) })).toHaveCount(2);
-    if (process.env.HOLO_FORCE_RELAY === "1") {
-      await expect(alice.getByRole("group").filter({ has: alice.getByText("friends.pdf", { exact: true }) })).toContainText("relay");
-    }
     expect(socketTypes).toContain("signal");
     expect(socketTypes).not.toContain("file-meta");
     expect(socketTypes).not.toContain("file-chunk");

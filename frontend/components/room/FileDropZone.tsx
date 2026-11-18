@@ -10,10 +10,7 @@ interface FileDropZoneProps {
   onDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
   p2pEnabled?: boolean;
   peers?: Peer[];
-  recipientId?: string;
-  onRecipientChange?: (id: string) => void;
   p2pError?: string | null;
-  canReceiveToDisk?: boolean;
 }
 
 export default function FileDropZone({
@@ -24,10 +21,7 @@ export default function FileDropZone({
   onDragOver,
   p2pEnabled = false,
   peers = [],
-  recipientId = "",
-  onRecipientChange,
   p2pError = null,
-  canReceiveToDisk = false,
 }: FileDropZoneProps) {
   const t = useTranslations("FileDropZone");
   const banner = p2pError ?? errorMessage;
@@ -71,39 +65,6 @@ export default function FileDropZone({
           />
           {t("chooseFile")}
         </label>
-
-        {p2pEnabled && (
-          <div className="grid w-full max-w-xs gap-1.5 text-left">
-            <p className="text-[11px] leading-snug text-white/60">{t("p2pSendLimit")}</p>
-            <p className="text-[11px] leading-snug text-white/60">
-              {canReceiveToDisk ? t("p2pReceiveDisk") : t("p2pReceiveMemory")}
-            </p>
-          </div>
-        )}
-
-        {p2pEnabled && peers.length > 0 && onRecipientChange && (
-          <div className="flex w-full max-w-xs items-center justify-between gap-2 text-xs text-white/70">
-            <label htmlFor="p2p-recipient" className="shrink-0">
-              {t("sendTo")}
-            </label>
-            <select
-              id="p2p-recipient"
-              value={recipientId}
-              onChange={(e) => onRecipientChange(e.target.value)}
-              className="min-w-0 flex-1 cursor-pointer rounded-md border border-white/15 bg-black/40 px-2 py-1.5 text-xs text-white"
-            >
-              <option value="">{t("everyone", { count: peers.length })}</option>
-              {recipientId && !peers.some((peer) => peer.id === recipientId) && (
-                <option value={recipientId} disabled>{t("recipientUnavailable")}</option>
-              )}
-              {peers.map((peer) => (
-                <option key={peer.id} value={peer.id}>
-                  {peer.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
 
         {p2pEnabled && peers.length === 0 && status === "connected" && (
           <p className="text-[11px] text-white/60">{t("waitingForPeers")}</p>

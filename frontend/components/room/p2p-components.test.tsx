@@ -44,64 +44,6 @@ function p2pTransfer(overrides: Record<string, unknown> = {}) {
 }
 
 describe("FileDropZone P2P", () => {
-  it("explains the send cap and the memory receiving cap separately", () => {
-    render(
-      <I18nProvider>
-        <FileDropZone
-          status="connected"
-          errorMessage={null}
-          {...handlers}
-          p2pEnabled
-          canReceiveToDisk={false}
-        />
-      </I18nProvider>,
-    );
-
-    expect(screen.getByText(/up to 3 GB per file/i)).toBeInTheDocument();
-    expect(screen.getByText(/100 MB/i)).toBeInTheDocument();
-  });
-
-  it("announces the disk receiving cap when the browser supports it", () => {
-    render(
-      <I18nProvider>
-        <FileDropZone
-          status="connected"
-          errorMessage={null}
-          {...handlers}
-          p2pEnabled
-          canReceiveToDisk
-        />
-      </I18nProvider>,
-    );
-
-    expect(screen.getByText(/save straight to disk/i)).toBeInTheDocument();
-    expect(screen.queryByText(/100 MB/i)).not.toBeInTheDocument();
-  });
-
-  it("lets the sender pick one recipient instead of everyone", () => {
-    const onRecipientChange = vi.fn();
-    render(
-      <I18nProvider>
-        <FileDropZone
-          status="connected"
-          errorMessage={null}
-          {...handlers}
-          p2pEnabled
-          peers={[
-            { id: "peer-1", name: "Ken" },
-            { id: "peer-2", name: "Mai" },
-          ]}
-          recipientId=""
-          onRecipientChange={onRecipientChange}
-        />
-      </I18nProvider>,
-    );
-
-    expect(screen.getByRole("option", { name: "Everyone (2)" })).toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText("Send to"), { target: { value: "peer-2" } });
-    expect(onRecipientChange).toHaveBeenCalledWith("peer-2");
-  });
-
   it("shows the P2P error instead of a generic relay error", () => {
     render(
       <I18nProvider>
@@ -130,7 +72,7 @@ describe("FileDropZone P2P", () => {
 });
 
 describe("TransferList P2P cards", () => {
-  it("shows peer, route, status and progress for a transfer", () => {
+  it("shows direction, status and progress without peer or route labels", () => {
     render(
       <I18nProvider>
         <TransferList
@@ -140,9 +82,9 @@ describe("TransferList P2P cards", () => {
       </I18nProvider>,
     );
 
-    expect(screen.getByText(/with Ken/)).toBeInTheDocument();
+    expect(screen.queryByText(/with Ken/)).not.toBeInTheDocument();
     expect(screen.getByText(/Incoming/)).toBeInTheDocument();
-    expect(screen.getByText(/direct/)).toBeInTheDocument();
+    expect(screen.queryByText(/direct/)).not.toBeInTheDocument();
     expect(screen.getByText(/Transferring/)).toBeInTheDocument();
     expect(screen.getByText(/40%/)).toBeInTheDocument();
   });
@@ -220,7 +162,7 @@ describe("TransferList P2P cards", () => {
 
     expect(screen.getByText("Saved to disk")).toBeInTheDocument();
     expect(screen.queryByText("Save")).not.toBeInTheDocument();
-    expect(screen.getByText(/relay/)).toBeInTheDocument();
+    expect(screen.queryByText(/relay/)).not.toBeInTheDocument();
   });
 
   it("keeps the save action for memory-mode completions", () => {
