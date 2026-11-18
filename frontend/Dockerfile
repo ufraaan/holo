@@ -7,8 +7,8 @@ RUN bun install --frozen-lockfile
 
 COPY . .
 
-ARG NEXT_PUBLIC_WS_URL=ws://localhost:8080/ws
-ENV NEXT_PUBLIC_WS_URL=${NEXT_PUBLIC_WS_URL}
+ARG NEXT_PUBLIC_SIGNALING_URL=ws://localhost:8788/ws
+ENV NEXT_PUBLIC_SIGNALING_URL=${NEXT_PUBLIC_SIGNALING_URL}
 
 RUN bun run build
 

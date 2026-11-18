@@ -7,15 +7,59 @@ on:
       - master
 
 jobs:
+  p2p:
+    name: Signaling and P2P Transfers
+    # Keep Chromium on an OS supported by the pinned Playwright version.
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install signaling dependencies
+        working-directory: signaling
+        run: bun install --frozen-lockfile
+
+      - name: Check signaling runtime
+        working-directory: signaling
+        run: bun run check
+
+      - name: Check Worker bundle without deploying
+        working-directory: signaling
+        run: bunx wrangler deploy --dry-run --env=""
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: bun install --frozen-lockfile
+
+      - name: Install Chromium
+        working-directory: frontend
+        run: bunx playwright install --with-deps chromium
+
+      - name: Test P2P transfers locally
+        working-directory: frontend
+        run: bun run test:e2e
+        env:
+          CI: true
+
   frontend-core:
     name: Frontend Lint Typecheck Build Test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: frontend
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -34,68 +78,4 @@ jobs:
 
       - name: Build
         run: bun run build
-
-  backend-core:
-    name: Backend Format Vet Test
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: backend/go.mod
-
-      - name: Check gofmt
-        run: |
-          test -z "$(gofmt -l .)" || (echo "Run gofmt on backend files" && gofmt -l . && exit 1)
-
-      - name: Go vet
-        run: go vet ./...
-
-      - name: Go tests
-        run: go test ./...
-
-      - name: Build
-        run: go build -o /dev/null ./cmd/holo-server/
-
-  e2e:
-    name: E2E (Playwright)
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: oven-sh/setup-bun@v2
-
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: backend/go.mod
-          cache: true
-
-      - name: Install deps
-        run: bun install --frozen-lockfile
-
-      - name: Cache Playwright browsers
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('frontend/bun.lock') }}
-          restore-keys: |
-            playwright-${{ runner.os }}-
-
-      - name: Install Playwright Chromium
-        run: bun run playwright install chromium
-
-      - name: Run e2e tests
-        run: bun run test:e2e
-        env:
-          CI: true
-          NEXT_PUBLIC_WS_URL: ws://localhost:8080/ws
 
