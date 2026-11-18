@@ -74,7 +74,7 @@ export default function PrivacyClient() {
             <section className="space-y-3">
               <h2 className="text-lg font-semibold text-white">1. No Data Storage</h2>
               <p>
-                Holo is built on a simple principle: <strong>we don&apos;t store your data</strong>. Files and text shared through Holo are transferred directly between devices via WebSocket connections. Once a file is transferred or a room is closed, all data is permanently discarded from memory.
+                Holo is built on a simple principle: <strong>we don&apos;t store your data</strong>. Files are transferred over encrypted WebRTC connections, directly where possible or through a TURN relay. Chat and text use a room WebSocket. Holo does not persist their contents on the signaling service. Files you choose to save remain on your own device.
               </p>
             </section>
 
@@ -88,28 +88,28 @@ export default function PrivacyClient() {
             <section className="space-y-3">
               <h2 className="text-lg font-semibold text-white">3. Room IDs and Ephemeral Sessions</h2>
               <p>
-                Room IDs are randomly generated strings (6 characters) created client-side. Rooms exist only in memory on the relay server and are automatically removed when all participants disconnect. We do not track or log room IDs.
+                Room IDs are randomly generated strings (6 characters) created client-side. Room membership is tied to active WebSocket connections and ends when all participants disconnect. The service retains bounded operational rate counters, not chat or file contents. Infrastructure providers may process connection metadata.
               </p>
             </section>
 
             <section className="space-y-3">
-              <h2 className="text-lg font-semibold text-white">4. WebSocket Connections</h2>
+              <h2 className="text-lg font-semibold text-white">4. Peer Connections</h2>
               <p>
-                Holo uses WebSocket connections to relay data between devices in real-time. The relay server acts as a temporary bridge and does not inspect, store, or log the contents of your transfers. Connection metadata (such as IP addresses) may be processed temporarily for the duration of the connection to facilitate the transfer.
+                Cloudflare handles room coordination and optional TURN relaying. Direct peer connections can expose your IP address to other participants. TURN carries encrypted file traffic when a direct connection is unavailable. Providers process network metadata to operate these services.
               </p>
             </section>
 
             <section className="space-y-3">
-              <h2 className="text-lg font-semibold text-white">5. No Cookies or Tracking</h2>
+              <h2 className="text-lg font-semibold text-white">5. Preferences and Analytics</h2>
               <p>
-                Holo does not use cookies, local storage, or session storage to track users. If analytics are enabled (via Umami), they are configured to respect privacy and do not collect personally identifiable information.
+                A language-preference cookie remembers your selected locale. Holo does not store accounts or cross-refresh transfer history. Optional Umami analytics and Sentry error reporting may process usage or diagnostic metadata; avoid including private file contents in error reports.
               </p>
             </section>
 
             <section className="space-y-3">
               <h2 className="text-lg font-semibold text-white">6. Third-Party Services</h2>
               <p>
-                The self-hosted version of Holo does not rely on third-party services. If you are using a hosted instance, that instance may have its own privacy practices. The open-source code is available on{" "}
+                This version uses Cloudflare for signaling and optional TURN relaying. The hosted website uses Vercel, and optional analytics or error reporting may use additional providers. Their operational metadata handling follows their respective policies. The open-source code is available on{" "}
                  <a href="https://github.com/ufraaan/holo" target="_blank" rel="noreferrer" className="text-white underline underline-offset-4 transition hover:text-white/80">
                     GitHub
                   </a>{" "}

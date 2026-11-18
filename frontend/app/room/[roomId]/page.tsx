@@ -20,21 +20,29 @@ function useClientId() {
 }
 
 export default function RoomPage() {
-  const t = useTranslations("RoomPage");
   const params = useParams<{ roomId: string }>();
-  const roomId = params.roomId;
+  return <RoomContent key={params.roomId} roomId={params.roomId} />;
+}
+
+function RoomContent({ roomId }: { roomId: string }) {
+  const t = useTranslations("RoomPage");
   const clientId = useClientId();
 
   const [bgLoaded, setBgLoaded] = useState(false);
   const handleBgLoaded = useCallback(() => setBgLoaded(true), []);
   const textInputRef = useRef<HTMLTextAreaElement>(null);
   const textNameInputRef = useRef<HTMLInputElement>(null);
+  const [selectedPeerId, setSelectedPeerId] = useState("");
 
-  const { status, errorMessage, clientCount, toasts, transfers, textShares, chatMessages, currentSenderId, currentSenderName, handleFiles, handleSendText, sendChatMessage, handleRetry } =
+  const { status, errorMessage, clientCount, toasts, transfers, textShares, chatMessages, currentSenderId, currentSenderName, handleFiles, handleSendText, sendChatMessage, handleRetry, p2pEnabled, peers, p2pError, canReceiveToDisk, acceptTransfer, pauseTransfer, resumeTransfer, cancelTransfer } =
     useRoomWebSocket({ roomId, clientId });
 
+  // Keep the explicit choice if someone leaves: never widen a private send to
+  // everyone in the room without a new selection.
+  const recipientId = selectedPeerId;
+
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    void handleFiles(e.target.files);
+    void handleFiles(e.target.files, recipientId ? [recipientId] : undefined);
     e.target.value = "";
   };
 
@@ -54,7 +62,7 @@ export default function RoomPage() {
   const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    void handleFiles(e.dataTransfer.files);
+    void handleFiles(e.dataTransfer.files, recipientId ? [recipientId] : undefined);
   };
 
   const onDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -114,7 +122,7 @@ export default function RoomPage() {
         <div className="mx-auto mt-4 w-full max-w-6xl rounded-2xl border border-white/20 bg-black/25 p-4 sm:p-6 md:p-8">
           <RoomHeader roomId={roomId} status={status} clientCount={clientCount} onRetry={handleRetry} />
 
-          <div className="mt-6 grid gap-6 md:grid-cols-2 md:gap-8 md:items-start">
+          <div className="mt-6 grid gap-6 md:grid-cols-2 md:gap-8 md:items-stretch">
             <div className="grid gap-4 md:pr-2">
               <FileDropZone
                 status={status}
@@ -122,6 +130,12 @@ export default function RoomPage() {
                 onInputChange={onInputChange}
                 onDrop={onDrop}
                 onDragOver={onDragOver}
+                p2pEnabled={p2pEnabled}
+                peers={peers}
+                recipientId={recipientId}
+                onRecipientChange={setSelectedPeerId}
+                p2pError={p2pError}
+                canReceiveToDisk={canReceiveToDisk}
               />
               <TextInputArea
                 status={status}
@@ -141,6 +155,11 @@ export default function RoomPage() {
                 status={status}
                 currentSenderId={currentSenderId}
                 currentSenderName={currentSenderName}
+                p2pEnabled={p2pEnabled}
+                onAcceptTransfer={acceptTransfer}
+                onPauseTransfer={pauseTransfer}
+                onResumeTransfer={resumeTransfer}
+                onCancelTransfer={cancelTransfer}
               />
             </div>
           </div>

@@ -11,3 +11,8 @@
   }
 }
 
+
+/* Keep the blackout free of the underlying page's scrollbar. */
+html:has(dialog[data-privacy-screen][open]) {
+  overflow: hidden;
+}
