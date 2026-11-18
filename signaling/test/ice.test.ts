@@ -2,11 +2,12 @@ import { env } from "cloudflare:workers";
 import { runInDurableObject } from "cloudflare:test";
 import { describe, expect, it } from "vitest";
 import { TURN_HOURLY_LIMIT } from "../src/room";
+import { tokenFor } from "./connect";
 import { mintTurnCredentials, STUN_ONLY, TURN_TTL_SECONDS, type IceServer } from "../src/turn";
 
 async function stub() {
   const target = env.ROOMS.getByName(`ice-${crypto.randomUUID()}`);
-  const response = await target.fetch("https://holo.test/ws?roomId=ice&clientId=a", { headers: { Upgrade: "websocket" } });
+  const response = await target.fetch(`https://holo.test/ws?roomId=ice&clientId=a&token=${tokenFor("a")}`, { headers: { Upgrade: "websocket" } });
   response.webSocket!.accept();
   return target;
 }

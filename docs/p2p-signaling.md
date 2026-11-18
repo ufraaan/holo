@@ -27,9 +27,9 @@ The full contract, limits, and error codes live in
 
 Join flow:
 
-1. Client opens `ws(s)://<signaling-host>/ws?roomId=<room>&clientId=<tab id>`.
-2. Worker checks `Origin` against `ORIGINS`, validates both ids, upgrades.
-3. Room accepts the socket, tags it with `{clientId}`, broadcasts `room-state`
+1. Client opens `ws(s)://<signaling-host>/ws?roomId=<room>&clientId=<tab id>&token=<secret>`.
+2. Worker checks `Origin` against `ORIGINS`, validates all three values, upgrades.
+3. Room accepts the socket, tags it with `{clientId, token}`, broadcasts `room-state`
    to everyone. `peerIds` includes the recipient itself.
 4. Each peer offers to the others through `{type:"signal", payload:{to,signal}}`.
    The server stamps `from` from the socket, so a client cannot spoof a sender.
@@ -40,8 +40,10 @@ Join flow:
 6. Chat and text shares ride the same socket and are broadcast excluding the
    sender. Chat `senderId`/`senderName` are server-assigned.
 
-Reconnect with the same `clientId` replaces the previous socket (close code
-`4000`), which keeps `peerIds` unique across reload races.
+Reconnect with the same `clientId` and `token` replaces the previous socket (close
+code `4000`), which keeps `peerIds` unique across reload races. A client that
+presents a different token for a live `clientId` gets `409 id-in-use` and the
+live socket is left alone, so a room peer cannot evict or impersonate another.
 
 ## TURN
 

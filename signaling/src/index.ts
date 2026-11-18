@@ -7,6 +7,7 @@ export { Room };
 
 const ROOM_ID = /^[a-z0-9][a-z0-9-]{0,63}$/;
 const CLIENT_ID = /^[A-Za-z0-9_-]{1,64}$/;
+const CLIENT_TOKEN = /^[A-Za-z0-9_-]{16,64}$/;
 
 function turnEnabled(value: string): boolean {
   return value === "true";
@@ -61,7 +62,8 @@ export default {
 
     const roomId = url.searchParams.get("roomId") ?? "";
     const clientId = url.searchParams.get("clientId") ?? "";
-    if (!ROOM_ID.test(roomId) || !CLIENT_ID.test(clientId)) {
+    const token = url.searchParams.get("token") ?? "";
+    if (!ROOM_ID.test(roomId) || !CLIENT_ID.test(clientId) || !CLIENT_TOKEN.test(token)) {
       return Response.json({ error: "bad-request" }, { status: 400 });
     }
 

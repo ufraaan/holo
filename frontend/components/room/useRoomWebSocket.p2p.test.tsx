@@ -135,7 +135,7 @@ function makeFiles(): File[] {
 
 function renderRoom() {
   return renderHook(
-    () => useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
+    () => useRoomWebSocket({ roomId: "test-room", clientId: "test-client", token: "test-token-0000" }),
     { wrapper: I18nProvider },
   );
 }

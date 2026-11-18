@@ -45,7 +45,7 @@ peer connections. TURN credentials are delivered by the worker inside
 `iceServers`; the frontend never holds the TURN API token.
 
 The hook auto-reconnects signaling with bounded exponential backoff (500 ms →
-8 s) using the same `clientId`. Reconnecting does **not** destroy the
+8 s) using the same `clientId` and `token`. Reconnecting does **not** destroy the
 `PeerTransferManager` or drop received chunks; only a room change, client
 change or unmount does.
 
@@ -67,7 +67,7 @@ completions show "Saved to disk" and no download link.
 
 ## Hook surface
 
-`useRoomWebSocket({ roomId, clientId })` exposes:
+`useRoomWebSocket({ roomId, clientId, token })` exposes:
 
 ```ts
 p2pEnabled: boolean;

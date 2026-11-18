@@ -17,9 +17,12 @@ const ICE_MIN_INTERVAL_MS = 60_000;
 export const TURN_HOURLY_LIMIT = 180;
 const ROOM_ID = /^[a-z0-9][a-z0-9-]{0,63}$/;
 const CLIENT_ID = /^[A-Za-z0-9_-]{1,64}$/;
+const CLIENT_TOKEN = /^[A-Za-z0-9_-]{16,64}$/;
 
 interface Attachment {
   clientId: string;
+  /** Secret claimed on first join; a reconnect must present the same value. */
+  token: string;
   /** Set on the stale socket while a duplicate client id replaces it. */
   replaced?: boolean;
   windowStart?: number;
@@ -66,7 +69,8 @@ export class Room extends DurableObject<Env> {
     const url = new URL(request.url);
     const roomId = url.searchParams.get("roomId") ?? "";
     const clientId = url.searchParams.get("clientId") ?? "";
-    if (!ROOM_ID.test(roomId) || !CLIENT_ID.test(clientId)) {
+    const token = url.searchParams.get("token") ?? "";
+    if (!ROOM_ID.test(roomId) || !CLIENT_ID.test(clientId) || !CLIENT_TOKEN.test(token)) {
       return Response.json({ error: "bad-request" }, { status: 400 });
     }
 
@@ -76,11 +80,16 @@ export class Room extends DurableObject<Env> {
       return Response.json({ error: "room-full" }, { status: 409 });
     }
     const previousAttachment = previous ? this.attachment(previous) : null;
+    // Only the tab that claimed this id may replace it; otherwise any peer that
+    // read `peerIds` from room-state could evict and impersonate it.
+    if (previous && previousAttachment?.token !== token) {
+      return Response.json({ error: "id-in-use" }, { status: 409 });
+    }
     // A reload can race the old socket's close; mark it replaced so peerIds
     // stays unique no matter which socket the runtime reports first.
     if (previous) {
       try {
-        previous.serializeAttachment({ clientId, replaced: true } satisfies Attachment);
+        previous.serializeAttachment({ clientId, token, replaced: true } satisfies Attachment);
       } catch {
         // socket already closing
       }
@@ -94,7 +103,7 @@ export class Room extends DurableObject<Env> {
     const pair = new WebSocketPair();
     const [client, server] = Object.values(pair) as [WebSocket, WebSocket];
     this.ctx.acceptWebSocket(server);
-    server.serializeAttachment({ ...previousAttachment, clientId } satisfies Attachment);
+    server.serializeAttachment({ ...previousAttachment, clientId, token } satisfies Attachment);
 
     this.broadcastState();
     return new Response(null, { status: 101, webSocket: client });
@@ -277,7 +286,10 @@ export class Room extends DurableObject<Env> {
     if (typeof value.clientId !== "string" || !CLIENT_ID.test(value.clientId)) {
       return null;
     }
-    return { ...value, clientId: value.clientId };
+    if (typeof value.token !== "string" || !CLIENT_TOKEN.test(value.token)) {
+      return null;
+    }
+    return { ...value, clientId: value.clientId, token: value.token };
   }
 
   private broadcastState(exclude?: WebSocket): void {
