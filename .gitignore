@@ -5,3 +5,9 @@ test-results/
 playwright-report/
 playwright/.cache/
 paper/
+.vercel
+
+# Local dependencies and credentials
+node_modules/
+.env
+.dev.vars

@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import Script from "next/script";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
+import { PrivacyScreen } from "../components/PrivacyScreen";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -71,6 +72,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <body>
         <NextIntlClientProvider messages={messages}>
           {children}
+          <PrivacyScreen />
         </NextIntlClientProvider>
       </body>
     </html>

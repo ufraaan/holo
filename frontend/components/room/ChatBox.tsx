@@ -57,13 +57,13 @@ export default function ChatBox({
   const overLimit = input.length > MAX_CHAT_LENGTH;
 
   return (
-    <div className="flex h-full min-h-[320px] flex-col">
+    <div className="flex min-h-[320px] flex-1 flex-col gap-3">
       {messages.length === 0 ? (
         <div className="flex flex-1 items-center justify-center">
           <p className="text-sm text-white/50">{t("empty")}</p>
         </div>
       ) : (
-        <div className="flex-1 space-y-2 overflow-y-auto pr-1 max-h-[400px]">
+        <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1 max-h-[400px]">
           {messages.map((msg) => {
             const isOwn = msg.senderId === currentSenderId;
             return (
@@ -103,7 +103,7 @@ export default function ChatBox({
         </div>
       )}
 
-      <div className="mt-3 flex items-end gap-2 border-t border-white/10 pt-3">
+      <div className="mbs-auto flex shrink-0 items-start gap-2 border-t border-white/10 pbs-3">
         <div className="flex-1">
           <textarea
             ref={inputRef}

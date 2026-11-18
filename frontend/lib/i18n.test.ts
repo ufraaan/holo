@@ -4,6 +4,7 @@ import es from "../messages/es.json";
 import fr from "../messages/fr.json";
 import pt from "../messages/pt.json";
 import de from "../messages/de.json";
+import hi from "../messages/hi.json";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type NestedRecord = Record<string, any>;
@@ -18,7 +19,7 @@ function flattenKeys(obj: NestedRecord, prefix = ""): string[] {
   });
 }
 
-const locales = { en, es, fr, pt, de };
+const locales = { en, es, fr, pt, de, hi };
 const localeNames = Object.keys(locales);
 
 describe("translation files", () => {
