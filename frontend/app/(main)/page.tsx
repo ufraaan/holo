@@ -3,8 +3,6 @@ import { useRouter } from "next/navigation";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { FormEvent, useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
-import BackgroundVideo from "../../components/BackgroundVideo";
-import LocaleSwitcher from "../../components/LocaleSwitcher";
 import { generateRoomId } from "../../components/room/room-utils";
 import { containsProfanity } from "../../lib/profanity";
 
@@ -15,8 +13,7 @@ export default function HomePage() {
   const t = useTranslations("HomePage");
   const [roomId, setRoomId] = useState("");
   const [joinError, setJoinError] = useState("");
-  const [bgLoaded, setBgLoaded] = useState(false);
-  const handleBgLoaded = useCallback(() => setBgLoaded(true), []);
+  const bgLoaded = true;
 
   const handleCreate = useCallback(() => {
     const id = generateRoomId();
@@ -39,70 +36,8 @@ export default function HomePage() {
   );
 
   return (
-    <section className="fixed inset-0 z-50 overflow-y-auto">
-      <BackgroundVideo onLoad={handleBgLoaded} />
-      <div className="absolute inset-0 bg-black/35" />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/20 to-black/45" />
-      <div className="absolute inset-x-0 bottom-0 h-[48%] bg-gradient-to-t from-black/75 via-black/52 to-transparent backdrop-blur-[3px]" />
-
-      <style>{`
-        .glass-btn {
-          position: relative;
-          overflow: hidden;
-        }
-        .glass-btn::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-        }
-        .glass-btn::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 1px;
-          height: 100%;
-          background: linear-gradient(180deg, rgba(255,255,255,0.25), transparent, rgba(255,255,255,0.1));
-        }
-      `}</style>
-      <div className="relative z-10 flex h-full flex-col px-6 pb-10 pt-8 text-white md:px-10">
-        <div
-          className={`flex w-full items-center justify-between transition-all duration-700 ${
-            bgLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[-20px]"
-          }`}
-        >
-          <span className="text-sm font-semibold uppercase tracking-[0.22em] text-white/90 [font-family:Inter,ui-sans-serif,system-ui,sans-serif]">
-            HOLO
-          </span>
-          <div className="flex items-center gap-4">
-            <LocaleSwitcher />
-            <a
-              href="/privacy"
-              className="cursor-pointer text-sm font-medium text-white/80 underline-offset-4 transition hover:text-white hover:underline"
-            >
-              {t("navPrivacy")}
-            </a>
-            <a
-              href="/terms"
-              className="cursor-pointer text-sm font-medium text-white/80 underline-offset-4 transition hover:text-white hover:underline"
-            >
-              {t("navTerms")}
-            </a>
-            <a
-              href="https://github.com/ufraaan/holo"
-              target="_blank"
-              rel="noreferrer"
-              className="cursor-pointer text-sm font-medium text-white/80 underline-offset-4 transition hover:text-white hover:underline"
-            >
-              {t("navGitHub")}
-            </a>
-          </div>
-        </div>
-
+    <section className="relative flex min-h-[80dvh] flex-col pb-6">
+      <div className="flex flex-1 flex-col">
         <div className="mx-auto mt-12 flex w-full max-w-3xl flex-1 flex-col items-center justify-center text-center">
           <h1
             className={`${titleFont.className} text-5xl font-medium tracking-tight text-white/95 transition-all duration-700 md:text-6xl ${
@@ -136,11 +71,7 @@ export default function HomePage() {
             <button
               type="button"
               onClick={handleCreate}
-              className="glass-btn h-12 cursor-pointer rounded-xl border border-white/10 bg-white/[0.02] px-4 text-sm font-semibold text-white transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-              style={{
-                boxShadow:
-                  "0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15)",
-              }}
+              className="glass-button glass-control-large"
             >
               {t("createRoom")}
             </button>
@@ -149,7 +80,7 @@ export default function HomePage() {
               {t("or")}
             </div>
 
-            <form onSubmit={handleJoin} className="mx-auto grid w-full max-w-md grid-cols-[1fr_auto] gap-3">
+            <form onSubmit={handleJoin} className="mx-auto grid w-full max-w-md grid-cols-[minmax(0,1fr)_auto] gap-3">
               <label className="sr-only" htmlFor="join-room-id">
                 {t("enterRoomId")}
               </label>
@@ -159,19 +90,11 @@ export default function HomePage() {
                 placeholder={t("enterRoomId")}
                 value={roomId}
                 onChange={(e) => setRoomId(e.target.value.toLowerCase())}
-                className="h-12 rounded-xl border border-white/10 bg-white/[0.02] px-4 text-sm text-white placeholder:text-white/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-                style={{
-                  boxShadow:
-                    "0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15)",
-                }}
+                className="glass-field glass-control-large"
               />
               <button
                 type="submit"
-                className="glass-btn h-12 cursor-pointer rounded-xl border border-white/10 bg-white/[0.02] px-5 text-sm font-semibold text-white transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-                style={{
-                  boxShadow:
-                    "0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15)",
-                }}
+                className="glass-button glass-control-large"
               >
                 {t("join")}
               </button>
