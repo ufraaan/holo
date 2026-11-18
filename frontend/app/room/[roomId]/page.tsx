@@ -5,7 +5,7 @@ import "../../../components/room/room.css";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import BackgroundVideo from "../../../components/BackgroundVideo";
+import Background from "../../../components/Background";
 import LocaleSwitcher from "../../../components/LocaleSwitcher";
 import { useRoomWebSocket } from "../../../components/room/useRoomWebSocket";
 import ConnectionToast from "../../../components/room/ConnectionToast";
@@ -83,7 +83,7 @@ function RoomContent({ roomId }: { roomId: string }) {
 
   return (
     <section className="room-view fixed inset-0 z-40 overflow-y-auto">
-      <BackgroundVideo onLoad={handleBgLoaded} />
+      <Background onLoad={handleBgLoaded} />
       <ConnectionToast toasts={toasts} />
       <div className="fixed inset-0 bg-black/45" />
       <div className="fixed inset-0 bg-gradient-to-b from-black/30 via-black/35 to-black/55" />

@@ -21,7 +21,7 @@
   },
   "HomePage": {
     "hero": "Ablegen, weiterleiten, erledigt.",
-    "subtitle": "Teilen Sie jede Datei oder jeden Text sofort.\nErstellen Sie einen Raum und teilen Sie den 6-stelligen Code.",
+    "subtitle": "Teilen Sie jede Datei oder jeden Text sofort.\nErstellen Sie einen Raum und teilen Sie den 6\u2011stelligen Code.",
     "createRoom": "Raum erstellen",
     "or": "oder",
     "join": "Beitreten",
