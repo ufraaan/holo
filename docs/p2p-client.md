@@ -56,6 +56,7 @@ change or unmount does.
 | Sending (any browser) | 3 GiB per file (`MAX_FILE_BYTES`) |
 | Receiving, File System Access API (Chromium desktop) | 3 GiB, saved straight to disk |
 | Receiving, memory fallback | 100 MiB aggregate (`MEMORY_LIMIT_BYTES`) |
+| Unaccepted offers per peer | 64 (`MAX_PENDING_INBOUND`); further offers are cancelled, and cancelling an offered transfer frees its slot |
 
 Both tabs must stay open for the whole transfer. There is no resume across
 page reloads or across devices/tabs that were closed — recovery covers a
