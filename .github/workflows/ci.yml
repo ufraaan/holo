@@ -9,7 +9,8 @@ on:
 jobs:
   p2p:
     name: Signaling and P2P Transfers
-    runs-on: ubuntu-latest
+    # Keep Chromium on an OS supported by the pinned Playwright version.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
@@ -29,7 +30,7 @@ jobs:
 
       - name: Check Worker bundle without deploying
         working-directory: signaling
-        run: bunx wrangler deploy --dry-run
+        run: bunx wrangler deploy --dry-run --env=""
 
       - name: Install frontend dependencies
         working-directory: frontend
