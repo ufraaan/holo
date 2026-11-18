@@ -2,6 +2,15 @@ import { exports } from "cloudflare:workers";
 
 export const ORIGIN = "http://localhost:3000";
 
+/** Stable per-id token so a reconnect proves ownership the way the app does. */
+export function tokenFor(clientId: string): string {
+  return `tok_${clientId}`.padEnd(16, "0");
+}
+
+function wsUrl(roomId: string, clientId: string, token: string): string {
+  return `https://holo.test/ws?roomId=${roomId}&clientId=${clientId}&token=${token}`;
+}
+
 export interface ServerFrame {
   type: string;
   payload?: Record<string, unknown>;
@@ -23,13 +32,13 @@ export async function open(
   roomId: string,
   clientId: string,
   origin: string | null = ORIGIN,
+  token: string = tokenFor(clientId),
 ): Promise<Client> {
   const headers: Record<string, string> = { Upgrade: "websocket" };
   if (origin) headers.Origin = origin;
-  const response = await exports.default.fetch(
-    `https://holo.test/ws?roomId=${roomId}&clientId=${clientId}`,
-    { headers },
-  );
+  const response = await exports.default.fetch(wsUrl(roomId, clientId, token), {
+    headers,
+  });
   if (response.status !== 101 || !response.webSocket) {
     throw new Error(`upgrade failed: ${response.status} ${await response.text()}`);
   }
@@ -40,12 +49,11 @@ export async function attempt(
   roomId: string,
   clientId: string,
   origin: string | null = ORIGIN,
+  token: string = tokenFor(clientId),
 ): Promise<Response> {
   const headers: Record<string, string> = { Upgrade: "websocket" };
   if (origin) headers.Origin = origin;
-  return exports.default.fetch(`https://holo.test/ws?roomId=${roomId}&clientId=${clientId}`, {
-    headers,
-  });
+  return exports.default.fetch(wsUrl(roomId, clientId, token), { headers });
 }
 
 function wrap(ws: WebSocket, id: string): Client {

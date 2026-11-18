@@ -30,6 +30,8 @@ export interface Peer {
 interface UseRoomWebSocketOptions {
   roomId: string;
   clientId: string;
+  /** Per-tab secret; a reconnect without it cannot reclaim the id. */
+  token: string;
 }
 
 interface UseRoomWebSocketReturn {
@@ -104,6 +106,7 @@ function toTransfer(transfer: PeerTransfer): Transfer {
 export function useRoomWebSocket({
   roomId,
   clientId,
+  token,
 }: UseRoomWebSocketOptions): UseRoomWebSocketReturn {
   const t = useTranslations("WebSocketErrors");
   const tp = useTranslations("P2P");
@@ -378,7 +381,7 @@ export function useRoomWebSocket({
 
     const openSocket = () => {
       try {
-        ws = new WebSocket(getWsUrl(roomId, clientId));
+        ws = new WebSocket(getWsUrl(roomId, clientId, token));
       } catch (err) {
         console.error("WebSocket construction failed", err);
         startTransition(() => {
@@ -575,7 +578,7 @@ export function useRoomWebSocket({
       }
       if (wsRef.current === ws) wsRef.current = null;
       };
-  }, [roomId, clientId, reconnectKey, p2pEnabled, t, sendRaw]);
+  }, [roomId, clientId, token, reconnectKey, p2pEnabled, t, sendRaw]);
 
   return useMemo(
     () => ({

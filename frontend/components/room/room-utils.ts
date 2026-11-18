@@ -52,7 +52,7 @@ export interface ChatMessage {
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
 
-export function getWsUrl(roomId: string, clientId: string): string {
+export function getWsUrl(roomId: string, clientId: string, token: string): string {
   let base = process.env.NEXT_PUBLIC_SIGNALING_URL;
   if (!base) {
     const local = typeof window === "undefined" || ["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname);
@@ -63,6 +63,7 @@ export function getWsUrl(roomId: string, clientId: string): string {
   if (url.protocol !== "ws:" && url.protocol !== "wss:") throw new Error("Signaling requires a WebSocket URL");
   url.searchParams.set("roomId", roomId);
   url.searchParams.set("clientId", clientId);
+  url.searchParams.set("token", token);
   return url.toString();
 }
 

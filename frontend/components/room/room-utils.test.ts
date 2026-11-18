@@ -8,14 +8,15 @@ import {
 } from "./room-utils";
 
 describe("getWsUrl", () => {
-  it("appends roomId and clientId as query params", () => {
-    const url = getWsUrl("abc123", "client-uuid");
+  it("appends roomId, clientId, and token as query params", () => {
+    const url = getWsUrl("abc123", "client-uuid", "tok_abcdefghijkl");
     expect(url).toContain("roomId=abc123");
     expect(url).toContain("clientId=client-uuid");
+    expect(url).toContain("token=tok_abcdefghijkl");
   });
 
   it("returns a valid ws URL", () => {
-    const url = getWsUrl("x", "y");
+    const url = getWsUrl("x", "y", "tok_abcdefghijkl");
     expect(() => new URL(url)).not.toThrow();
     expect(url.startsWith("ws://") || url.startsWith("wss://")).toBe(true);
   });
