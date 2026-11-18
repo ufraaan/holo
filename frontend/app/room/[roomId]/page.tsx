@@ -15,10 +15,10 @@ import TextInputArea from "../../../components/room/TextInputArea";
 import TransferList from "../../../components/room/TransferList";
 
 function newId(): string {
-  // randomUUID needs a secure context; fall back to random hex.
+  // randomUUID needs a secure context; getRandomValues does not and is a CSPRNG.
   return (
     crypto.randomUUID?.() ??
-    Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join("")
+    Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, "0")).join("")
   );
 }
 
