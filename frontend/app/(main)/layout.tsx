@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import Background from "../../components/Background";
+import PageOverlay from "../../components/PageOverlay";
 import LocaleSwitcher from "../../components/LocaleSwitcher";
 
 export default async function MainLayout({ children }: { children: ReactNode }) {
@@ -12,11 +13,11 @@ export default async function MainLayout({ children }: { children: ReactNode }) 
     // underneath.
     <div className="relative min-h-dvh bg-black text-white">
       <Background />
-      <div className="fixed inset-0 bg-black/60" />
+      <PageOverlay />
       <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-6xl flex-col px-4 py-6 sm:px-6 md:px-10 md:py-8">
         <header className="flex flex-wrap items-center justify-between gap-4 text-sm font-normal">
-          <Link href="/" className="text-white/85">HOLO</Link>
-          <nav aria-label="Main navigation" className="flex flex-wrap items-center gap-4 text-white/70">
+          <Link href="/" className="intro-left text-white/85">HOLO</Link>
+          <nav aria-label="Main navigation" className="intro-right flex flex-wrap items-center gap-4 text-white/70">
             <LocaleSwitcher />
             <Link href="/privacy" className="transition hover:text-white">{t("privacy")}</Link>
             <Link href="/terms" className="transition hover:text-white">{t("terms")}</Link>

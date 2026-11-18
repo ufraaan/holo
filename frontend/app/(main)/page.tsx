@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { Plus_Jakarta_Sans } from "next/font/google";
-import { FormEvent, useCallback, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { generateRoomId } from "../../components/room/room-utils";
 import { containsProfanity } from "../../lib/profanity";
@@ -13,7 +13,14 @@ export default function HomePage() {
   const t = useTranslations("HomePage");
   const [roomId, setRoomId] = useState("");
   const [joinError, setJoinError] = useState("");
-  const bgLoaded = true;
+  const [bgLoaded, setBgLoaded] = useState(false);
+
+  // Flip after the first frame so the hero's transition classes actually run
+  // on mount instead of arriving already settled.
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setBgLoaded(true));
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   const handleCreate = useCallback(() => {
     const id = generateRoomId();
@@ -36,9 +43,9 @@ export default function HomePage() {
   );
 
   return (
-    <section className="relative flex min-h-[80dvh] flex-col pb-6">
+    <section className="relative flex min-h-[80dvh] flex-1 flex-col pb-6">
       <div className="flex flex-1 flex-col">
-        <div className="mx-auto mt-12 flex w-full max-w-3xl flex-1 flex-col items-center justify-center text-center">
+        <div className="mx-auto mt-12 flex w-full max-w-3xl flex-1 flex-col items-center justify-center pb-[20vh] text-center">
           <h1
             className={`${titleFont.className} text-5xl font-medium tracking-tight text-white/95 transition-all duration-700 md:text-6xl ${
               bgLoaded
