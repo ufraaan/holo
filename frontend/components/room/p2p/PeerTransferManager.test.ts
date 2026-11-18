@@ -1,6 +1,7 @@
 import { webcrypto } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PeerTransferManager } from "./PeerTransferManager";
+import { MAX_PENDING_INBOUND } from "./PeerTransferManager";
 import { MAX_FILE_BYTES, MEMORY_LIMIT_BYTES, supportsDiskSaving } from "./types";
 import type { PeerTransfer } from "./types";
 import { MockNetwork, makeBytes, waitFor } from "./mock-peer";
@@ -562,8 +563,28 @@ describe("PeerTransferManager", () => {
     await waitFor(() => b.updates.get(received.id)?.status === "completed");
   });
 
-  it("enforces the aggregate in-memory cap and frees it on cancel", async () => {
+  it("caps unaccepted inbound offers per peer", async () => {
     const net = new MockNetwork();
+    installRtc(net);
+    const a = harness(net, "a");
+    const b = harness(net, "b");
+    await connect(net, [a, b]);
+
+    const channel = net.channelOf("a");
+    for (let i = 0; i < MAX_PENDING_INBOUND + 5; i++) {
+      channel.send(offerControl(`f${i}`, 16, { name: `f${i}.bin` }));
+    }
+
+    await waitFor(() => b.errors.some((item) => /too many pending/i.test(item)));
+    expect(b.updates.size).toBe(MAX_PENDING_INBOUND);
+
+    // Cancelling an offered transfer frees its slot.
+    b.manager.cancelTransfer("in:a:f0");
+    channel.send(offerControl("after", 16, { name: "after.bin" }));
+    await waitFor(() => b.updates.get("in:a:after")?.status === "offered");
+  });
+
+  it("enforces the aggregate in-memory cap and frees it on cancel", async () => {    const net = new MockNetwork();
     installRtc(net);
     const a = harness(net, "a", { memoryLimitBytes: 1000 });
     const b = harness(net, "b", { memoryLimitBytes: 1000 });
