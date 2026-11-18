@@ -32,17 +32,12 @@ function RoomContent({ roomId }: { roomId: string }) {
   const handleBgLoaded = useCallback(() => setBgLoaded(true), []);
   const textInputRef = useRef<HTMLTextAreaElement>(null);
   const textNameInputRef = useRef<HTMLInputElement>(null);
-  const [selectedPeerId, setSelectedPeerId] = useState("");
 
-  const { status, errorMessage, clientCount, toasts, transfers, textShares, chatMessages, currentSenderId, currentSenderName, handleFiles, handleSendText, sendChatMessage, handleRetry, p2pEnabled, peers, p2pError, canReceiveToDisk, acceptTransfer, pauseTransfer, resumeTransfer, cancelTransfer } =
+  const { status, errorMessage, clientCount, toasts, transfers, textShares, chatMessages, currentSenderId, currentSenderName, handleFiles, handleSendText, sendChatMessage, handleRetry, p2pEnabled, peers, p2pError, acceptTransfer, pauseTransfer, resumeTransfer, cancelTransfer } =
     useRoomWebSocket({ roomId, clientId });
 
-  // Keep the explicit choice if someone leaves: never widen a private send to
-  // everyone in the room without a new selection.
-  const recipientId = selectedPeerId;
-
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    void handleFiles(e.target.files, recipientId ? [recipientId] : undefined);
+    void handleFiles(e.target.files);
     e.target.value = "";
   };
 
@@ -62,7 +57,7 @@ function RoomContent({ roomId }: { roomId: string }) {
   const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    void handleFiles(e.dataTransfer.files, recipientId ? [recipientId] : undefined);
+    void handleFiles(e.dataTransfer.files);
   };
 
   const onDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -132,10 +127,7 @@ function RoomContent({ roomId }: { roomId: string }) {
                 onDragOver={onDragOver}
                 p2pEnabled={p2pEnabled}
                 peers={peers}
-                recipientId={recipientId}
-                onRecipientChange={setSelectedPeerId}
                 p2pError={p2pError}
-                canReceiveToDisk={canReceiveToDisk}
               />
               <TextInputArea
                 status={status}

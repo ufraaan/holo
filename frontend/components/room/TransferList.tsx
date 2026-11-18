@@ -115,13 +115,6 @@ export default function TransferList({
     }
   };
 
-  const routeLabel = (tr: Transfer): string | null => {
-    if (!p2pEnabled || !tr.connectionType) return null;
-    if (tr.connectionType === "direct") return t("routeDirect");
-    if (tr.connectionType === "relay") return t("routeRelay");
-    return t("routeUnknown");
-  };
-
   const transferActions = (tr: Transfer) => {
     if (!p2pEnabled || !tr.peerId) return null;
     const buttons: { key: string; label: string; onClick?: () => void }[] = [];
@@ -145,12 +138,11 @@ export default function TransferList({
 
   const renderP2pTransfer = (tr: Transfer) => {
     const actions = transferActions(tr) ?? [];
-    const route = routeLabel(tr);
     return (
       <div
         key={tr.id}
         role="group"
-        aria-label={`${tr.name} · ${tr.peerName ?? tr.peerId}`}
+        aria-label={tr.name}
         className="overflow-hidden rounded-lg border border-white/20 bg-white/[0.06] p-3 sm:p-4"
       >
         <div className="flex items-start justify-between gap-2">
@@ -159,8 +151,6 @@ export default function TransferList({
             <p className="mt-0.5 text-xs text-white/50">
               {tr.direction === "incoming" ? t("directionIncoming") : t("directionOutgoing")}
               {` · ${formatSize(tr.size)}`}
-              {tr.peerName ? ` · ${t("withPeer", { name: tr.peerName })}` : ""}
-              {route ? ` · ${route}` : ""}
               {tr.status ? ` · ${statusLabel(tr.status)}` : ""}
               {` · ${tr.progress}%`}
             </p>
