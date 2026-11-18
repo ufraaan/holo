@@ -13,7 +13,7 @@
     "termsTitle": "Terms of Service",
     "termsDescription": "Holo provides ephemeral file and text sharing with no storage. Open-source, no accounts required. Use at your own responsibility.",
     "privacyTitle": "Privacy Policy",
-    "privacyDescription": "Holo stores no data. No accounts, no cookies, no tracking. Files transfer directly between devices and are discarded instantly."
+    "privacyDescription": "How Holo handles shared content, connections, cookies, analytics and error reports."
   },
   "Brand": {
     "headerLabel": "HOLO",
@@ -130,7 +130,7 @@
   "LegalPages": {
     "termsHeading": "Terms of Service",
     "privacyHeading": "Privacy Policy",
-    "lastUpdated": "Last updated: May 1, 2026"
+    "lastUpdated": "Last updated: November 19, 2026"
   },
   "P2P": {
     "iceUnavailable": "Signaling is offline, so a direct connection could not be set up.",

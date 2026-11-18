@@ -57,13 +57,13 @@ export default function ChatBox({
   const overLimit = input.length > MAX_CHAT_LENGTH;
 
   return (
-    <div className="flex min-h-[320px] flex-1 flex-col gap-3">
+    <div className="room-chat flex min-h-0 flex-1 flex-col">
       {messages.length === 0 ? (
-        <div className="flex flex-1 items-center justify-center">
-          <p className="text-sm text-white/50">{t("empty")}</p>
+        <div className="room-chat-messages flex flex-1 items-center justify-center">
+          <p className="room-empty">{t("empty")}</p>
         </div>
       ) : (
-        <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1 max-h-[400px]">
+        <div className="room-chat-messages min-h-0 flex-1 space-y-3 overflow-y-auto">
           {messages.map((msg) => {
             const isOwn = msg.senderId === currentSenderId;
             return (
@@ -72,23 +72,23 @@ export default function ChatBox({
                 className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[85%] rounded-lg px-3 py-2 ${
+                  className={`room-chat-bubble max-w-[85%] rounded-xl px-3.5 py-2.5 ${
                     isOwn
-                      ? "bg-white/15 text-white"
-                      : "bg-white/[0.04] border border-white/10 text-white/90"
+                      ? "border border-white/15 bg-white/[0.08] text-white/90"
+                      : "border border-white/10 bg-white/[0.025] text-white/90"
                   }`}
                 >
                   {!isOwn && (
-                    <p className="text-xs font-medium text-white/60">
+                    <p className="text-xs font-normal text-white/60">
                       {msg.senderName}
                     </p>
                   )}
-                  <p className="mt-0.5 whitespace-pre-wrap break-words text-sm leading-relaxed">
+                  <p className="mt-1 whitespace-pre-wrap [overflow-wrap:anywhere] text-sm leading-relaxed">
                     {msg.text}
                   </p>
                   <p
-                    className={`mt-0.5 text-[10px] ${
-                      isOwn ? "text-white/40" : "text-white/35"
+                    className={`mt-1 text-xs ${
+                      isOwn ? "text-white/50" : "text-white/50"
                     }`}
                   >
                     {isOwn ? currentSenderName : ""}
@@ -103,8 +103,8 @@ export default function ChatBox({
         </div>
       )}
 
-      <div className="mbs-auto flex shrink-0 items-start gap-2 border-t border-white/10 pbs-3">
-        <div className="flex-1">
+      <div className="room-chat-compose mbs-auto flex shrink-0 flex-wrap items-start gap-2 border-t border-white/10">
+        <div className="min-w-0 flex-1">
           <textarea
             ref={inputRef}
             value={input}
@@ -114,11 +114,12 @@ export default function ChatBox({
             disabled={!isConnected}
             rows={1}
             maxLength={MAX_CHAT_LENGTH + 100}
-            className="min-h-[36px] w-full resize-none rounded-lg border border-white/20 bg-white/[0.06] px-3 py-2 text-sm text-white placeholder-white/40 outline-none transition focus:border-white/40 disabled:opacity-40"
+            aria-label={t("messageInput")}
+            className="glass-field room-chat-input"
           />
           <div className="mt-1 flex justify-end">
             <span
-              className={`text-[10px] ${
+              className={`text-xs ${
                 overLimit
                   ? "text-red-400"
                   : input.length > MAX_CHAT_LENGTH * 0.9
@@ -134,7 +135,7 @@ export default function ChatBox({
           type="button"
           onClick={handleSend}
           disabled={!isConnected || !input.trim() || overLimit}
-          className="h-9 shrink-0 cursor-pointer rounded-lg border border-white/25 bg-white/10 px-4 text-sm font-medium text-white/80 transition hover:bg-white/20 disabled:cursor-default disabled:opacity-40"
+          className="glass-button shrink-0"
         >
           {t("send")}
         </button>

@@ -6,6 +6,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { PrivacyScreen } from "../components/PrivacyScreen";
 import "./globals.css";
+import "../components/glass-controls.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const headersList = await headers();
@@ -46,6 +47,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   return (
     <html lang={locale}>
       <head>
+        <Script src="/analytics-privacy.js" strategy="beforeInteractive" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -61,15 +63,17 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           }}
         />
       </head>
+      <body>
       {process.env.NEXT_PUBLIC_UMAMI_URL &&
         process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
           <Script
             defer
+            data-before-send="holoBeforeSend"
             src={process.env.NEXT_PUBLIC_UMAMI_URL}
             data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
           />
         )}
-      <body>
+
         <NextIntlClientProvider messages={messages}>
           {children}
           <PrivacyScreen />

@@ -27,7 +27,7 @@ export default function FileDropZone({
   const banner = p2pError ?? errorMessage;
 
   return (
-    <div className="grid gap-4 md:pr-2">
+    <div className="grid min-w-0 gap-3">
       {status === "connecting" && !banner && (
         <div className="rounded-xl border border-amber-300/40 bg-amber-400/15 px-4 py-3 text-sm text-amber-100">
           {p2pEnabled ? t("p2pConnectingBanner") : t("connectingBanner")}
@@ -41,20 +41,20 @@ export default function FileDropZone({
       )}
 
       <div
-        className={`flex min-h-[180px] flex-col items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-8 text-center ${
+        className={`room-panel room-drop-zone flex flex-col items-center justify-center gap-3 text-center ${
           status !== "connected" ? "opacity-60" : ""
         }`}
         onDrop={status === "connected" ? onDrop : undefined}
         onDragOver={status === "connected" ? onDragOver : undefined}
         tabIndex={0}
       >
-        <p className="text-base font-medium text-white">{t("dropPrompt")}</p>
-        <p className="text-xs text-white/75">{t("choosePrompt")}</p>
+        <p className="text-sm font-normal text-white/90">{t("dropPrompt")}</p>
+        <p className="text-sm text-white/60">{t("choosePrompt")}</p>
         <label
-          className={`inline-flex h-9 items-center justify-center rounded-xl border px-4 text-sm font-medium transition ${
+          className={`glass-button relative inline-flex items-center justify-center ${
             status === "connected"
-              ? "cursor-pointer border-white/10 bg-white/[0.02] text-white hover:bg-white/10"
-              : "cursor-not-allowed border-white/10 bg-white/[0.02] text-white/45"
+              ? "cursor-pointer"
+              : "cursor-not-allowed opacity-45"
           }`}
         >
           <input

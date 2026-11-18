@@ -13,7 +13,7 @@
     "termsTitle": "Conditions d'Utilisation",
     "termsDescription": "Holo permet un partage éphémère de fichiers et de texte sans stockage. Open source, sans compte requis. Utilisez-le sous votre propre responsabilité.",
     "privacyTitle": "Politique de Confidentialité",
-    "privacyDescription": "Holo ne stocke aucune donnée. Pas de comptes, pas de cookies, pas de suivi. Les fichiers sont transférés directement entre appareils et supprimés instantanément."
+    "privacyDescription": "Comment Holo traite les contenus partagés, les connexions, les cookies, les statistiques et les rapports d’erreurs."
   },
   "Brand": {
     "headerLabel": "HOLO",
@@ -130,7 +130,7 @@
   "LegalPages": {
     "termsHeading": "Conditions d'Utilisation",
     "privacyHeading": "Politique de Confidentialité",
-    "lastUpdated": "Dernière mise à jour : 1 mai 2026"
+    "lastUpdated": "Dernière mise à jour : 19 novembre 2026"
   },
   "P2P": {
     "iceUnavailable": "La signalisation est hors ligne, impossible d'établir une connexion directe.",
