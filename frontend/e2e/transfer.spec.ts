@@ -65,8 +65,6 @@ async function openRoom(browser: Browser, count: number, slowReceiver = false, d
       Object.assign(window, { testSockets: sockets, testConnections: connections, testControls: controls, testSignals: signals });
     }, { forceRelay: process.env.HOLO_FORCE_RELAY === "1" });
     const page = await context.newPage();
-    // Rendering can use the poster without waiting for a background video.
-    await page.route("**/landing-backdrop.mp4", (route) => route.abort());
     page.on("websocket", (socket) => socket.on("framesent", ({ payload }) => {
       const raw = typeof payload === "string" ? payload : payload.toString();
       socketTypes.push(JSON.parse(raw).type);
