@@ -18,8 +18,8 @@ browser ── WebSocket ── Cloudflare Worker / room Durable Object ── W
 
 Cloudflare handles room membership, chat, text, and WebRTC connection setup.
 File bytes travel over reliable binary data channels. TURN relays encrypted
-traffic when the browsers cannot connect directly. This branch has no Go server
-or Render dependency.
+traffic when the browsers cannot connect directly. There is no Go server and no
+application relay.
 
 Transfers have independent progress and controls for each recipient. The sender
 advances from receiver acknowledgments after checksum validation and writing.
@@ -89,16 +89,18 @@ recovery. Install Chromium with `bunx playwright install chromium` if needed.
 The disk test replaces the OS picker with a real browser file writer; the native
 picker still needs a manual check. A full 3 GiB transfer is not yet benchmarked.
 
-## preview and production
+## deployment
 
-The `feat/p2p-transfers` preview uses a separate Cloudflare Worker and room
-namespace. Vercel's branch-specific Preview variable selects that backend.
-Production settings and the existing hosted service are unchanged until rollout.
+Production needs a Cloudflare Worker with its own room namespace, TURN
+credentials stored as Worker secrets, an exact `ORIGINS` allowlist, and Vercel's
+Production `NEXT_PUBLIC_SIGNALING_URL` pointing at that Worker. Set the Vercel
+variable before the build that serves traffic; it is inlined at build time and
+there is no runtime fallback.
 
-Before merging, configure a production Worker, TURN credentials, allowed origins,
-and Vercel's Production `NEXT_PUBLIC_SIGNALING_URL`. Then verify production and
-retire the old hosted service separately. Merging source does not delete an
-existing hosting account or service.
+Preview deployments use their own Worker and room namespace selected by Vercel's
+branch-specific Preview variable. Merging source does not create or delete a
+hosting account or service; retire the old Render service separately once the
+Worker deployment is verified.
 
 See [signaling setup](signaling/README.md), [client protocol](docs/p2p-client.md),
 and [contributing](CONTRIBUTING.md).
