@@ -67,7 +67,7 @@ describe("FileDropZone", () => {
         <FileDropZone status="connecting" errorMessage={null} {...handlers} />
       </I18nProvider>,
     );
-    expect(screen.getByText(/Connecting to relay/)).toBeInTheDocument();
+    expect(screen.getByText(/Connecting to room/)).toBeInTheDocument();
   });
 
   it("shows error message", () => {
@@ -413,5 +413,44 @@ describe("TransferList", () => {
     fireEvent.click(screen.getByText("Chat"));
     expect(screen.getByText("hello")).toBeInTheDocument();
     expect(screen.getByText("Ken")).toBeInTheDocument();
+  });
+});
+
+describe("RoomHeader code copying", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  function renderHeader() {
+    render(
+      <I18nProvider>
+        <RoomHeader roomId="yy72d3" status="connected" clientCount={1} onRetry={vi.fn()} />
+      </I18nProvider>,
+    );
+    return screen.getByRole("button", { name: "yy72d3" });
+  }
+
+  it("copies on right click, prevents the context menu, and confirms success", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal("navigator", { clipboard: { writeText } });
+    const code = renderHeader();
+    expect(fireEvent.contextMenu(code)).toBe(false);
+    expect(writeText).toHaveBeenCalledWith("yy72d3");
+    expect(await screen.findByText("Copied")).toBeInTheDocument();
+  });
+
+  it("supports button activation and handles clipboard rejection", async () => {
+    vi.stubGlobal("navigator", { clipboard: { writeText: vi.fn().mockRejectedValue(new Error("denied")) } });
+    fireEvent.click(renderHeader());
+    expect(await screen.findByText("Copy failed — select and copy the code")).toBeInTheDocument();
+  });
+
+  it("shows the hover hint and dismisses it with Escape", () => {
+    const code = renderHeader();
+    fireEvent.mouseEnter(code.parentElement!);
+    expect(screen.getByRole("tooltip")).toHaveClass("opacity-100");
+    expect(screen.getByRole("tooltip")).toHaveTextContent("Right click to copy");
+    fireEvent.keyDown(code, { key: "Escape" });
+    expect(screen.getByRole("tooltip")).toHaveClass("opacity-0");
+    fireEvent.focus(code);
+    expect(screen.getByRole("tooltip")).toHaveClass("opacity-100");
   });
 });

@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useRoomCodeCopy } from "./useRoomCodeCopy";
 import { RoomStatus } from "./useRoomWebSocket";
 
 interface RoomHeaderProps {
@@ -11,6 +12,8 @@ interface RoomHeaderProps {
 
 export default function RoomHeader({ roomId, status, clientCount, onRetry }: RoomHeaderProps) {
   const t = useTranslations("RoomHeader");
+  const { copy, copyStatus, hintVisible, setHintVisible } = useRoomCodeCopy(roomId);
+  const copyHintId = useId();
   const [showDisplay, setShowDisplay] = useState(false);
 
   const close = useCallback(() => setShowDisplay(false), []);
@@ -26,17 +29,54 @@ export default function RoomHeader({ roomId, status, clientCount, onRetry }: Roo
 
   return (
     <>
-      <div className="grid gap-4 border-b border-white/25 pb-4 sm:pb-5 md:grid-cols-2 md:items-center">
+      <div className="room-header flex flex-wrap items-center justify-between gap-4 border-b border-white/15 pb-5">
         <div className="md:justify-self-start">
           <div className="inline-flex items-center gap-2 flex-wrap">
-            <span className="text-xs sm:text-sm text-white/70">{t("shareCode")}</span>
-            <div className="inline-flex items-center rounded-lg border border-white/30 bg-white/10 px-3 py-1 font-mono text-xs sm:text-sm text-white/95 break-all">
-              {roomId}
+            <span className="text-sm font-normal text-white/60">{t("shareCode")}</span>
+            <div
+              className="relative inline-flex"
+              onMouseEnter={() => setHintVisible(true)}
+              onMouseLeave={() => setHintVisible(false)}
+              onFocus={() => setHintVisible(true)}
+              onBlur={() => setHintVisible(false)}
+              onKeyDown={(event) => {
+                if (event.key === "Escape") setHintVisible(false);
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => void copy()}
+                onContextMenu={(event) => {
+                  event.preventDefault();
+                  void copy();
+                }}
+                aria-describedby={copyHintId}
+                className="glass-button room-code cursor-copy break-all active:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >
+                {roomId}
+              </button>
+              <span
+                id={copyHintId}
+                role="tooltip"
+                className={`absolute inset-be-full inset-s-0 z-10 whitespace-nowrap pbe-1 text-[10px] ${hintVisible && !copyStatus ? "opacity-100" : "pointer-events-none opacity-0"}`}
+              >
+                <span className="block rounded border border-white/15 bg-black/90 px-2 py-1 text-white/80">
+                  {t("copyHint")}
+                </span>
+              </span>
+              <span
+                role="status"
+                className={`pointer-events-none absolute inset-be-full inset-s-0 z-10 whitespace-nowrap pbe-1 text-[10px] ${copyStatus ? "opacity-100" : "opacity-0"}`}
+              >
+                <span className="block rounded border border-white/15 bg-black/90 px-2 py-1 text-white/80">
+                  {copyStatus ? t(copyStatus) : ""}
+                </span>
+              </span>
             </div>
             <button
               type="button"
               onClick={() => setShowDisplay(true)}
-              className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-white/25 bg-white/10 transition hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="glass-button room-expand"
               title={t("expandTitle")}
             >
               <svg
@@ -57,9 +97,9 @@ export default function RoomHeader({ roomId, status, clientCount, onRetry }: Roo
             </button>
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm md:justify-self-end">
+        <div className="flex flex-wrap items-center gap-4 text-sm">
           <span
-            className={`inline-flex items-center gap-2 font-medium ${
+            className={`inline-flex items-center gap-2 font-normal ${
               status === "connected"
                 ? "text-emerald-300"
                 : status === "connecting"
@@ -91,7 +131,7 @@ export default function RoomHeader({ roomId, status, clientCount, onRetry }: Roo
             <button
               type="button"
               onClick={onRetry}
-              className="h-9 rounded-lg border border-white/35 bg-white/15 px-3 text-sm font-medium text-white transition hover:bg-white/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="glass-button"
             >
               {t("retry")}
             </button>
@@ -105,10 +145,10 @@ export default function RoomHeader({ roomId, status, clientCount, onRetry }: Roo
           onClick={close}
         >
           <div className="flex flex-col items-center gap-4 px-6">
-            <span className="text-xs font-medium uppercase tracking-[0.2em] text-white/50">
+            <span className="text-sm font-normal text-white/60">
               {t("roomCode")}
             </span>
-            <span className="select-all text-6xl sm:text-8xl md:text-9xl font-bold tracking-widest text-white">
+            <span className="select-all text-6xl sm:text-8xl md:text-9xl font-normal tracking-widest text-white">
               {roomId}
             </span>
           </div>

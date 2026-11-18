@@ -1,4 +1,7 @@
 {
+  "PrivacyScreen": {
+    "label": "Privacy screen"
+  },
   "Metadata": {
     "title": "Holo | Simple File & Text Sharing",
     "description": "Share files and text instantly between devices. No accounts, no storage - just a room.",
@@ -10,7 +13,7 @@
     "termsTitle": "Terms of Service",
     "termsDescription": "Holo provides ephemeral file and text sharing with no storage. Open-source, no accounts required. Use at your own responsibility.",
     "privacyTitle": "Privacy Policy",
-    "privacyDescription": "Holo stores no data. No accounts, no cookies, no tracking. Files transfer directly between devices and are discarded instantly."
+    "privacyDescription": "How Holo handles shared content, connections, cookies, analytics and error reports."
   },
   "Brand": {
     "headerLabel": "HOLO",
@@ -35,6 +38,9 @@
     "backToHome": "← Go back"
   },
   "RoomHeader": {
+    "copyHint": "Right click to copy",
+    "copied": "Copied",
+    "copyFailed": "Copy failed — select and copy the code",
     "shareCode": "Share this code:",
     "expandTitle": "show room code fullscreen",
     "connected": "Connected",
@@ -46,10 +52,18 @@
     "overlayHint": "tap anywhere or press esc to close"
   },
   "FileDropZone": {
-    "connectingBanner": "Connecting to relay… this can take up to a minute. You can leave this tab open.",
+    "connectingBanner": "Connecting to room…",
     "dropPrompt": "Drop a file here",
     "choosePrompt": "or choose one from your device",
-    "chooseFile": "Choose file"
+    "chooseFile": "Choose file",
+    "p2pSendLimit": "Sending: up to 3 GB per file. Keep both tabs open until the transfer finishes.",
+    "p2pReceiveDisk": "Receiving: this browser can save straight to disk, up to 3 GB per file.",
+    "p2pReceiveMemory": "Receiving: up to 100 MB total in memory. Remove finished transfers to free space, or use a Chromium desktop browser for larger files.",
+    "sendTo": "Send to",
+    "everyone": "Everyone ({count})",
+    "waitingForPeers": "Waiting for someone to join before you can send.",
+    "p2pConnectingBanner": "Connecting to room…",
+    "recipientUnavailable": "This recipient left. Choose a recipient again."
   },
   "TextInputArea": {
     "filenamePlaceholder": "Filename (optional)",
@@ -67,24 +81,45 @@
     "received": "Received",
     "sending": "Sending",
     "receiving": "Receiving",
-    "chars": "{count} chars"
+    "chars": "{count} chars",
+    "accept": "Accept",
+    "pause": "Pause",
+    "resume": "Resume",
+    "cancel": "Cancel",
+    "directionIncoming": "Incoming",
+    "directionOutgoing": "Outgoing",
+    "statusOffered": "Waiting for acceptance",
+    "statusConnecting": "Connecting",
+    "statusTransferring": "Transferring",
+    "statusPaused": "Paused",
+    "statusReconnecting": "Reconnecting",
+    "statusCompleted": "Completed",
+    "statusCancelled": "Cancelled",
+    "statusError": "Failed",
+    "routeDirect": "direct",
+    "routeRelay": "relay",
+    "routeUnknown": "route unknown",
+    "withPeer": "with {name}",
+    "savedToDisk": "Saved to disk",
+    "remove": "Remove"
   },
   "ConnectionToast": {
     "someoneJoined": "someone joined the room",
     "someoneLeft": "someone left the room"
   },
   "ChatBox": {
+    "unreadMessages": "{count, plural, one {# unread message} other {# unread messages}}",
     "transfers": "Transfers",
     "chat": "Chat",
-    "messageInput": "Type a message\u2026",
+    "messageInput": "Type a message…",
     "send": "Send",
     "empty": "No messages yet."
   },
   "WebSocketErrors": {
     "sendFailed": "Unable to send data because the room connection is not open.",
-    "connectionFailed": "Could not open a WebSocket connection. Check that the relay server is running and NEXT_PUBLIC_WS_URL is correct.",
+    "connectionFailed": "Could not connect to the room. Check the signaling service and NEXT_PUBLIC_SIGNALING_URL.",
     "connectionClosed": "Connection closed. The relay may be offline, unreachable, or refused the handshake.",
-    "wsError": "A WebSocket error occurred. Check the browser console and that the Go relay is reachable."
+    "wsError": "The room connection was interrupted. Retrying…"
   },
   "LegalNav": {
     "privacy": "Privacy",
@@ -95,7 +130,17 @@
   "LegalPages": {
     "termsHeading": "Terms of Service",
     "privacyHeading": "Privacy Policy",
-    "lastUpdated": "Last updated: May 1, 2026"
+    "lastUpdated": "Last updated: November 19, 2026"
+  },
+  "P2P": {
+    "iceUnavailable": "Signaling is offline, so a direct connection could not be set up.",
+    "iceTimeout": "Timed out while fetching connection settings. Try again once the room reconnects.",
+    "webrtcUnsupported": "This browser does not support WebRTC, so direct transfers are unavailable here. Chat and text still work.",
+    "noPeers": "No one else is in the room yet. Ask them to join before sending files.",
+    "transferFailed": "The direct transfer failed. Keep both tabs open and try again.",
+    "sendFailed": "Could not start the transfer. Check that both tabs are still open.",
+    "acceptFailed": "Could not save this file to disk. It may have been cancelled.",
+    "recipientUnavailable": "This recipient left. Choose a recipient again."
   },
   "LocaleSwitcher": {
     "en": "EN",

@@ -2,6 +2,18 @@ import { containsProfanity } from "../../lib/profanity";
 
 export type TransferDirection = "incoming" | "outgoing";
 
+export type TransferStatus =
+  | "offered"
+  | "connecting"
+  | "transferring"
+  | "paused"
+  | "reconnecting"
+  | "completed"
+  | "cancelled"
+  | "error";
+
+export type ConnectionType = "direct" | "relay" | "unknown";
+
 export interface Transfer {
   id: string;
   name: string;
@@ -10,6 +22,14 @@ export interface Transfer {
   progress: number;
   direction: TransferDirection;
   url?: string;
+  // Peer-transfer details; text-only and older UI fixtures may omit them.
+  peerId?: string;
+  peerName?: string;
+  connectionType?: ConnectionType;
+  status?: TransferStatus;
+  bytesTransferred?: number;
+  error?: string;
+  savedToDisk?: boolean;
 }
 
 export interface TextShare {
@@ -29,22 +49,21 @@ export interface ChatMessage {
   timestamp: number;
 }
 
-const CHUNK_SIZE = 64 * 1024;
-
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
 
-function getDefaultWsUrl(): string {
-  if (typeof window === "undefined") return "ws://localhost:8080/ws";
-  const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-  return `${protocol}//${window.location.host}/ws`;
-}
-
-export function getWsUrl(roomId: string, clientId: string): string {
-  const base = process.env.NEXT_PUBLIC_WS_URL ?? getDefaultWsUrl();
+export function getWsUrl(roomId: string, clientId: string, token: string): string {
+  let base = process.env.NEXT_PUBLIC_SIGNALING_URL;
+  if (!base) {
+    const local = typeof window === "undefined" || ["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname);
+    if (!local) throw new Error("NEXT_PUBLIC_SIGNALING_URL is not configured");
+    base = "ws://localhost:8788/ws";
+  }
   const url = new URL(base);
+  if (url.protocol !== "ws:" && url.protocol !== "wss:") throw new Error("Signaling requires a WebSocket URL");
   url.searchParams.set("roomId", roomId);
   url.searchParams.set("clientId", clientId);
+  url.searchParams.set("token", token);
   return url.toString();
 }
 
@@ -93,42 +112,6 @@ export function generateChatId(): string {
     return crypto.randomUUID();
   }
   return `c_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-}
-
-const CHAR_BATCH_SIZE = 8192;
-
-export async function encodeFileToChunks(
-  file: File,
-  onChunk: (chunk: string, offset: number, final: boolean) => void,
-  onProgress: (progress: number) => void,
-): Promise<void> {
-  let offset = 0;
-  while (offset < file.size) {
-    const slice = file.slice(offset, offset + CHUNK_SIZE);
-    const buf = new Uint8Array(await slice.arrayBuffer());
-    let binary = "";
-    for (let i = 0; i < buf.byteLength; i += CHAR_BATCH_SIZE) {
-      binary += String.fromCharCode(
-        ...buf.subarray(i, Math.min(i + CHAR_BATCH_SIZE, buf.byteLength)),
-      );
-    }
-    const b64 = btoa(binary);
-    const isFinal = offset + CHUNK_SIZE >= file.size;
-    onChunk(b64, offset, isFinal);
-    offset += CHUNK_SIZE;
-    const progress = file.size > 0 ? Math.min(100, Math.round((offset / file.size) * 100)) : 0;
-    onProgress(progress);
-  }
-}
-
-export function encodeBinaryToString(buf: Uint8Array): string {
-  let binary = "";
-  for (let i = 0; i < buf.byteLength; i += CHAR_BATCH_SIZE) {
-    binary += String.fromCharCode(
-      ...buf.subarray(i, Math.min(i + CHAR_BATCH_SIZE, buf.byteLength)),
-    );
-  }
-  return btoa(binary);
 }
 
 export { textEncoder, textDecoder };
