@@ -20,7 +20,7 @@
         "bindings": [{ "name": "ROOMS", "class_name": "Room" }]
       },
       "vars": {
-        "ORIGINS": "http://localhost:3000,http://localhost:3001",
+        "ORIGINS": "http://localhost:3000,http://localhost:3001,https://holo-git-feat-p2p-transfers-cs30.vercel.app,https://holo-7vcqo1d9s-cs30.vercel.app",
         "TURN_ENABLED": "true"
       }
     }
