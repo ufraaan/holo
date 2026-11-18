@@ -28,7 +28,7 @@
   "vars": {
     // Comma-separated exact origins. No wildcard is supported: an unlisted
     // origin (or a missing Origin header) is rejected with 403.
-    "ORIGINS": "http://localhost:3000",
+    "ORIGINS": "https://holo.ufraan.dev",
     // TURN is off by default. Set to "true" and add the two secrets below.
     "TURN_ENABLED": "false"
   }
