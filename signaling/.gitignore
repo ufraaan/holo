@@ -1,0 +1,8 @@
+node_modules/
+.wrangler/
+.dev.vars
+.DS_Store
+dist/
+
+# Generated from Wrangler before typechecking
+worker-configuration.d.ts

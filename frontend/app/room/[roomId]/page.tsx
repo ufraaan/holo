@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import "../../../components/room/room.css";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -13,25 +14,33 @@ import FileDropZone from "../../../components/room/FileDropZone";
 import TextInputArea from "../../../components/room/TextInputArea";
 import TransferList from "../../../components/room/TransferList";
 
-function useClientId() {
-  return useMemo(() => {
-    return crypto.randomUUID?.() ?? "c_fallback";
-  }, []);
+function newId(): string {
+  // randomUUID needs a secure context; getRandomValues does not and is a CSPRNG.
+  return (
+    crypto.randomUUID?.() ??
+    Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, "0")).join("")
+  );
+}
+
+function useClientIdentity() {
+  return useMemo(() => ({ clientId: newId(), token: newId() }), []);
 }
 
 export default function RoomPage() {
-  const t = useTranslations("RoomPage");
   const params = useParams<{ roomId: string }>();
-  const roomId = params.roomId;
-  const clientId = useClientId();
+  return <RoomContent key={params.roomId} roomId={params.roomId} />;
+}
 
+function RoomContent({ roomId }: { roomId: string }) {
+  const t = useTranslations("RoomPage");
+  const { clientId, token } = useClientIdentity();
   const [bgLoaded, setBgLoaded] = useState(false);
   const handleBgLoaded = useCallback(() => setBgLoaded(true), []);
   const textInputRef = useRef<HTMLTextAreaElement>(null);
   const textNameInputRef = useRef<HTMLInputElement>(null);
 
-  const { status, errorMessage, clientCount, toasts, transfers, textShares, chatMessages, currentSenderId, currentSenderName, handleFiles, handleSendText, sendChatMessage, handleRetry } =
-    useRoomWebSocket({ roomId, clientId });
+  const { status, errorMessage, clientCount, toasts, transfers, textShares, chatMessages, currentSenderId, currentSenderName, handleFiles, handleSendText, sendChatMessage, handleRetry, p2pEnabled, peers, p2pError, acceptTransfer, pauseTransfer, resumeTransfer, cancelTransfer } =
+    useRoomWebSocket({ roomId, clientId, token });
 
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     void handleFiles(e.target.files);
@@ -73,7 +82,7 @@ export default function RoomPage() {
   };
 
   return (
-    <section className="fixed inset-0 z-40 overflow-y-auto">
+    <section className="room-view fixed inset-0 z-40 overflow-y-auto">
       <BackgroundVideo onLoad={handleBgLoaded} />
       <ConnectionToast toasts={toasts} />
       <div className="fixed inset-0 bg-black/45" />
@@ -86,7 +95,7 @@ export default function RoomPage() {
         }`}
       >
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between">
-          <span className="text-xs font-semibold uppercase tracking-widest text-white/80">
+          <span className="text-sm font-normal text-white/80">
             {t("headerLabel")}
           </span>
           <div className="flex items-center gap-4">
@@ -111,17 +120,20 @@ export default function RoomPage() {
           </Link>
         </div>
 
-        <div className="mx-auto mt-4 w-full max-w-6xl rounded-2xl border border-white/20 bg-black/25 p-4 sm:p-6 md:p-8">
+        <div className="mx-auto mt-4 w-full max-w-6xl rounded-2xl border border-white/15 bg-black/30 p-4 sm:p-6 md:p-8">
           <RoomHeader roomId={roomId} status={status} clientCount={clientCount} onRetry={handleRetry} />
 
-          <div className="mt-6 grid gap-6 md:grid-cols-2 md:gap-8 md:items-start">
-            <div className="grid gap-4 md:pr-2">
+          <div className="room-columns mt-6 grid gap-4 md:grid-cols-2 md:gap-6 md:items-stretch">
+            <div className="room-compose flex min-w-0 flex-col gap-4">
               <FileDropZone
                 status={status}
                 errorMessage={errorMessage}
                 onInputChange={onInputChange}
                 onDrop={onDrop}
                 onDragOver={onDragOver}
+                p2pEnabled={p2pEnabled}
+                peers={peers}
+                p2pError={p2pError}
               />
               <TextInputArea
                 status={status}
@@ -132,7 +144,7 @@ export default function RoomPage() {
               />
             </div>
 
-            <div className="md:pl-2">
+            <div className="min-w-0">
               <TransferList
                 transfers={transfers}
                 textShares={textShares}
@@ -141,6 +153,11 @@ export default function RoomPage() {
                 status={status}
                 currentSenderId={currentSenderId}
                 currentSenderName={currentSenderName}
+                p2pEnabled={p2pEnabled}
+                onAcceptTransfer={acceptTransfer}
+                onPauseTransfer={pauseTransfer}
+                onResumeTransfer={resumeTransfer}
+                onCancelTransfer={cancelTransfer}
               />
             </div>
           </div>

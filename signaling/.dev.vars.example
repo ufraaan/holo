@@ -1,0 +1,4 @@
+# Copy to .dev.vars for local `wrangler dev`. Never commit .dev.vars.
+# Both are only needed when TURN_ENABLED is "true".
+TURN_KEY_ID=""
+TURN_API_TOKEN=""

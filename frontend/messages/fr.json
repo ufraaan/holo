@@ -1,4 +1,7 @@
 {
+  "PrivacyScreen": {
+    "label": "Écran de confidentialité"
+  },
   "Metadata": {
     "title": "Holo | Partagez fichiers et texte instantanément",
     "description": "Partagez des fichiers et du texte instantanément entre appareils. Sans compte, sans stockage, juste une salle.",
@@ -10,7 +13,7 @@
     "termsTitle": "Conditions d'Utilisation",
     "termsDescription": "Holo permet un partage éphémère de fichiers et de texte sans stockage. Open source, sans compte requis. Utilisez-le sous votre propre responsabilité.",
     "privacyTitle": "Politique de Confidentialité",
-    "privacyDescription": "Holo ne stocke aucune donnée. Pas de comptes, pas de cookies, pas de suivi. Les fichiers sont transférés directement entre appareils et supprimés instantanément."
+    "privacyDescription": "Comment Holo traite les contenus partagés, les connexions, les cookies, les statistiques et les rapports d’erreurs."
   },
   "Brand": {
     "headerLabel": "HOLO",
@@ -35,6 +38,9 @@
     "backToHome": "← Retour à l'accueil"
   },
   "RoomHeader": {
+    "copyHint": "Clic droit pour copier",
+    "copied": "Copié",
+    "copyFailed": "Échec de la copie — sélectionnez et copiez le code",
     "shareCode": "Partagez ce code :",
     "expandTitle": "afficher le code de la salle en plein écran",
     "connected": "Connecté",
@@ -46,10 +52,18 @@
     "overlayHint": "appuyez n'importe où ou appuyez sur Échap pour fermer"
   },
   "FileDropZone": {
-    "connectingBanner": "Connexion au relay… cela peut prendre une minute. Vous pouvez laisser cet onglet ouvert.",
+    "connectingBanner": "Connexion au salon…",
     "dropPrompt": "Déposez un fichier ici",
     "choosePrompt": "ou choisissez-en un depuis votre appareil",
-    "chooseFile": "Choisir un fichier"
+    "chooseFile": "Choisir un fichier",
+    "p2pSendLimit": "Envoi : jusqu'à 3 Go par fichier. Gardez les deux onglets ouverts jusqu'à la fin du transfert.",
+    "p2pReceiveDisk": "Réception : ce navigateur peut enregistrer directement sur le disque, jusqu'à 3 Go par fichier.",
+    "p2pReceiveMemory": "Réception : jusqu’à 100 Mo au total en mémoire. Retirez les transferts terminés pour libérer de l’espace ou utilisez un navigateur Chromium sur ordinateur pour les fichiers plus volumineux.",
+    "sendTo": "Envoyer à",
+    "everyone": "Tout le monde ({count})",
+    "waitingForPeers": "En attente de quelqu'un pour pouvoir envoyer.",
+    "p2pConnectingBanner": "Connexion au salon…",
+    "recipientUnavailable": "Ce destinataire est parti. Choisissez à nouveau un destinataire."
   },
   "TextInputArea": {
     "filenamePlaceholder": "Nom du fichier (facultatif)",
@@ -67,24 +81,45 @@
     "received": "Reçu",
     "sending": "Envoi",
     "receiving": "Réception",
-    "chars": "{count} caractères"
+    "chars": "{count} caractères",
+    "accept": "Accepter",
+    "pause": "Mettre en pause",
+    "resume": "Reprendre",
+    "cancel": "Annuler",
+    "directionIncoming": "Entrant",
+    "directionOutgoing": "Sortant",
+    "statusOffered": "En attente d'acceptation",
+    "statusConnecting": "Connexion",
+    "statusTransferring": "Transfert",
+    "statusPaused": "En pause",
+    "statusReconnecting": "Reconnexion",
+    "statusCompleted": "Terminé",
+    "statusCancelled": "Annulé",
+    "statusError": "Échec",
+    "routeDirect": "directe",
+    "routeRelay": "relais",
+    "routeUnknown": "route inconnue",
+    "withPeer": "avec {name}",
+    "savedToDisk": "Enregistré sur le disque",
+    "remove": "Retirer"
   },
   "ConnectionToast": {
     "someoneJoined": "quelqu'un a rejoint la salle",
     "someoneLeft": "quelqu'un a quitté la salle"
   },
   "ChatBox": {
+    "unreadMessages": "{count, plural, one {# message non lu} other {# messages non lus}}",
     "transfers": "Transferts",
     "chat": "Chat",
-    "messageInput": "Tapez un message\u2026",
+    "messageInput": "Tapez un message…",
     "send": "Envoyer",
     "empty": "Aucun message pour l'instant."
   },
   "WebSocketErrors": {
     "sendFailed": "Impossible d'envoyer des données car la connexion à la salle n'est pas ouverte.",
-    "connectionFailed": "Impossible d'ouvrir une connexion WebSocket. Vérifiez que le serveur relay fonctionne et que NEXT_PUBLIC_WS_URL est correct.",
+    "connectionFailed": "Connexion au salon impossible. Vérifiez le service de signalisation et NEXT_PUBLIC_SIGNALING_URL.",
     "connectionClosed": "Connexion fermée. Le relay est peut-être hors ligne, inaccessible ou a refusé la liaison.",
-    "wsError": "Une erreur WebSocket s'est produite. Vérifiez la console du navigateur et que le relay Go est accessible."
+    "wsError": "La connexion au salon a été interrompue. Nouvelle tentative…"
   },
   "LegalNav": {
     "privacy": "Confidentialité",
@@ -95,7 +130,17 @@
   "LegalPages": {
     "termsHeading": "Conditions d'Utilisation",
     "privacyHeading": "Politique de Confidentialité",
-    "lastUpdated": "Dernière mise à jour : 1 mai 2026"
+    "lastUpdated": "Dernière mise à jour : 19 novembre 2026"
+  },
+  "P2P": {
+    "iceUnavailable": "La signalisation est hors ligne, impossible d'établir une connexion directe.",
+    "iceTimeout": "Délai dépassé lors de la récupération des paramètres de connexion. Réessayez une fois la salle reconnectée.",
+    "webrtcUnsupported": "Ce navigateur ne prend pas en charge WebRTC : les transferts directs ne sont pas disponibles ici. Le chat et le texte fonctionnent toujours.",
+    "noPeers": "Personne d'autre n'est encore dans la salle. Demandez à quelqu'un de rejoindre avant d'envoyer des fichiers.",
+    "transferFailed": "Le transfert direct a échoué. Gardez les deux onglets ouverts et réessayez.",
+    "sendFailed": "Impossible de démarrer le transfert. Vérifiez que les deux onglets sont toujours ouverts.",
+    "acceptFailed": "Impossible d'enregistrer ce fichier sur le disque. Il a peut-être été annulé.",
+    "recipientUnavailable": "Ce destinataire est parti. Choisissez à nouveau un destinataire."
   },
   "LocaleSwitcher": {
     "en": "EN",
