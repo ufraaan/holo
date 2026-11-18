@@ -21,7 +21,7 @@
   },
   "HomePage": {
     "hero": "Drop, relay, done.",
-    "subtitle": "Share any file or text instantly.\nJust create a room and share the 6-character code.",
+    "subtitle": "Share any file or text instantly.\nJust create a room and share the 6\u2011character code.",
     "createRoom": "Create room",
     "or": "or",
     "join": "Join",

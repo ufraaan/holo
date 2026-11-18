@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import BackgroundVideo from "../../components/BackgroundVideo";
+import Background from "../../components/Background";
 import LocaleSwitcher from "../../components/LocaleSwitcher";
 
 export default async function MainLayout({ children }: { children: ReactNode }) {
@@ -11,7 +11,7 @@ export default async function MainLayout({ children }: { children: ReactNode }) 
     // full-height scroller when the keyboard opens and exposes the page
     // underneath.
     <div className="relative min-h-dvh bg-black text-white">
-      <BackgroundVideo />
+      <Background />
       <div className="fixed inset-0 bg-black/60" />
       <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-6xl flex-col px-4 py-6 sm:px-6 md:px-10 md:py-8">
         <header className="flex flex-wrap items-center justify-between gap-4 text-sm font-normal">
