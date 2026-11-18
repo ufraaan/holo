@@ -1,0 +1,74 @@
+/* Shared glass controls for the home and room pages. */
+.glass-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-block-size: 2.5rem;
+  max-inline-size: 100%;
+  overflow-wrap: anywhere;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgb(255 255 255 / 0.16);
+  border-radius: 0.625rem;
+  background: rgb(255 255 255 / 0.045);
+  color: rgb(255 255 255 / 0.85);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 400;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 150ms, border-color 150ms;
+}
+
+.glass-button:hover:not(:disabled) {
+  border-color: rgb(255 255 255 / 0.26);
+  background: rgb(255 255 255 / 0.09);
+}
+
+.glass-button:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+.glass-button:has(input:disabled) { cursor: default; opacity: 0.4; }
+
+:is(.glass-button, .glass-field):focus-visible,
+label.glass-button:focus-within {
+  outline: 2px solid rgb(255 255 255 / 0.8);
+  outline-offset: 3px;
+}
+
+.glass-field {
+  display: block;
+  inline-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 2.75rem;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 0.625rem;
+  background: rgb(0 0 0 / 0.12);
+  padding: 0.625rem 0.75rem;
+  color: rgb(255 255 255 / 0.9);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.glass-field::placeholder {
+  color: rgb(255 255 255 / 0.5);
+  font-weight: 400;
+  opacity: 1;
+}
+
+.glass-field:disabled { opacity: 0.4; }
+
+.glass-control-large { min-block-size: 3rem; }
+@media (max-width: 47.999rem) {
+  .glass-field { font-size: 1rem; }
+}
+@media (pointer: coarse) {
+  .glass-button { min-block-size: 3rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .glass-button { transition: none; }
+}

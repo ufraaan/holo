@@ -13,7 +13,7 @@
     "termsTitle": "Términos del Servicio",
     "termsDescription": "Holo proporciona intercambio efímero de archivos y texto sin almacenamiento. Código abierto, sin necesidad de cuentas. Úselo bajo su propia responsabilidad.",
     "privacyTitle": "Política de Privacidad",
-    "privacyDescription": "Holo no almacena datos. Sin cuentas, sin cookies, sin seguimiento. Los archivos se transfieren directamente entre dispositivos y se descartan al instante."
+    "privacyDescription": "Cómo Holo trata el contenido compartido, las conexiones, las cookies, las estadísticas y los informes de errores."
   },
   "Brand": {
     "headerLabel": "HOLO",
@@ -130,7 +130,7 @@
   "LegalPages": {
     "termsHeading": "Términos del Servicio",
     "privacyHeading": "Política de Privacidad",
-    "lastUpdated": "Última actualización: 1 de mayo de 2026"
+    "lastUpdated": "Última actualización: 19 de noviembre de 2026"
   },
   "P2P": {
     "iceUnavailable": "El servicio de señalización está desconectado, así que no se pudo establecer una conexión directa.",

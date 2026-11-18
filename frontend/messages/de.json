@@ -13,7 +13,7 @@
     "termsTitle": "Nutzungsbedingungen",
     "termsDescription": "Holo ermöglicht flüchtiges Teilen von Dateien und Text ohne Speicherung. Open Source, ohne Konto erforderlich. Nutzung auf eigene Verantwortung.",
     "privacyTitle": "Datenschutzerklärung",
-    "privacyDescription": "Holo speichert keine Daten. Keine Konten, keine Cookies, kein Tracking. Dateien werden direkt zwischen Geräten übertragen und sofort verworfen."
+    "privacyDescription": "Wie Holo geteilte Inhalte, Verbindungen, Cookies, Nutzungsstatistiken und Fehlerberichte verarbeitet."
   },
   "Brand": {
     "headerLabel": "HOLO",
@@ -130,7 +130,7 @@
   "LegalPages": {
     "termsHeading": "Nutzungsbedingungen",
     "privacyHeading": "Datenschutzerklärung",
-    "lastUpdated": "Zuletzt aktualisiert: 1. Mai 2026"
+    "lastUpdated": "Zuletzt aktualisiert: 19. November 2026"
   },
   "P2P": {
     "iceUnavailable": "Signalisierung ist offline, daher konnte keine direkte Verbindung aufgebaut werden.",

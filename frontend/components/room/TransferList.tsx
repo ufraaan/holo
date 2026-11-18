@@ -138,104 +138,79 @@ export default function TransferList({
 
   const renderP2pTransfer = (tr: Transfer) => {
     const actions = transferActions(tr) ?? [];
+    const isFinished = tr.status === "completed" || tr.status === "cancelled" || tr.status === "error";
     return (
-      <div
-        key={tr.id}
-        role="group"
-        aria-label={tr.name}
-        className="overflow-hidden rounded-lg border border-white/20 bg-white/[0.06] p-3 sm:p-4"
-      >
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0 flex-1 overflow-hidden">
-            <p className="truncate font-medium text-white text-sm">{tr.name}</p>
-            <p className="mt-0.5 text-xs text-white/50">
-              {tr.direction === "incoming" ? t("directionIncoming") : t("directionOutgoing")}
-              {` · ${formatSize(tr.size)}`}
-              {tr.status ? ` · ${statusLabel(tr.status)}` : ""}
-              {` · ${tr.progress}%`}
-            </p>
-            {tr.error && <p className="mt-1 text-xs text-red-200">{tr.error}</p>}
-            {tr.status === "completed" && tr.savedToDisk && (
-              <p className="mt-1 text-xs text-emerald-200">{t("savedToDisk")}</p>
-            )}
+      <div key={tr.id} role="group" aria-label={tr.name} className="room-transfer-card">
+        <p className="room-transfer-name">{tr.name}</p>
+        <div className="room-transfer-details">
+          <p className="room-transfer-state">
+            {tr.direction === "incoming" ? t("directionIncoming") : t("directionOutgoing")}
+            {tr.status ? ` · ${statusLabel(tr.status)}` : ""}
+          </p>
+          <p className="room-transfer-numbers">
+            <span>{formatSize(tr.size)}</span>
+            <span>{tr.progress}%</span>
+          </p>
+        </div>
+        {!isFinished && (
+          <div className="room-progress" role="progressbar" aria-label={tr.name} aria-valuemin={0} aria-valuemax={100} aria-valuenow={tr.progress}>
+            <div className="room-progress-fill" style={{ width: `${tr.progress}%` }} />
           </div>
-          <div className="flex shrink-0 flex-wrap justify-end gap-2">
+        )}
+        {tr.error && <p className="mt-2 text-xs text-red-200">{tr.error}</p>}
+        {tr.status === "completed" && tr.savedToDisk && (
+          <p className="mt-2 text-xs text-emerald-200">{t("savedToDisk")}</p>
+        )}
+        {(actions.length > 0 || (tr.status === "completed" && !tr.savedToDisk && tr.url)) && (
+          <div className="room-transfer-actions">
             {actions.map((action) => (
-              <button
-                key={action.key}
-                type="button"
-                onClick={action.onClick}
-                aria-label={`${action.label} ${tr.name}`}
-                className="h-8 flex cursor-pointer items-center justify-center rounded-md border border-white/25 bg-white/10 px-2.5 text-xs font-medium text-white/80 transition hover:bg-white/20"
-              >
+              <button key={action.key} type="button" onClick={action.onClick} aria-label={`${action.label} ${tr.name}`} className="glass-button glass-button-small">
                 {action.label}
               </button>
             ))}
             {tr.status === "completed" && !tr.savedToDisk && tr.url && (
-              <a
-                href={tr.url}
-                download={tr.name}
-                className="shrink-0 h-8 flex cursor-pointer items-center justify-center rounded-md border border-white/25 bg-white/10 px-2.5 text-xs font-medium text-white/80 transition hover:bg-white/20"
-              >
-                {t("save")}
-              </a>
+              <a href={tr.url} download={tr.name} className="glass-button glass-button-small">{t("save")}</a>
             )}
           </div>
-        </div>
-        <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-white/15">
-          <div
-            className="h-full bg-white/60 transition-[width] duration-150"
-            style={{ width: `${tr.progress}%` }}
-          />
-        </div>
+        )}
       </div>
     );
   };
 
   const renderTransferSummary = (tr: Transfer) => (
-    <div
-      key={tr.id}
-      className="overflow-hidden rounded-lg border border-white/20 bg-white/[0.06] p-3 sm:p-4"
-    >
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0 flex-1 overflow-hidden">
-          <p className="truncate font-medium text-white text-sm">
-            {tr.name}
-          </p>
-          <p className="mt-0.5 text-xs text-white/50">
-            {formatSize(tr.size)} · {tr.direction === "outgoing" ? (tr.progress >= 100 ? t("sent") : t("sending")) : (tr.progress >= 100 ? t("received") : t("receiving"))} · {tr.progress}%
-          </p>
+    <div key={tr.id} className="room-transfer-card">
+      <p className="room-transfer-name">{tr.name}</p>
+      <div className="room-transfer-details">
+        <p className="room-transfer-state">
+          {tr.direction === "outgoing" ? (tr.progress >= 100 ? t("sent") : t("sending")) : (tr.progress >= 100 ? t("received") : t("receiving"))}
+        </p>
+        <p className="room-transfer-numbers"><span>{formatSize(tr.size)}</span><span>{tr.progress}%</span></p>
+      </div>
+      {tr.progress < 100 && (
+        <div className="room-progress" role="progressbar" aria-label={tr.name} aria-valuemin={0} aria-valuemax={100} aria-valuenow={tr.progress}>
+          <div className="room-progress-fill" style={{ width: `${tr.progress}%` }} />
         </div>
-        {tr.url && (
-          <a
-            href={tr.url}
-            download={tr.name}
-            className="shrink-0 h-8 flex cursor-pointer items-center justify-center rounded-md border border-white/25 bg-white/10 px-2.5 text-xs font-medium text-white/80 transition hover:bg-white/20"
-          >
-            {t("save")}
-          </a>
-        )}
-      </div>
-      <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-white/15">
-        <div
-          className="h-full bg-white/60 transition-[width] duration-150"
-          style={{ width: `${tr.progress}%` }}
-        />
-      </div>
+      )}
+      {tr.url && (
+        <div className="room-transfer-actions">
+          <a href={tr.url} download={tr.name} className="glass-button glass-button-small">{t("save")}</a>
+        </div>
+      )}
     </div>
   );
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="room-activity room-panel">
       {/* tab bar */}
-      <div className="mb-3 flex gap-1 rounded-lg border border-white/10 bg-white/[0.03] p-0.5">
+      <div className="room-tabs">
         <button
           type="button"
           onClick={() => setActiveTab("transfers")}
-          className={`flex-1 cursor-pointer rounded-md px-3 py-1.5 text-xs font-medium transition ${
+          aria-pressed={activeTab === "transfers"}
+          className={`room-tab ${
             activeTab === "transfers"
-              ? "bg-white/12 text-white"
-              : "text-white/50 hover:text-white/80"
+              ? "room-tab-active"
+              : ""
           }`}
         >
           {tc("transfers")}
@@ -243,11 +218,12 @@ export default function TransferList({
         <button
           type="button"
           onClick={() => setActiveTab("chat")}
+          aria-pressed={activeTab === "chat"}
           aria-label={unreadCount > 0 ? `${tc("chat")}, ${unreadLabel}` : undefined}
-          className={`flex-1 cursor-pointer rounded-md px-3 py-1.5 text-xs font-medium transition ${
+          className={`room-tab ${
             activeTab === "chat"
-              ? "bg-white/12 text-white"
-              : "text-white/50 hover:text-white/80"
+              ? "room-tab-active"
+              : ""
           }`}
         >
           <span className="relative inline-block">
@@ -264,25 +240,25 @@ export default function TransferList({
 
       {/* tab content */}
       {activeTab === "transfers" ? (
-        <>
+        <div className="room-activity-content">
           {!hasTransfers ? (
-            <p className="text-sm text-white/75">{t("empty")}</p>
+            <div className="room-empty-state"><p className="room-empty">{t("empty")}</p></div>
           ) : (
             <>
               {sortedTextShares.length > 0 && (
                 <>
-                  <p className="mb-2 sm:mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-white/60">
+                  <p className="room-list-heading">
                     {t("textSnippets")}
                   </p>
-                  <div className="grid gap-2 sm:gap-3">
+                  <div className="room-transfer-list">
                     {sortedTextShares.map((ts) => (
                       <div
                         key={ts.id}
-                        className="overflow-hidden rounded-lg border border-white/20 bg-white/[0.06] p-3 sm:p-4"
+                        className="room-transfer-card"
                       >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="min-w-0 flex-1 overflow-hidden">
-                            <p className="font-mono text-xs text-white/90 truncate">
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div className="min-w-0 flex-1">
+                            <p className="room-snippet-preview">
                               {ts.customName || ts.text.slice(0, 60)}
                               {ts.customName ? "" : ts.text.length > 60 ? "…" : ""}
                             </p>
@@ -291,18 +267,18 @@ export default function TransferList({
                               {ts.direction === "outgoing" ? t("sent") : t("received")}
                             </p>
                           </div>
-                          <div className="flex shrink-0 gap-2">
+                          <div className="flex flex-wrap gap-2">
                             <button
                               type="button"
                               onClick={() => handleCopyText(ts.text, ts.id)}
-                              className="h-8 flex cursor-pointer items-center justify-center rounded-md border border-white/25 bg-white/10 px-2.5 text-xs font-medium text-white/80 transition hover:bg-white/20"
+                              className="glass-button glass-button-small"
                             >
                               {copiedId === ts.id ? t("copied") : t("copy")}
                             </button>
                             <button
                               type="button"
                               onClick={() => handleDownloadText(ts.text, ts.id, ts.timestamp, ts.customName)}
-                              className="h-8 flex cursor-pointer items-center justify-center rounded-md border border-white/25 bg-white/10 px-2.5 text-xs font-medium text-white/80 transition hover:bg-white/20"
+                              className="glass-button glass-button-small"
                             >
                               {t("save")}
                             </button>
@@ -316,10 +292,10 @@ export default function TransferList({
 
               {sortedTransfers.length > 0 && (
                 <>
-                  <p className="mb-2 sm:mb-3 mt-4 sm:mt-5 text-xs font-semibold uppercase tracking-[0.14em] text-white/60">
+                  <p className="room-list-heading">
                     {t("files")}
                   </p>
-                  <div className="grid gap-2 sm:gap-3">
+                  <div className="room-transfer-list">
                     {sortedTransfers.map((tr) =>
                       p2pEnabled && tr.peerId
                         ? renderP2pTransfer(tr)
@@ -330,7 +306,7 @@ export default function TransferList({
               )}
             </>
           )}
-        </>
+        </div>
       ) : (
         <ChatBox
           messages={chatMessages}

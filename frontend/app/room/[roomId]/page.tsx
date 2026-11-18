@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import "../../../components/room/room.css";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -76,7 +77,7 @@ function RoomContent({ roomId }: { roomId: string }) {
   };
 
   return (
-    <section className="fixed inset-0 z-40 overflow-y-auto">
+    <section className="room-view fixed inset-0 z-40 overflow-y-auto">
       <BackgroundVideo onLoad={handleBgLoaded} />
       <ConnectionToast toasts={toasts} />
       <div className="fixed inset-0 bg-black/45" />
@@ -89,7 +90,7 @@ function RoomContent({ roomId }: { roomId: string }) {
         }`}
       >
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between">
-          <span className="text-xs font-semibold uppercase tracking-widest text-white/80">
+          <span className="text-sm font-normal text-white/80">
             {t("headerLabel")}
           </span>
           <div className="flex items-center gap-4">
@@ -114,11 +115,11 @@ function RoomContent({ roomId }: { roomId: string }) {
           </Link>
         </div>
 
-        <div className="mx-auto mt-4 w-full max-w-6xl rounded-2xl border border-white/20 bg-black/25 p-4 sm:p-6 md:p-8">
+        <div className="mx-auto mt-4 w-full max-w-6xl rounded-2xl border border-white/15 bg-black/30 p-4 sm:p-6 md:p-8">
           <RoomHeader roomId={roomId} status={status} clientCount={clientCount} onRetry={handleRetry} />
 
-          <div className="mt-6 grid gap-6 md:grid-cols-2 md:gap-8 md:items-stretch">
-            <div className="grid gap-4 md:pr-2">
+          <div className="room-columns mt-6 grid gap-4 md:grid-cols-2 md:gap-6 md:items-stretch">
+            <div className="room-compose flex min-w-0 flex-col gap-4">
               <FileDropZone
                 status={status}
                 errorMessage={errorMessage}
@@ -138,7 +139,7 @@ function RoomContent({ roomId }: { roomId: string }) {
               />
             </div>
 
-            <div className="md:pl-2">
+            <div className="min-w-0">
               <TransferList
                 transfers={transfers}
                 textShares={textShares}

@@ -1,29 +1,27 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import BackgroundVideo from "../../components/BackgroundVideo";
 import LocaleSwitcher from "../../components/LocaleSwitcher";
-import "../globals.css";
 
 export default async function MainLayout({ children }: { children: ReactNode }) {
-  const t = await getTranslations("Brand");
-
+  const t = await getTranslations("LegalNav");
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col bg-neutral-100 px-6 py-10 text-neutral-900 antialiased md:px-10">
-      <header className="mb-12 flex items-center justify-between">
-        <Link
-          href="/"
-          className="text-sm font-medium uppercase tracking-[0.24em] text-neutral-500 transition hover:text-neutral-900"
-        >
-          {t("headerLabel")}
-        </Link>
-        <LocaleSwitcher />
-      </header>
-      <main className="flex flex-1 items-start">
-        <div className="mx-auto w-full max-w-4xl">{children}</div>
-      </main>
-      <footer className="mt-16 text-center text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
-        {t("footer")}
-      </footer>
+    <div className="fixed inset-0 overflow-y-auto bg-black text-white">
+      <BackgroundVideo />
+      <div className="fixed inset-0 bg-black/60" />
+      <div className="relative z-10 mx-auto flex min-h-full w-full max-w-6xl flex-col px-4 py-6 sm:px-6 md:px-10 md:py-8">
+        <header className="flex flex-wrap items-center justify-between gap-4 text-sm font-normal">
+          <Link href="/" className="text-white/85">HOLO</Link>
+          <nav aria-label="Main navigation" className="flex flex-wrap items-center gap-4 text-white/70">
+            <LocaleSwitcher />
+            <Link href="/privacy" className="transition hover:text-white">{t("privacy")}</Link>
+            <Link href="/terms" className="transition hover:text-white">{t("terms")}</Link>
+            <a href="https://github.com/ufraaan/holo" target="_blank" rel="noreferrer" className="transition hover:text-white">{t("gitHub")}</a>
+          </nav>
+        </header>
+        <main className="flex flex-1 flex-col pt-8">{children}</main>
+      </div>
     </div>
   );
 }
