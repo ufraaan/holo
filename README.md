@@ -10,10 +10,18 @@ and Hindi.
 
 ## how it works
 
-```text
-browser ── WebSocket ── Cloudflare Worker / room Durable Object ── WebSocket ── browser
-   └──────────────── encrypted WebRTC file transfer ──────────────────────────┘
-                         ↳ TURN when a direct path fails
+```mermaid
+flowchart LR
+  S["Sender browser"]
+  R["Receiver browser"]
+  W["Cloudflare Worker<br/>room Durable Object"]
+  T["Cloudflare TURN"]
+
+  S <-->|"WebSocket: signaling, chat, text"| W
+  W <-->|"WebSocket"| R
+  S <-.->|"WebRTC: encrypted file bytes"| R
+  S -.->|"only when a direct path fails"| T
+  T -.-> R
 ```
 
 Cloudflare handles room membership, chat, text, and WebRTC connection setup.
