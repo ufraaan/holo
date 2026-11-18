@@ -10,12 +10,12 @@ updates:
       - "frontend"
     open-pull-requests-limit: 10
 
-  - package-ecosystem: "gomod"
-    directory: "/backend"
+  - package-ecosystem: "npm"
+    directory: "/signaling"
     schedule:
       interval: "weekly"
       day: "monday"
     labels:
       - "dependencies"
-      - "backend"
+      - "signaling"
     open-pull-requests-limit: 10

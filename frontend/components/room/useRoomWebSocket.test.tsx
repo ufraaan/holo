@@ -163,57 +163,6 @@ describe("useRoomWebSocket", () => {
     expect(result.current.toasts[0].type).toBe("joined");
   });
 
-  it("adds incoming transfer on file-meta", async () => {
-    const { result } = renderHook(
-      () => useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
-      { wrapper: I18nProvider },
-    );
-
-    connect();
-
-    await receiveMessage(
-      JSON.stringify({
-        type: "file-meta",
-        payload: { fileId: "f1", name: "test.txt", size: 100, mime: "text/plain" },
-      }),
-    );
-
-    await waitFor(() => {
-      expect(result.current.transfers["f1"]).toBeDefined();
-    });
-    expect(result.current.transfers["f1"].name).toBe("test.txt");
-    expect(result.current.transfers["f1"].direction).toBe("incoming");
-  });
-
-  it("completes incoming file on file-chunk with final", async () => {
-    const { result } = renderHook(
-      () => useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
-      { wrapper: I18nProvider },
-    );
-
-    connect();
-
-    await receiveMessage(
-      JSON.stringify({
-        type: "file-meta",
-        payload: { fileId: "f2", name: "data.bin", size: 5, mime: "application/octet-stream" },
-      }),
-    );
-
-    const chunk = btoa("hello");
-    await receiveMessage(
-      JSON.stringify({
-        type: "file-chunk",
-        payload: { fileId: "f2", chunk, offset: 0, final: true },
-      }),
-    );
-
-    await waitFor(() => {
-      expect(result.current.transfers["f2"].progress).toBe(100);
-    });
-    expect(result.current.transfers["f2"].url).toContain("blob:");
-  });
-
   it("adds incoming text-share", async () => {
     const { result } = renderHook(
       () => useRoomWebSocket({ roomId: "test-room", clientId: "test-client" }),
@@ -358,5 +307,28 @@ describe("useRoomWebSocket", () => {
 
     expect(result.current.currentSenderId).toBe("test-client");
     expect(result.current.currentSenderName).toBeTruthy();
+  });
+});
+
+
+describe("WebSocket cleanup", () => {
+  it("ignores late events from a replaced connection", () => {
+    const errorLog = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { result, rerender } = renderHook(
+      ({ roomId }) => useRoomWebSocket({ roomId, clientId: "test-client" }),
+      { wrapper: I18nProvider, initialProps: { roomId: "first" } },
+    );
+    const oldSocket = MockWebSocket.instances[0];
+    rerender({ roomId: "second" });
+    const currentSocket = MockWebSocket.instances[1];
+    act(() => currentSocket.onopen?.());
+    act(() => {
+      oldSocket.onerror?.(new Event("error"));
+      oldSocket.onclose?.({ code: 1006, reason: "", wasClean: false });
+    });
+    expect(result.current.status).toBe("connected");
+    expect(result.current.errorMessage).toBeNull();
+    expect(errorLog).not.toHaveBeenCalled();
+    errorLog.mockRestore();
   });
 });

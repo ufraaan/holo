@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useRoomCodeCopy } from "./useRoomCodeCopy";
 import { RoomStatus } from "./useRoomWebSocket";
 
 interface RoomHeaderProps {
@@ -11,6 +12,8 @@ interface RoomHeaderProps {
 
 export default function RoomHeader({ roomId, status, clientCount, onRetry }: RoomHeaderProps) {
   const t = useTranslations("RoomHeader");
+  const { copy, copyStatus, hintVisible, setHintVisible } = useRoomCodeCopy(roomId);
+  const copyHintId = useId();
   const [showDisplay, setShowDisplay] = useState(false);
 
   const close = useCallback(() => setShowDisplay(false), []);
@@ -30,8 +33,45 @@ export default function RoomHeader({ roomId, status, clientCount, onRetry }: Roo
         <div className="md:justify-self-start">
           <div className="inline-flex items-center gap-2 flex-wrap">
             <span className="text-xs sm:text-sm text-white/70">{t("shareCode")}</span>
-            <div className="inline-flex items-center rounded-lg border border-white/30 bg-white/10 px-3 py-1 font-mono text-xs sm:text-sm text-white/95 break-all">
-              {roomId}
+            <div
+              className="relative inline-flex"
+              onMouseEnter={() => setHintVisible(true)}
+              onMouseLeave={() => setHintVisible(false)}
+              onFocus={() => setHintVisible(true)}
+              onBlur={() => setHintVisible(false)}
+              onKeyDown={(event) => {
+                if (event.key === "Escape") setHintVisible(false);
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => void copy()}
+                onContextMenu={(event) => {
+                  event.preventDefault();
+                  void copy();
+                }}
+                aria-describedby={copyHintId}
+                className="inline-flex min-h-7 cursor-copy items-center rounded-lg border border-white/30 bg-white/10 px-3 py-1 font-mono text-xs text-white/95 break-all sm:text-sm active:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >
+                {roomId}
+              </button>
+              <span
+                id={copyHintId}
+                role="tooltip"
+                className={`absolute inset-be-full inset-s-0 z-10 whitespace-nowrap pbe-1 text-[10px] ${hintVisible && !copyStatus ? "opacity-100" : "pointer-events-none opacity-0"}`}
+              >
+                <span className="block rounded border border-white/15 bg-black/90 px-2 py-1 text-white/80">
+                  {t("copyHint")}
+                </span>
+              </span>
+              <span
+                role="status"
+                className={`pointer-events-none absolute inset-be-full inset-s-0 z-10 whitespace-nowrap pbe-1 text-[10px] ${copyStatus ? "opacity-100" : "opacity-0"}`}
+              >
+                <span className="block rounded border border-white/15 bg-black/90 px-2 py-1 text-white/80">
+                  {copyStatus ? t(copyStatus) : ""}
+                </span>
+              </span>
             </div>
             <button
               type="button"

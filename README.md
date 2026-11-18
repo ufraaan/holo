@@ -2,192 +2,117 @@
   <img src="frontend/public/holo-banner.png" alt="holo" width="600">
 </p>
 
-<p align="center">
-  <a href="https://github.com/ufraaan/holo/actions"><img src="https://img.shields.io/badge/go-1.22-00ADD8?logo=go" alt="go"></a>
-  <a href="https://github.com/ufraaan/holo/actions"><img src="https://img.shields.io/badge/Next.js-16-000000?logo=next.js" alt="Next.js"></a>
-  <a href="https://github.com/ufraaan/holo/actions"><img src="https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript" alt="TypeScript"></a>
-  <a href="https://github.com/ufraaan/holo/actions"><img src="https://img.shields.io/badge/websocket-grey?logo=socket.io" alt="websocket"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="MIT"></a>
-  <a href="https://github.com/ufraaan/holo/issues"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen" alt="PRs Welcome"></a>
-</p>
+# holo
 
-<br>
-
-share files, text, and chat between devices instantly. no accounts, no storage, just a room. available in 6 languages (en, es, fr, pt, de, hi).
-
-create a room, share the 6-character code, and anything you drop in is relayed directly to the other side. no uploads to disk, no database, no sign-up.
-
-- [how it works](#how-it-works)
-- [structure](#structure)
-- [running locally](#running-locally)
-  - [backend](#backend)
-  - [frontend](#frontend)
-  - [docker](#docker)
+Ephemeral file, text, and chat sharing. Create a room, share its code, and connect
+without an account. Available in English, Spanish, French, Portuguese, German,
+and Hindi.
 
 ## how it works
 
-a lightweight go server acts as a websocket relay. it never inspects, stores, or processes the data it forwards. it simply groups connections by room ID and broadcasts messages from one client to the others.
-
-```
-sender browser → websocket → go relay server → websocket → receiver browser
-```
-
-```mermaid
-flowchart LR
- subgraph Room["room (in-memory, websocket clients)"]
-    direction LR
-        SG["server (go)<br>relay"]
-        SB["sender browser<br>upload"]
-        RB["receiver browser<br>download"]
-  end
-    SB -- upload --> SG
-    SG -- relay --> RB
-    RB -- download --> FB["file blob"]
+```text
+browser ── WebSocket ── Cloudflare Worker / room Durable Object ── WebSocket ── browser
+   └──────────────── encrypted WebRTC file transfer ──────────────────────────┘
+                         ↳ TURN when a direct path fails
 ```
 
-when you drop a file, the browser reads it in 64 KB slices, base64-encodes each slice, wraps it in a JSON message with metadata (file ID, offset, final flag), and sends it over the websocket. the server receives the complete frame and forwards the raw bytes to every other client in the room (sender excluded). the receiving browser decodes each chunk and accumulates them until the final chunk arrives, at which point it assembles them into a downloadable Blob.
+Cloudflare handles room membership, chat, text, and WebRTC connection setup.
+File bytes travel over reliable binary data channels. TURN relays encrypted
+traffic when the browsers cannot connect directly. This branch has no Go server
+or Render dependency.
 
-text shares and chat messages work the same way, but as single messages rather than chunked sequences.
+Transfers have independent progress and controls for each recipient. The sender
+advances from receiver acknowledgments after checksum validation and writing.
+Pause, resume, and reconnect recovery retain progress while both tabs remain
+open. Refreshing or closing a tab ends that transfer session.
 
-### message protocol
-
-all communication uses JSON messages over the websocket:
-
-| type | purpose | payload |
-|---|---|---|
-| `file-meta` | announces a new file transfer | `fileId`, `name`, `size`, `mime` |
-| `file-chunk` | carries one 64 KB chunk | `fileId`, `chunk` (base64), `offset`, `final` |
-| `text` | sends a text share | `text`, `customName?` |
-| `chat-message` | sends a chat message | `text`, `senderId`, `senderName`, `timestamp` |
+- Up to **3 GiB per file** on receivers that support saving directly to disk.
+- **100 MiB total** for in-memory receiving on other browsers; remove saved
+  transfers to free the budget.
+- Receivers accept files before data starts. Large files open a save picker.
+- Sending to several recipients uploads one copy per recipient.
+- Rooms currently allow up to ten participants. No chat or file content is
+  persisted by the signaling service.
 
 ## structure
 
+```text
+frontend/                       Next.js website and six locales
+  components/room/              room WebSocket, chat, text, and transfer UI
+    p2p/                        WebRTC, checksums, pause/resume, receive sinks
+signaling/                      Cloudflare Worker and per-room Durable Objects
+  src/                          protocol validation, membership, TURN credentials
+  test/                         workerd integration tests
 ```
-holo/
-├── backend/
-│   ├── cmd/holo-server/       # starts the server
-│   └── internal/server/       # relay logic, rooms, and connections
-│       ├── client.go          # reads from and writes to each websocket
-│       ├── room.go            # keeps track of who's in a room and relays messages
-│       └── hub.go             # manages all rooms and cleans up old ones
-├── frontend/
-│   ├── app/
-│   │   ├── layout.tsx         # root layout, metadata, i18n provider
-│   │   ├── (main)/page.tsx    # home page with the video background
-│   │   ├── (main)/terms/      # terms of service page
-│   │   ├── (main)/privacy/    # privacy policy page
-│   │   └── room/[roomId]/     # the room where you drop files and send text
-│   ├── components/
-│   │   ├── BackgroundVideo.tsx        # fullscreen video that plays behind everything
-│   │   ├── LocaleSwitcher.tsx         # language dropdown
-│   │   └── room/
-│   │       ├── useRoomWebSocket.ts    # handles the websocket connection
-│   │       ├── room-utils.ts          # splits files into chunks, formats sizes
-│   │       ├── RoomHeader.tsx         # shows the room code and connection status
-│   │       ├── ConnectionToast.tsx    # join/leave notifications
-│   │       ├── FileDropZone.tsx       # drag-and-drop area for files
-│   │       ├── TextInputArea.tsx      # where you type text to share
-│   │       ├── ChatBox.tsx            # live chat message feed and input
-│   │       └── TransferList.tsx       # list of incoming and outgoing transfers
-│   ├── hooks/
-│   │   └── useOnClickOutside.ts       # generic click-outside handler
-│   ├── i18n/
-│   │   ├── routing.ts                 # next-intl routing config (6 locales)
-│   │   └── request.ts                 # per-locale message loader
-│   ├── messages/                      # translation JSON files (en, es, fr, pt, de, hi)
-│   ├── proxy.ts                       # Next.js 16 proxy (locale detection + WebSocket upgrade)
-│   └── next.config.mjs                # next-intl + Sentry plugin chain
-├── docker-compose.yml          # runs both services with one command
-├── backend/
-│   ├── Dockerfile              # multi-stage go build → 16 mb image
-│   └── .dockerignore
-└── frontend/
-    ├── Dockerfile              # standalone next.js build → 316 mb image
-    └── .dockerignore
-```
-
-| | backend (go) | frontend (Next.js + TypeScript) |
-|---|---|---|
-| **what it does** | stateless websocket relay. never inspects or stores data | browser app that chunks files, sends/receives, and renders the UI with a 6-locale i18n layer and live chat |
-| **how it works** | each connection runs two goroutines: **readPump** reads messages and pushes them to the room, **writePump** pulls from a buffered channel and writes to the socket | four pages: **landing page** (`/`) with video background and create/join UI, **room page** (`/room/[roomId]`) with file drop, text input, chat, and transfer list, **terms** (`/terms`) and **privacy** (`/privacy`) |
-| **connections** | gorilla/websocket with 64 KB buffers, 2 MB max frame size, ping/pong keepalive; room names validated against a profanity filter during handshake | browser websocket API with reconnection support and retry button; room names validated on the landing page before connecting |
-| **file flow** | receives the full frame and forwards raw bytes to every other client in the room | splits files into **64 KB chunks** using `File.slice()`, base64-encodes each, and sends as JSON messages (`file-meta` + `file-chunk`); receiver accumulates chunks into a `Blob` for download |
-| **memory** | holds one chunk per connection at a time; slow consumers get disconnected | sender processes one chunk at a time; receiver holds all chunks until the final one arrives, then assembles |
-| **lifecycle** | rooms auto-expire after **10 minutes** of inactivity, garbage collector runs every minute | ephemeral. refresh the page and you start fresh |
-
-## scalability
-
-the relay is i/o bound, not compute bound. it never touches disk, runs no queries, and keeps no state.
-
-- **~900 clients per room** before the join/leave broadcast storm starts a cascade
-- **10,000+ concurrent connections** across multiple rooms (tested, no failure)
-- **relay latency ~0.1ms** at low room sizes
-- could run on a raspberry pi - a gigabit ethernet port is the real bottleneck
-
-see [LOAD_TEST.md](LOAD_TEST.md) for the full breakdown.
 
 ## running locally
 
-> see [CONTRIBUTING.md](CONTRIBUTING.md) for detailed setup instructions, codebase conventions, and how to submit changes.
-
-### backend
+Requires Bun and Node.js 24 or later. No Go installation is needed.
 
 ```bash
-cd backend
-go mod tidy
-go run ./cmd/holo-server
+bun install
+cd signaling && bun install
+cd ../frontend && bun install
 ```
 
-the server listens on `http://localhost:8080`. websocket endpoint: `/ws`.
+Terminal 1, from the repository root:
 
-> requires [Go](https://go.dev/dl/) to build and run.
+```bash
+cd signaling
+bun run dev -- --port 8788
+```
 
-### frontend
+Terminal 2, from the repository root:
 
 ```bash
 cd frontend
-bun install
-bun run dev
+NEXT_PUBLIC_SIGNALING_URL=ws://localhost:8788/ws bun run dev
 ```
 
-the app runs on `http://localhost:3000` by default.
+Open `http://localhost:3000` in two tabs. Local TURN is disabled by default;
+configure credentials to test restrictive networks. Port 8788 avoids conflicts
+with other services using Wrangler's default 8787.
 
-> requires [Bun](https://bun.sh/) to build and run.
+For a hosted frontend, **set `NEXT_PUBLIC_SIGNALING_URL` at build time** to its
+Cloudflare `wss://…/ws` endpoint. There is no fallback to an older relay URL.
 
-to point the frontend at a different server address:
+## verification
 
 ```bash
-NEXT_PUBLIC_WS_URL=ws://localhost:8080/ws bun run dev
+bun run check                   # signaling + frontend checks
+cd frontend && bun run test:e2e  # local Worker + real Chromium transfers
 ```
 
-### docker
+The browser suite covers three-person chat and file sharing, byte-exact
+receiving, streaming above the memory limit to browser disk, and pause/reconnect
+recovery. Install Chromium with `bunx playwright install chromium` if needed.
+The disk test replaces the OS picker with a real browser file writer; the native
+picker still needs a manual check. A full 3 GiB transfer is not yet benchmarked.
+
+## preview and production
+
+The `feat/p2p-transfers` preview uses a separate Cloudflare Worker and room
+namespace. Vercel's branch-specific Preview variable selects that backend.
+Production settings and the existing hosted service are unchanged until rollout.
+
+Before merging, configure a production Worker, TURN credentials, allowed origins,
+and Vercel's Production `NEXT_PUBLIC_SIGNALING_URL`. Then verify production and
+retire the old hosted service separately. Merging source does not delete an
+existing hosting account or service.
+
+See [signaling setup](signaling/README.md), [client protocol](docs/p2p-client.md),
+and [contributing](CONTRIBUTING.md).
+
+## docker
+
+Docker Compose runs the frontend only. Run or deploy the Cloudflare Worker
+separately and provide the URL that the user's browser can reach:
 
 ```bash
-docker compose up -d
+NEXT_PUBLIC_SIGNALING_URL=wss://your-worker.workers.dev/ws docker compose up --build
 ```
 
-the frontend runs on `http://localhost:3000`, the websocket relay on `http://localhost:8080`.
+## license
 
-| image | size |
-|---|---|
-| `holo-backend` | 16 mb |
-| `holo-frontend` | 316 mb |
-
-> requires [Docker](https://docs.docker.com/engine/install/) to build and run.
-
-to point the frontend at a different server address, pass it as a build arg:
-
-```bash
-docker compose build --build-arg NEXT_PUBLIC_WS_URL=wss://your-domain.com/ws frontend
-docker compose up -d
-```
-
----
-
-<p align="center">
-  <a href="https://holo.ufraan.dev/">try it live</a>
-  ·
-  <a href="https://github.com/ufraaan/holo/issues/new?labels=bug&template=bug-report.md">report a bug</a>
-  ·
-  <a href="https://github.com/ufraaan/holo/issues/new?labels=enhancement&template=feature-request.md">feature request</a>
-</p>
+[MIT](LICENSE) · [live site](https://holo.ufraan.dev) ·
+[issues](https://github.com/ufraaan/holo/issues)

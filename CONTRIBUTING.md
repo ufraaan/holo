@@ -1,181 +1,47 @@
 # contributing
 
-thanks for taking the time to contribute! here's how to get started.
-
-## project overview
-
-holo is an ephemeral file and text sharing tool. a Go relay server forwards WebSocket messages between browsers. the frontend is a Next.js app that chunks files and renders the UI with internationalisation (next-intl, currently supports 6 locales: en, es, fr, pt, de, hi).
-
-## prerequisites
-
-| tool | version | why |
-|---|---|---|
-| Go | 1.22+ | backend relay server |
-| Bun | latest | frontend package manager and dev server |
-| Node.js | 20+ | required by some frontend tooling |
+Holo is a Next.js frontend plus a Cloudflare signaling Worker. Files use WebRTC;
+chat, text, membership, and connection setup use room WebSockets. No Go tooling
+or application file relay is required.
 
 ## setup
 
-### 1. clone and install
+Use Bun and Node.js 24 or later. Install dependencies at the root, in
+`frontend/`, and in `signaling/`. Follow the [local setup](README.md#running-locally)
+to start the Worker on 8788 and the website on 3000.
 
-```bash
-git clone https://github.com/ufraaan/holo.git
-cd holo
-
-# backend deps
-cd backend && go mod tidy && cd ..
-
-# frontend deps
-cd frontend && bun install && cd ..
-```
-
-### 2. environment
-
-```bash
-# frontend
-cp frontend/.env.example frontend/.env
-
-# backend (optional — only needed for Sentry)
-cp backend/.env.example backend/.env
-```
-
-the defaults point the frontend at `ws://localhost:8080/ws` and the backend at `:8080`. that works out of the box.
-
-### 3. run both
-
-terminal 1 — backend:
-
-```bash
-cd backend
-go run ./cmd/holo-server
-```
-
-terminal 2 — frontend:
-
-```bash
-cd frontend
-bun run dev
-```
-
-open `http://localhost:3000`.
-
-### 4. verify
-
-```bash
-# frontend
-cd frontend && bun run check    # lint + typecheck + test (shortcut)
-# or individually:
-bun run lint                    # eslint
-bun run typecheck               # tsc --noEmit
-bun run test                    # vitest
-
-# backend
-cd backend && go vet ./...      # static analysis
-go test ./...                   # unit tests
-go run ./cmd/holo-server        # starts the relay
-```
-
-## codebase structure
-
-```
-holo/
-├── backend/
-│   ├── cmd/holo-server/main.go    # entry point, HTTP server, CORS
-│   └── internal/server/
-│       ├── client.go              # WebSocket read/write pumps
-│       ├── hub.go                 # room registry and garbage collector
-│       ├── room.go                # in-memory room state and broadcast
-│       └── logging.go             # structured key=value logger
-├── frontend/
-│   ├── app/
-│   │   ├── (main)/page.tsx        # landing page (create/join room)
-│   │   ├── (main)/terms/          # terms of service page
-│   │   ├── (main)/privacy/        # privacy policy page
-│   │   ├── room/[roomId]/page.tsx # room page (file drop, text, transfers)
-│   │   ├── layout.tsx             # root layout, metadata, i18n provider
-│   │   └── globals.css            # Tailwind v4 + keyframes
-│   ├── components/
-│   │   ├── BackgroundVideo.tsx     # fullscreen background
-│   │   ├── LocaleSwitcher.tsx      # language dropdown
-│   │   └── room/
-│   │       ├── useRoomWebSocket.ts # WebSocket connection and reconnection
-│   │       ├── room-utils.ts       # chunking, encoding, formatting
-│   │       ├── RoomHeader.tsx      # room code, status, fullscreen overlay
-│   │       ├── FileDropZone.tsx    # drag-and-drop + file input
-│   │       ├── TextInputArea.tsx   # text compose + send
-│   │       ├── TransferList.tsx    # file/text transfer list with progress
-│   │       └── ConnectionToast.tsx # join/leave notifications
-│   ├── hooks/
-│   │   └── useOnClickOutside.ts    # generic click-outside handler
-│   ├── i18n/
-│   │   ├── routing.ts             # next-intl routing config (5+1 locales)
-│   │   └── request.ts             # per-locale message loader
-│   ├── messages/                   # translation JSON files (en, es, fr, pt, de, hi)
-│   ├── proxy.ts                    # Next.js 16 proxy (locale detection + WebSocket upgrade)
-│   └── next.config.mjs             # next-intl + Sentry plugin chain
-└── .github/
-    └── workflows/ci.yml           # CI: lint, typecheck, test, build
-```
+Copy `frontend/.env.example` to a local ignored env file if desired. TURN is
+optional for local direct connections. Its credentials belong in Worker secrets,
+never a `NEXT_PUBLIC_` variable. See [signaling setup](signaling/README.md).
 
 ## making changes
 
-1. create a branch off `master`:
+1. Branch from `master`.
+2. Keep the change focused and preserve the room's ephemeral behavior.
+3. Run `bun run check` at the repository root (signaling typecheck/runtime tests,
+   then frontend lint/typecheck/unit tests).
+4. Run `bun run test:e2e` from `frontend/` for transfer or room-protocol changes.
+5. Commit, push your branch, and open a PR. Never merge or deploy production
+   without checking the target configuration.
 
-   ```bash
-   git checkout -b my-change
-   ```
+The pre-commit hook runs the same root check. GitHub Actions also builds the
+website and Worker and exercises real Chromium data channels.
 
-2. make your changes.
+## conventions
 
-3. run all checks locally:
+- Strict TypeScript and Tailwind v4; preserve the existing glass styling.
+- State and effects belong in hooks. New reusable modules use named exports;
+  framework-required entry points retain their required export shape.
+- Keep file data off the signaling WebSocket. Validate signaling and file
+  frames, and acknowledge bytes only after receiving and writing them.
+- Do not buffer a whole large file. Respect the negotiated channel message size,
+  sender backpressure, and aggregate receiver memory budget.
+- `messages/en.json` is the source of truth; every locale must mirror its keys.
+- Do not add permanent file/chat storage or cross-refresh resume accidentally.
+- Never commit credentials, local env files, dependencies, or generated builds.
 
-   ```bash
-   cd backend   && go test ./... && go vet ./...
-   cd ../frontend && bun run check
-   ```
+## reports
 
-   these same checks run in CI and as a pre-commit hook.
-
-4. commit and push:
-
-   ```bash
-   git add -A
-   git commit -m "a short human description of what you changed"
-   git push -u origin my-change
-   ```
-
-5. open a pull request on GitHub.
-
-## guidelines
-
-- **keep it focused.** one change per PR. small PRs get reviewed faster.
-- **match the existing style.** the codebase uses strict TypeScript, Go standard formatting (`gofmt`), and Tailwind v4 utilities.
-- **no commented-out code.** delete it instead.
-- **test your changes.** if you add new behaviour, add a test. if you fix a bug, add a test that would have caught it.
-- **handle errors.** if something can fail, log it or return it — don't ignore it.
-- **no secrets in code.** DSNs, tokens, and API keys go in `.env` files (already gitignored).
-
-### frontend conventions
-
-- components use named exports, not `export default`.
-- state and side effects stay in custom hooks (see `useRoomWebSocket.ts`).
-- avoid calling `setState` synchronously inside `useEffect` — use `startTransition` or move it to an event handler.
-
-### backend conventions
-
-- run `gofmt` before pushing. CI enforces it.
-- structured logging via the `logf` helper (`logf(level, msg, "key", val, ...)`).
-- use `atomic.Int64` for lock-free fields like `lastActivity`.
-
-## pull request checklist
-
-before opening a PR:
-
-- [ ] the branch is up to date with `master`
-- [ ] `go test ./...` passes
-- [ ] `bun run check` — 0 failures
-- [ ] no secrets or credentials committed
-
-## need help?
-
-open an issue or start a discussion. if it's a bug, include the browser console output, the go server terminal logs, and the room code if possible.
+Include the browser, connection type (direct/relay), transfer state, and relevant
+sanitized console errors. Do not post TURN credentials, file contents, or private
+room codes in public issues.
