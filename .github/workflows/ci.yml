@@ -48,13 +48,18 @@ jobs:
 
   frontend-core:
     name: Frontend Lint Typecheck Build Test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: frontend
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
