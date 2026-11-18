@@ -19,6 +19,9 @@ const MAX_CONTROL_CHARS = 8192;
 const MAX_SDP_LENGTH = 128 * 1024;
 const MAX_CANDIDATE_LENGTH = 4096;
 const MAX_INBOUND_QUEUE = 256;
+// Unaccepted offers are the only records a peer can create without the
+// receiver agreeing, so this bounds what a hostile peer can make us hold.
+export const MAX_PENDING_INBOUND = 64;
 const MAX_PENDING_CANDIDATES = 64;
 const WINDOW_BYTES = 512 * 1024;
 const BUFFER_LOW_BYTES = 128 * 1024;
@@ -383,6 +386,11 @@ export class PeerTransferManager {
     const record = this.records.get(id);
     if (!record) return;
     this.cancelRecord(record, true, "cancelled by user");
+    // A cancelled offer frees its inbound slot, so a peer that was refused at
+    // MAX_PENDING_INBOUND can be accepted again. Accepted records stay for the UI.
+    if (record.direction === "incoming" && !record.accepted) {
+      this.records.delete(record.id);
+    }
   }
 
   acceptTransfer(id: string): Promise<void> {
@@ -1020,6 +1028,16 @@ export class PeerTransferManager {
     }
   }
 
+  private pendingInbound(peer: PeerState): number {
+    let count = 0;
+    for (const record of this.records.values()) {
+      if (record.direction === "incoming" && record.peerId === peer.id && !record.accepted) {
+        count += 1;
+      }
+    }
+    return count;
+  }
+
   private handleOffer(
     peer: PeerState,
     fileId: string,
@@ -1089,6 +1107,16 @@ export class PeerTransferManager {
       this.reportError(
         `${peer.id}: "${name}" is too large for memory and disk saving is unavailable`,
       );
+      return;
+    }
+
+    if (this.pendingInbound(peer) >= MAX_PENDING_INBOUND) {
+      this.sendControl(peer, {
+        t: "cancel",
+        fileId,
+        reason: "too many pending transfers",
+      });
+      this.reportError(`${peer.id}: too many pending transfers`);
       return;
     }
 
