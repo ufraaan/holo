@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* iOS reveals the page background below the layout viewport when the
+   keyboard opens; white reads as a broken gap, black reads as the page. */
+html,
+body {
+  background-color: #000;
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
