@@ -83,11 +83,9 @@ function RoomContent({ roomId }: { roomId: string }) {
 
   return (
     <section className="room-view fixed inset-0 z-40 overflow-y-auto">
-      <Background onLoad={handleBgLoaded} />
+      <Background onLoad={handleBgLoaded} fade={false} />
       <ConnectionToast toasts={toasts} />
-      <div className="fixed inset-0 bg-black/45" />
-      <div className="fixed inset-0 bg-gradient-to-b from-black/30 via-black/35 to-black/55" />
-      <div className="fixed inset-x-0 bottom-0 h-[50%] bg-gradient-to-t from-black/78 via-black/56 to-transparent backdrop-blur-[3px]" />
+      <div className="fixed inset-0 bg-black/50" />
 
       <div
         className={`relative z-10 h-full px-4 py-6 text-white sm:px-6 md:px-10 md:py-8 transition-opacity duration-700 ${
@@ -120,7 +118,7 @@ function RoomContent({ roomId }: { roomId: string }) {
           </Link>
         </div>
 
-        <div className="mx-auto mt-4 w-full max-w-6xl rounded-2xl border border-white/15 bg-black/30 p-4 sm:p-6 md:p-8">
+        <div className="mx-auto mt-4 w-full max-w-6xl rounded-2xl border border-white/15 bg-black/35 p-4 sm:p-6 md:p-8">
           <RoomHeader roomId={roomId} status={status} clientCount={clientCount} onRetry={handleRetry} />
 
           <div className="room-columns mt-6 grid gap-4 md:grid-cols-2 md:gap-6 md:items-stretch">
