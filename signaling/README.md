@@ -16,16 +16,21 @@ frontend. File bytes travel over WebRTC, directly or through TURN.
 | Route | Result |
 |---|---|
 | `GET /health` | `200 {"status":"ok","service":"holo-signaling","turnEnabled":boolean}` |
-| `GET /ws?roomId=<id>&clientId=<id>` with `Upgrade: websocket` and an allowlisted `Origin` | `101` |
+| `GET /ws?roomId=<id>&clientId=<id>&token=<secret>` with `Upgrade: websocket` and an allowlisted `Origin` | `101` |
 | `/ws` without upgrade | `426` |
 | `/ws` with a missing/unlisted `Origin` | `403 {"error":"origin-not-allowed"}` |
-| `/ws` with an invalid `roomId`/`clientId` | `400 {"error":"bad-request"}` |
+| `/ws` with an invalid `roomId`/`clientId`/`token` | `400 {"error":"bad-request"}` |
 | `/ws` when the room already has 10 other peers | `409 {"error":"room-full"}` |
+| `/ws` when another socket holds that `clientId` with a different token | `409 {"error":"id-in-use"}` |
 | anything else | `404` |
 
 `roomId` matches `^[a-z0-9][a-z0-9-]{0,63}$`, `clientId` matches
-`^[A-Za-z0-9_-]{1,64}$`. Reconnecting with the same `clientId` replaces the old
-socket (the old one is closed with code `4000`, reason `replaced`).
+`^[A-Za-z0-9_-]{1,64}$`, and `token` matches `^[A-Za-z0-9_-]{16,64}$`. A tab
+generates `clientId` and `token` together and keeps them in memory for its whole
+lifetime. Reconnecting with the same `clientId` **and** token replaces the old
+socket (the old one is closed with code `4000`, reason `replaced`). A caller
+holding only an observed `clientId` is refused, so peers cannot evict or
+impersonate each other.
 
 ### Client → server
 

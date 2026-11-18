@@ -1,7 +1,7 @@
 import { env, exports } from "cloudflare:workers";
 import { evictDurableObject, runInDurableObject } from "cloudflare:test";
 import { afterEach, describe, expect, it } from "vitest";
-import { attempt, open, type Client } from "./connect";
+import { attempt, open, ORIGIN, type Client } from "./connect";
 import { getChatName } from "../src/chat-names";
 
 const clients: Client[] = [];
@@ -105,6 +105,26 @@ describe("room membership", () => {
     });
     expect(a1.closed?.code).toBe(4000);
     expect((await a1.waitClosed()).code).toBe(4000);
+  });
+
+  it("rejects a reconnect that cannot prove it owns the client id", async () => {
+    const room = roomId();
+    const victim = await join(room, "a");
+    await victim.next("room-state");
+
+    const hijack = await attempt(room, "a", undefined, "tok-attacker-0000");
+    expect(hijack.status).toBe(409);
+    expect(await hijack.json()).toEqual({ error: "id-in-use" });
+    expect(victim.closed).toBeNull();
+  });
+
+  it("requires a client token on the socket path", async () => {
+    const room = roomId();
+    const response = await exports.default.fetch(
+      `https://holo.test/ws?roomId=${room}&clientId=a`,
+      { headers: { Upgrade: "websocket", Origin: ORIGIN } },
+    );
+    expect(response.status).toBe(400);
   });
 
   it("drops a departing peer from room-state", async () => {

@@ -14,10 +14,16 @@ import FileDropZone from "../../../components/room/FileDropZone";
 import TextInputArea from "../../../components/room/TextInputArea";
 import TransferList from "../../../components/room/TransferList";
 
-function useClientId() {
-  return useMemo(() => {
-    return crypto.randomUUID?.() ?? "c_fallback";
-  }, []);
+function newId(): string {
+  // randomUUID needs a secure context; fall back to random hex.
+  return (
+    crypto.randomUUID?.() ??
+    Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join("")
+  );
+}
+
+function useClientIdentity() {
+  return useMemo(() => ({ clientId: newId(), token: newId() }), []);
 }
 
 export default function RoomPage() {
@@ -27,15 +33,14 @@ export default function RoomPage() {
 
 function RoomContent({ roomId }: { roomId: string }) {
   const t = useTranslations("RoomPage");
-  const clientId = useClientId();
-
+  const { clientId, token } = useClientIdentity();
   const [bgLoaded, setBgLoaded] = useState(false);
   const handleBgLoaded = useCallback(() => setBgLoaded(true), []);
   const textInputRef = useRef<HTMLTextAreaElement>(null);
   const textNameInputRef = useRef<HTMLInputElement>(null);
 
   const { status, errorMessage, clientCount, toasts, transfers, textShares, chatMessages, currentSenderId, currentSenderName, handleFiles, handleSendText, sendChatMessage, handleRetry, p2pEnabled, peers, p2pError, acceptTransfer, pauseTransfer, resumeTransfer, cancelTransfer } =
-    useRoomWebSocket({ roomId, clientId });
+    useRoomWebSocket({ roomId, clientId, token });
 
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     void handleFiles(e.target.files);
