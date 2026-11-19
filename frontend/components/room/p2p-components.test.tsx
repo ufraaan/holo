@@ -44,6 +44,21 @@ function p2pTransfer(overrides: Record<string, unknown> = {}) {
 }
 
 describe("FileDropZone P2P", () => {
+  it("lets users select multiple files in one picker action", () => {
+    const onInputChange = vi.fn();
+    render(
+      <I18nProvider>
+        <FileDropZone status="connected" errorMessage={null} {...handlers} onInputChange={onInputChange} />
+      </I18nProvider>,
+    );
+    const input = screen.getByLabelText("Choose files");
+    expect(input).toHaveAttribute("multiple");
+    const files = [new File(["one"], "one.pdf"), new File(["two"], "two.pdf")];
+    fireEvent.change(input, { target: { files } });
+    expect(onInputChange).toHaveBeenCalledOnce();
+    expect(onInputChange.mock.calls[0][0].target.files).toEqual(files);
+  });
+
   it("shows the P2P error instead of a generic relay error", () => {
     render(
       <I18nProvider>

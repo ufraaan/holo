@@ -58,9 +58,9 @@
   },
   "FileDropZone": {
     "connectingBanner": "Connexion au salon…",
-    "dropPrompt": "Déposez un fichier ici",
-    "choosePrompt": "ou choisissez-en un depuis votre appareil",
-    "chooseFile": "Choisir un fichier",
+    "dropPrompt": "Déposez des fichiers ici",
+    "choosePrompt": "ou choisissez des fichiers sur votre appareil",
+    "chooseFile": "Choisir des fichiers",
     "p2pSendLimit": "Envoi : jusqu'à 3 Go par fichier. Gardez les deux onglets ouverts jusqu'à la fin du transfert.",
     "p2pReceiveDisk": "Réception : ce navigateur peut enregistrer directement sur le disque, jusqu'à 3 Go par fichier.",
     "p2pReceiveMemory": "Réception : jusqu’à 100 Mo au total en mémoire. Retirez les transferts terminés pour libérer de l’espace ou utilisez un navigateur Chromium sur ordinateur pour les fichiers plus volumineux.",

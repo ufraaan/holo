@@ -59,6 +59,7 @@ export default function FileDropZone({
         >
           <input
             type="file"
+            multiple
             className="sr-only"
             onChange={status === "connected" ? onInputChange : undefined}
             disabled={status !== "connected"}

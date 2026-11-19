@@ -58,9 +58,9 @@
   },
   "FileDropZone": {
     "connectingBanner": "Conectando con la sala…",
-    "dropPrompt": "Suelta un archivo aquí",
-    "choosePrompt": "o elige uno de tu dispositivo",
-    "chooseFile": "Elegir archivo",
+    "dropPrompt": "Suelta archivos aquí",
+    "choosePrompt": "o elige archivos de tu dispositivo",
+    "chooseFile": "Elegir archivos",
     "p2pSendLimit": "Envío: hasta 3 GB por archivo. Mantén ambas pestañas abiertas hasta que termine la transferencia.",
     "p2pReceiveDisk": "Recepción: este navegador puede guardar directamente en el disco, hasta 3 GB por archivo.",
     "p2pReceiveMemory": "Recepción: hasta 100 MB en total en memoria. Elimina las transferencias terminadas para liberar espacio o usa un navegador Chromium de escritorio para archivos más grandes.",

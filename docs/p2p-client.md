@@ -49,6 +49,19 @@ The hook auto-reconnects signaling with bounded exponential backoff (500 ms →
 `PeerTransferManager` or drop received chunks; only a room change, client
 change or unmount does.
 
+## Multiple files and queueing
+
+The file picker accepts multiple files; dropping multiple files uses the same path.
+Each recipient has an independent FIFO queue. Only the first nonterminal file is
+offered, so a large selection does not flood the receiver with pending offers.
+Later files show "Queued" on the sender and can be cancelled before being offered.
+
+The next file is offered when the current file completes, is declined, fails, or
+is cancelled. Pausing or reconnecting the current transfer holds that recipient's
+queue. New selections append to the queue. Each file still requires individual
+acceptance, preserving the user gesture needed for the native save picker.
+Other recipients and transfers in the opposite direction run independently.
+
 ## Limits
 
 | Situation | Limit |
