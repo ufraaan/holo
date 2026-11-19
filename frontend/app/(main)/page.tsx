@@ -47,7 +47,7 @@ export default function HomePage() {
       <div className="flex flex-1 flex-col">
         <div className="mx-auto mt-12 flex w-full max-w-3xl flex-1 flex-col items-center justify-center pb-[20vh] text-center">
           <h1
-            className={`${titleFont.className} text-5xl font-medium tracking-tight text-white/95 transition-all duration-700 md:text-6xl ${
+            className={`${titleFont.className} text-5xl font-medium tracking-tight [word-spacing:0.12em] text-white/95 transition-all duration-700 md:text-6xl ${
               bgLoaded
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-[30px]"
