@@ -50,7 +50,7 @@ export default function LocaleSwitcher() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-1.5 min-w-[130px] overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur-md shadow-xl shadow-black/30">
+        <div className="absolute right-0 top-full z-50 mt-1.5 min-w-[140px] overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] p-1 backdrop-blur-md shadow-xl shadow-black/30">
           {routing.locales.map((loc) => {
             const isActive = loc === locale;
             return (
@@ -58,7 +58,7 @@ export default function LocaleSwitcher() {
                 key={loc}
                 type="button"
                 onClick={() => switchLocale(loc)}
-                className={`flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left text-xs transition ${
+                className={`flex w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs transition ${
                   isActive
                     ? "bg-white/10 text-white"
                     : "text-white/70 hover:bg-white/5 hover:text-white"
