@@ -1,6 +1,7 @@
 {
   "name": "holo-repo",
   "private": true,
+  "license": "Apache-2.0",
   "scripts": {
     "prepare": "husky",
     "precommit:checks": "bun run check",
