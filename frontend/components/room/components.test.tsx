@@ -412,7 +412,7 @@ describe("TransferList", () => {
     );
     fireEvent.click(screen.getByText("Chat"));
     expect(screen.getByText("hello")).toBeInTheDocument();
-    expect(screen.getByText("Ken")).toBeInTheDocument();
+    expect(screen.getByText(/^Ken · /)).toBeInTheDocument();
   });
 });
 
