@@ -49,7 +49,12 @@
     "countConnected": "{count} conectado",
     "retry": "Reintentar",
     "roomCode": "Código de sala",
-    "overlayHint": "toca en cualquier lugar o presiona esc para cerrar"
+    "overlayHint": "toca en cualquier lugar o presiona esc para cerrar",
+    "showQr": "Mostrar código QR",
+    "qrTitle": "Únete a esta sala",
+    "qrDescription": "Escanea con la cámara de tu teléfono para abrir esta sala.",
+    "closeQr": "Cerrar código QR",
+    "qrLocalNotice": "Este enlace localhost solo funciona en este dispositivo. El teléfono necesita una dirección web accesible."
   },
   "FileDropZone": {
     "connectingBanner": "Conectando con la sala…",
