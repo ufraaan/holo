@@ -1,8 +1,8 @@
 # Local GitHub Actions checks
 
-Run the repository's existing CI workflow with `act` and Docker. This runs on your machine and does not use GitHub Actions runner minutes. It does not deploy the application.
+Run the repository's existing CI workflow with [act](https://github.com/nektos/act) and Docker. This runs on your machine and does not use GitHub Actions runner minutes. It does not deploy the application.
 
-Install `act` on macOS and start Docker Desktop:
+Install [act](https://github.com/nektos/act) on macOS and start Docker Desktop:
 
 ```bash
 brew install act
