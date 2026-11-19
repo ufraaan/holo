@@ -407,10 +407,10 @@ describe("PeerTransferManager", () => {
 
     // Large enough that the transfer is still running when we pause it.
     const bytes = makeBytes(16 * 1024 * 1024 + 333);
-    await a.manager.sendFiles([new File([bytes], "pause.bin")], ["b"]);
+    await a.manager.sendFiles([new File([bytes], "pause.bin"), new File(["next"], "next.txt")], ["b"]);
     const received = await waitForIncoming(b, "a", "offered");
     await b.manager.acceptTransfer(received.id);
-    const sent = outgoing(a, "b")!;
+    const sent = [...a.updates.values()].find((t) => t.name === "pause.bin")!;
 
     // Pause immediately; any chunks already in flight still drain and are acked.
     a.manager.pauseTransfer(sent.id);
@@ -439,6 +439,8 @@ describe("PeerTransferManager", () => {
     expect(a.updates.get(sent.id)?.status).toBe("paused");
     expect(b.updates.get(received.id)?.bytesTransferred).toBe(settled);
 
+    expect([...a.updates.values()].find((t) => t.name === "next.txt")?.status).toBe("queued");
+    expect(b.updates.size).toBe(1);
     a.manager.resumeTransfer(sent.id);
     await waitFor(
       () => b.updates.get(received.id)?.status === "completed",
@@ -446,6 +448,7 @@ describe("PeerTransferManager", () => {
       8000,
     );
     await waitFor(() => a.updates.get(sent.id)?.status === "completed", "sender", 8000);
+    await waitFor(() => incoming(b, "a")?.name === "next.txt");
     expect(Buffer.from(await completedBytes(b.updates.get(received.id)!)).equals(Buffer.from(bytes))).toBe(true);
   }, 20000);
 
@@ -561,6 +564,64 @@ describe("PeerTransferManager", () => {
     const received = await waitForIncoming(b, "a", "offered");
     await b.manager.acceptTransfer(received.id);
     await waitFor(() => b.updates.get(received.id)?.status === "completed");
+  });
+
+  it("queues batches larger than the inbound offer cap and sends one file at a time", async () => {
+    const net = new MockNetwork();
+    installRtc(net);
+    const a = harness(net, "a");
+    const b = harness(net, "b");
+    await connect(net, [a, b]);
+    const files = Array.from({ length: MAX_PENDING_INBOUND + 2 }, (_, i) => new File([String(i)], `file-${i}.txt`));
+    await a.manager.sendFiles(files, ["b"]);
+    expect([...a.updates.values()].filter((t) => t.status === "queued")).toHaveLength(files.length - 1);
+    for (const file of files) {
+      await waitFor(() => [...b.updates.values()].some((t) => t.name === file.name && t.status === "offered"));
+      const received = [...b.updates.values()].find((t) => t.name === file.name)!;
+      expect([...b.updates.values()].filter((t) => t.status === "offered")).toHaveLength(1);
+      await b.manager.acceptTransfer(received.id);
+      await waitFor(() => [...a.updates.values()].some((t) => t.name === file.name && t.status === "completed"));
+      expect(Array.from(await completedBytes(b.updates.get(received.id)!))).toEqual(Array.from(new TextEncoder().encode(await file.text())));
+    }
+    expect(a.errors).toEqual([]);
+    expect(b.errors).toEqual([]);
+  }, 15000);
+
+  it("advances after decline or failure and skips a cancelled queued file", async () => {
+    const net = new MockNetwork();
+    installRtc(net);
+    const a = harness(net, "a");
+    const b = harness(net, "b");
+    await connect(net, [a, b]);
+    await a.manager.sendFiles(["decline", "skip", "fail", "last"].map((name) => new File([name], name)), ["b"]);
+    const queued = [...a.updates.values()].find((t) => t.name === "skip")!;
+    a.manager.cancelTransfer(queued.id);
+    const first = await waitForIncoming(b, "a", "offered");
+    b.manager.cancelTransfer(first.id);
+    await waitFor(() => incoming(b, "a")?.name === "fail");
+    const failed = incoming(b, "a")!;
+    net.channelOf("b").send(JSON.stringify({ t: "accept", fileId: failed.id.split(":").pop(), offset: 999 }));
+    await waitFor(() => incoming(b, "a")?.name === "last");
+    expect([...b.updates.values()].some((t) => t.name === "skip")).toBe(false);
+    expect([...a.updates.values()].find((t) => t.name === "fail")?.status).toBe("error");
+    const last = incoming(b, "a")!;
+    await b.manager.acceptTransfer(last.id);
+    await waitFor(() => b.updates.get(last.id)?.status === "completed");
+  });
+
+  it("keeps queues independent for each recipient", async () => {
+    const net = new MockNetwork();
+    installRtc(net);
+    const a = harness(net, "a");
+    const b = harness(net, "b");
+    const c = harness(net, "c");
+    await connect(net, [a, b, c], ["a", "b", "c"]);
+    await a.manager.sendFiles([new File(["one"], "one"), new File(["two"], "two")]);
+    const first = await waitForIncoming(c, "a", "offered");
+    await c.manager.acceptTransfer(first.id);
+    await waitFor(() => incoming(c, "a")?.name === "two");
+    expect(incoming(b, "a")?.name).toBe("one");
+    expect([...a.updates.values()].find((t) => t.peerId === "b" && t.name === "two")?.status).toBe("queued");
   });
 
   it("caps unaccepted inbound offers per peer", async () => {

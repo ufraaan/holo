@@ -112,6 +112,29 @@ test("three peers chat and receive byte-identical files without WebSocket file t
   }
 });
 
+test("multiple selection queues files and downloads each with identical bytes", async ({ browser }, info) => {
+  const { pages: [sender, receiver], contexts, socketTypes } = await openRoom(browser, 2);
+  try {
+    const files = [
+      { name: "first.pdf", mimeType: "application/pdf", buffer: Buffer.from("first PDF bytes") },
+      { name: "second.txt", mimeType: "text/plain", buffer: Buffer.from("second file bytes") },
+      { name: "third.bin", mimeType: "application/octet-stream", buffer: Buffer.from([0, 1, 255, 42]) },
+    ];
+    await sender.locator('input[type="file"]').setInputFiles(files);
+    const second = sender.getByRole("group").filter({ has: sender.getByText("second.txt", { exact: true }) });
+    await expect(second).toContainText("Queued");
+    await expect(receiver.getByRole("button", { name: "Accept second.txt", exact: true })).toHaveCount(0);
+    for (const file of files) {
+      await receiver.getByRole("button", { name: `Accept ${file.name}`, exact: true }).click();
+      await saveAndCheck(receiver, file.name, file.buffer, info.outputPath(file.name));
+    }
+    expect(socketTypes).not.toContain("file-meta");
+    expect(socketTypes).not.toContain("file-chunk");
+  } finally {
+    await Promise.all(contexts.map((context) => context.close()));
+  }
+});
+
 test("streams files above the memory cap to browser disk without a Blob download", async ({ browser }, info) => {
   test.setTimeout(120_000);
   const { pages: [sender, receiver], contexts } = await openRoom(browser, 2, false, true);
