@@ -49,7 +49,12 @@
     "countConnected": "{count} verbunden",
     "retry": "Wiederholen",
     "roomCode": "Raumcode",
-    "overlayHint": "tippen Sie irgendwo hin oder drücken Sie Esc zum Schließen"
+    "overlayHint": "tippen Sie irgendwo hin oder drücken Sie Esc zum Schließen",
+    "showQr": "QR-Code anzeigen",
+    "qrTitle": "Diesem Raum beitreten",
+    "qrDescription": "Scanne den Code mit deiner Handykamera, um diesen Raum zu öffnen.",
+    "closeQr": "QR-Code schließen",
+    "qrLocalNotice": "Dieser localhost-Link funktioniert nur auf diesem Gerät. Dein Handy benötigt eine erreichbare Webadresse."
   },
   "FileDropZone": {
     "connectingBanner": "Verbindung zum Raum wird hergestellt…",

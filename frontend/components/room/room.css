@@ -128,3 +128,29 @@
 @media (prefers-reduced-motion: reduce) {
   .room-view :is(.room-tab, .room-progress-fill) { transition: none; }
 }
+
+.room-qr-dialog {
+  margin: auto;
+  inline-size: min(23rem, calc(100% - 2rem));
+  max-block-size: calc(100dvh - 2rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1.5rem;
+  border: 1px solid rgb(255 255 255 / 0.16);
+  border-radius: 0.875rem;
+  background: rgb(12 16 22 / 0.45);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 60px rgb(0 0 0 / 0.2), inset 0 1px 0 rgb(255 255 255 / 0.12);
+  color: rgb(255 255 255 / 0.9);
+  font: 400 0.875rem/1.5 ui-sans-serif, system-ui, sans-serif;
+}
+.room-qr-dialog::backdrop { background: rgb(0 0 0 / 0.3); overflow: hidden; overscroll-behavior: contain; }
+.room-qr-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.room-qr-heading h2 { font-size: 1rem; font-weight: 400; }
+.room-qr-description { margin-block-start: 0.75rem; color: rgb(255 255 255 / 0.6); }
+.room-qr-image { margin: 1.5rem auto 1rem; inline-size: min(100%, 15rem); padding: 0.5rem; border-radius: 0.75rem; background: white; }
+.room-qr-image svg { display: block; inline-size: 100%; block-size: auto; }
+.room-qr-code { text-align: center; overflow-wrap: anywhere; }
+.room-qr-url { margin-block-start: 0.375rem; text-align: center; font-size: 0.75rem; color: rgb(255 255 255 / 0.5); overflow-wrap: anywhere; }
+.room-qr-notice { margin-block-start: 1rem; font-size: 0.75rem; color: rgb(255 255 255 / 0.6); }
