@@ -1,52 +1,95 @@
-# Security
+# Security policy
 
-## Supported Versions
+## Supported versions
 
-| Version | Status |
-|---------|--------|
-| 0.1.x   | Active |
+Security fixes target the current `master` branch and the official deployment at
+[https://holo.ufraan.dev](https://holo.ufraan.dev). Older commits, preview deployments,
+and self-hosted copies do not have a separate maintenance schedule. Self-hosters
+should keep their deployment and dependencies up to date.
 
-Holo is pre-1.0. The surface area is intentionally small — but that doesn't make security reports less welcome.
+## Reporting a vulnerability
 
----
+Please use [GitHub private vulnerability reporting](https://github.com/ufraaan/holo/security/advisories/new).
+Do not publish exploit details, room codes, connection tokens, TURN credentials,
+or private files in an issue, discussion, or pull request.
 
-## Reporting a Vulnerability
+Include:
 
-**Do not open a public issue.** If you find something, report it privately.
+- The affected page or component and commit or deployment, if known
+- Reproduction steps using a room and files you control
+- The expected behavior, actual behavior, and likely impact
+- Relevant browser and operating system versions
+- A minimal proof of concept with secrets and personal data removed
 
-Use GitHub's built-in private advisory flow:
-[Open a private advisory](https://github.com/ufraaan/holo/security/advisories/new)
+Reports are reviewed on a best-effort basis; there is no guaranteed response or
+fix deadline. Please allow time for investigation before publishing details. Any
+public advisory and reporter credit will be coordinated with the reporter.
 
-Your report should include:
-- What the vulnerability is and where it lives
-- Steps to reproduce it
-- What an attacker could realistically do with it
-- A suggested fix if you have one (optional, appreciated)
+## Architecture and trust boundaries
 
-You'll get an acknowledgement within **48–72 hours**. From there, expect a timeline estimate and a heads-up when a fix ships. Reports that lead to a fix are credited in the release notes.
+### Files
 
----
+Browsers exchange files over encrypted WebRTC data channels. A direct connection
+is preferred; Cloudflare TURN relays encrypted traffic when needed. The application
+signaling service does not carry file bytes and rejects the legacy `file-meta`
+and `file-chunk` WebSocket messages. TURN relaying still involves a server, even
+though it cannot read the encrypted file payload.
 
-## Holo's Attack Surface
+Recipients must accept incoming files. Supported browsers can write directly to
+disk; other browsers use a bounded in-memory buffer. Pause and connection recovery
+require both tabs to remain open. Holo does not provide a file archive, malware
+scanner, or persistent transfer recovery. Recipients can retain downloaded copies.
 
-Holo is a WebSocket relay. It moves data in memory and drops it. Understanding this matters before you assess what's actually exploitable:
+### Room coordination, chat, and shared text
 
-**No persistence.** Holo has no database, no file system writes, no session store. Once a connection closes and inactivity clears the buffer, that data is gone. There's no "data at rest" to extract.
+A Cloudflare Worker and a Durable Object per room handle membership, WebRTC
+signaling, chat, and shared text. Production connections use HTTPS and secure
+WebSockets. Chat and shared text are readable by the room service and are **not
+end-to-end encrypted**.
 
-**Ephemeral by design.** Files are streamed in chunks over WebSockets. Nothing lingers server-side after the transfer completes. If you're looking for exfiltration vectors, the window is narrow and tied entirely to active sessions.
+Shared content is not intentionally persisted by the signaling application.
+WebSocket attachments retain membership and rate-limit state across hibernation;
+bounded TURN issuance counters are stored in SQLite. This is operational state,
+not a message or file archive. Infrastructure and telemetry providers may process
+network metadata and operational records; closing a room does not erase those
+records or recipients' copies.
 
-**What's actually in scope:**
-- WebSocket connection handling and authentication
-- Relay logic that could allow cross-session data leakage
-- Denial-of-service via connection flooding or large payloads
-- Any mechanism that breaks session isolation
+### Identity and access
 
-**What's out of scope:**
-- Vulnerabilities in infrastructure you control (your reverse proxy, your deployment)
-- Issues requiring physical or privileged OS-level access to the server
+Holo has no accounts or verified participant identities. Anyone who knows a room
+code can join, subject to room limits. Room codes and QR invitations are not a
+substitute for strong authentication. Direct WebRTC connections can disclose IP
+addresses to other participants.
 
----
+The signaling service validates origins and message shapes, limits room size and
+message rates, and assigns chat sender identities. A per-tab token protects
+reconnection with the same client ID; it is not a room password. Origin validation
+is a browser boundary, not authentication against non-browser clients.
 
-## Coordinated Disclosure
+Long-lived TURN API secrets stay in the Worker. Browsers receive only short-lived
+TURN credentials, currently valid for 600 seconds. Do not embed deployment secrets
+in client bundles or disclose live temporary credentials in reports.
 
-Reports are handled privately until a fix is deployed. Public disclosure is coordinated with the reporter. If a critical issue is found, a patch and advisory will be published together.
+### Optional telemetry
+
+When configured, analytics use sanitized page categories and respect supported
+opt-out signals. Error reporting is sanitized; session replay, performance traces,
+and Sentry logs are disabled. See the [privacy policy](https://holo.ufraan.dev/privacy)
+for provider and data-handling details.
+
+## Useful areas to investigate
+
+Reports about these boundaries are especially useful:
+
+- Cross-room message leakage, unauthorized signaling, or sender impersonation
+- Reconnection token handling and unauthorized replacement of another client's socket
+- Script injection through chat, shared text, filenames, or room links
+- Transfer acceptance, resource limits, disk writes, or resume integrity
+- TURN credential exposure, credential issuance abuse, or rate-limit bypasses
+- Private content or credentials leaking through telemetry, logs, or error responses
+
+Test only rooms, devices, and files you control. Do not flood the public service,
+exhaust provider quotas, probe other users' rooms, or upload harmful content. Use a
+local deployment for resource-exhaustion testing. Upstream provider vulnerabilities
+should also be reported to that provider; Holo integration mistakes remain relevant
+here.
