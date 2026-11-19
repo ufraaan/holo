@@ -168,7 +168,7 @@ describe("RoomHeader", () => {
         <RoomHeader roomId="xyz" status="connected" clientCount={0} onRetry={vi.fn()} />
       </I18nProvider>,
     );
-    fireEvent.click(screen.getByTitle("show room code fullscreen"));
+    fireEvent.click(screen.getByRole("button", { name: "show room code fullscreen" }));
     expect(screen.getByText("Room code")).toBeInTheDocument();
     expect(screen.getAllByText("xyz").length).toBe(2);
   });
@@ -179,7 +179,7 @@ describe("RoomHeader", () => {
         <RoomHeader roomId="xyz" status="connected" clientCount={0} onRetry={vi.fn()} />
       </I18nProvider>,
     );
-    fireEvent.click(screen.getByTitle("show room code fullscreen"));
+    fireEvent.click(screen.getByRole("button", { name: "show room code fullscreen" }));
     expect(screen.getByText("Room code")).toBeInTheDocument();
 
     const overlays = screen.getAllByText("xyz");
@@ -193,7 +193,7 @@ describe("RoomHeader", () => {
         <RoomHeader roomId="xyz" status="connected" clientCount={0} onRetry={vi.fn()} />
       </I18nProvider>,
     );
-    fireEvent.click(screen.getByTitle("show room code fullscreen"));
+    fireEvent.click(screen.getByRole("button", { name: "show room code fullscreen" }));
     expect(screen.getByText("Room code")).toBeInTheDocument();
 
     fireEvent.keyDown(window, { key: "Escape" });

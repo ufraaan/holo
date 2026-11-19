@@ -59,43 +59,51 @@ export default function RoomHeader({ roomId, status, clientCount, onRetry }: Roo
               <span
                 id={copyHintId}
                 role="tooltip"
-                className={`absolute inset-be-full inset-s-0 z-10 whitespace-nowrap pbe-1 text-[10px] ${hintVisible && !copyStatus ? "opacity-100" : "pointer-events-none opacity-0"}`}
+                className={`absolute inset-be-full inset-s-0 z-10 whitespace-nowrap pbe-1 text-[10px] transition-opacity duration-150 ${hintVisible && !copyStatus ? "opacity-100" : "pointer-events-none opacity-0"}`}
               >
-                <span className="block rounded border border-white/15 bg-black/90 px-2 py-1 text-white/80">
+                <span className="block rounded-md border border-white/15 bg-black/90 px-2 py-1 text-white/80">
                   {t("copyHint")}
                 </span>
               </span>
               <span
                 role="status"
-                className={`pointer-events-none absolute inset-be-full inset-s-0 z-10 whitespace-nowrap pbe-1 text-[10px] ${copyStatus ? "opacity-100" : "opacity-0"}`}
+                className={`pointer-events-none absolute inset-be-full inset-s-0 z-10 whitespace-nowrap pbe-1 text-[10px] transition-opacity duration-150 ${copyStatus ? "opacity-100" : "opacity-0"}`}
               >
-                <span className="block rounded border border-white/15 bg-black/90 px-2 py-1 text-white/80">
+                <span className="block rounded-md border border-white/15 bg-black/90 px-2 py-1 text-white/80">
                   {copyStatus ? t(copyStatus) : ""}
                 </span>
               </span>
             </div>
-            <button
-              type="button"
-              onClick={() => setShowDisplay(true)}
-              className="glass-button room-expand"
-              title={t("expandTitle")}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-3.5 w-3.5 text-white/80"
+            <div className="group relative inline-flex">
+              <button
+                type="button"
+                onClick={() => setShowDisplay(true)}
+                className="glass-button room-expand"
+                aria-label={t("expandTitle")}
               >
-                <polyline points="15 3 21 3 21 9" />
-                <polyline points="9 21 3 21 3 15" />
-                <line x1="21" y1="3" x2="14" y2="10" />
-                <line x1="3" y1="21" x2="10" y2="14" />
-              </svg>
-            </button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-3.5 w-3.5 text-white/80"
+                >
+                  <polyline points="15 3 21 3 21 9" />
+                  <polyline points="9 21 3 21 3 15" />
+                  <line x1="21" y1="3" x2="14" y2="10" />
+                  <line x1="3" y1="21" x2="10" y2="14" />
+                </svg>
+              </button>
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-1.5 z-20 whitespace-nowrap rounded-md border border-white/15 bg-black/90 px-2 py-1 text-[10px] text-white/80 opacity-0 shadow-lg backdrop-blur-sm transition-opacity duration-150 delay-100 group-hover:opacity-100 group-focus-within:opacity-100"
+              >
+                {t("expandTitle")}
+              </span>
+            </div>
             <RoomQrCode roomId={roomId} />
           </div>
         </div>

@@ -18,14 +18,22 @@ export function RoomQrCode({ roomId }: { roomId: string }) {
 
   return (
     <>
-      <button type="button" className="glass-button room-expand" onClick={open} aria-label={t("showQr")} title={t("showQr")} aria-haspopup="dialog">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-          <rect x="3" y="3" width="6" height="6" rx="1" />
-          <rect x="15" y="3" width="6" height="6" rx="1" />
-          <rect x="3" y="15" width="6" height="6" rx="1" />
-          <path d="M15 12v4h6M12 3v9H3m9 3v6m3-2v2h6v-2m0-7v1" />
-        </svg>
-      </button>
+      <div className="group relative inline-flex">
+        <button type="button" className="glass-button room-expand" onClick={open} aria-label={t("showQr")} aria-haspopup="dialog">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+            <rect x="3" y="3" width="6" height="6" rx="1" />
+            <rect x="15" y="3" width="6" height="6" rx="1" />
+            <rect x="3" y="15" width="6" height="6" rx="1" />
+            <path d="M15 12v4h6M12 3v9H3m9 3v6m3-2v2h6v-2m0-7v1" />
+          </svg>
+        </button>
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-1.5 z-20 whitespace-nowrap rounded-md border border-white/15 bg-black/90 px-2 py-1 text-[10px] text-white/80 opacity-0 shadow-lg backdrop-blur-sm transition-opacity duration-150 delay-100 group-hover:opacity-100 group-focus-within:opacity-100"
+        >
+          {t("showQr")}
+        </span>
+      </div>
       <dialog ref={dialogRef} className="room-qr-dialog" aria-labelledby={titleId} aria-describedby={descriptionId}>
         <div className="room-qr-heading">
           <h2 id={titleId}>{t("qrTitle")}</h2>
