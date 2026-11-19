@@ -93,6 +93,7 @@
     "cancel": "रद्द करें",
     "directionIncoming": "आने वाला",
     "directionOutgoing": "जाने वाला",
+    "statusQueued": "कतार में",
     "statusOffered": "स्वीकृति का इंतज़ार",
     "statusConnecting": "जुड़ रहा है",
     "statusTransferring": "ट्रांसफ़र हो रहा है",

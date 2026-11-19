@@ -3,6 +3,7 @@ import { containsProfanity } from "../../lib/profanity";
 export type TransferDirection = "incoming" | "outgoing";
 
 export type TransferStatus =
+  | "queued"
   | "offered"
   | "connecting"
   | "transferring"

@@ -93,6 +93,7 @@
     "cancel": "Annuler",
     "directionIncoming": "Entrant",
     "directionOutgoing": "Sortant",
+    "statusQueued": "En attente dans la file",
     "statusOffered": "En attente d'acceptation",
     "statusConnecting": "Connexion",
     "statusTransferring": "Transfert",
