@@ -78,21 +78,12 @@ export default function ChatBox({
                       : "border border-white/10 bg-white/[0.025] text-white/90"
                   }`}
                 >
-                  {!isOwn && (
-                    <p className="text-xs font-normal text-white/60">
-                      {msg.senderName}
-                    </p>
-                  )}
-                  <p className="mt-1 whitespace-pre-wrap [overflow-wrap:anywhere] text-sm leading-relaxed">
+                  <p className="whitespace-pre-wrap [overflow-wrap:anywhere] text-sm leading-relaxed">
                     {msg.text}
                   </p>
-                  <p
-                    className={`mt-1 text-xs ${
-                      isOwn ? "text-white/50" : "text-white/50"
-                    }`}
-                  >
-                    {isOwn ? currentSenderName : ""}
-                    {isOwn ? " · " : ""}
+                  <p className="mt-1 text-xs font-normal text-white/50">
+                    {isOwn ? currentSenderName : msg.senderName}
+                    {" · "}
                     {formatTime(msg.timestamp)}
                   </p>
                 </div>
