@@ -89,7 +89,7 @@ describe("FileDropZone", () => {
         <FileDropZone status="connected" errorMessage={null} {...handlers} />
       </I18nProvider>,
     );
-    const input = screen.getByLabelText("Choose file");
+    const input = screen.getByLabelText("Choose files");
     expect(input).not.toBeDisabled();
   });
 
@@ -99,7 +99,7 @@ describe("FileDropZone", () => {
         <FileDropZone status="connecting" errorMessage={null} {...handlers} />
       </I18nProvider>,
     );
-    const input = screen.getByLabelText("Choose file");
+    const input = screen.getByLabelText("Choose files");
     expect(input).toBeDisabled();
   });
 
@@ -116,7 +116,7 @@ describe("FileDropZone", () => {
         />
       </I18nProvider>,
     );
-    fireEvent.change(screen.getByLabelText("Choose file"));
+    fireEvent.change(screen.getByLabelText("Choose files"));
     expect(onInputChange).toHaveBeenCalledOnce();
   });
 });

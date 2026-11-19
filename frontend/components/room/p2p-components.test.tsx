@@ -44,6 +44,21 @@ function p2pTransfer(overrides: Record<string, unknown> = {}) {
 }
 
 describe("FileDropZone P2P", () => {
+  it("lets users select multiple files in one picker action", () => {
+    const onInputChange = vi.fn();
+    render(
+      <I18nProvider>
+        <FileDropZone status="connected" errorMessage={null} {...handlers} onInputChange={onInputChange} />
+      </I18nProvider>,
+    );
+    const input = screen.getByLabelText("Choose files");
+    expect(input).toHaveAttribute("multiple");
+    const files = [new File(["one"], "one.pdf"), new File(["two"], "two.pdf")];
+    fireEvent.change(input, { target: { files } });
+    expect(onInputChange).toHaveBeenCalledOnce();
+    expect(onInputChange.mock.calls[0][0].target.files).toEqual(files);
+  });
+
   it("shows the P2P error instead of a generic relay error", () => {
     render(
       <I18nProvider>
@@ -204,6 +219,17 @@ describe("TransferList P2P cards", () => {
     expect(screen.getByText(/Waiting for acceptance/)).toBeInTheDocument();
     expect(screen.getByText(/0%/)).toBeInTheDocument();
     expect(screen.queryByText(/Sent/)).not.toBeInTheDocument();
+  });
+
+  it("shows queued files with cancel but no premature pause or resume", () => {
+    render(
+      <I18nProvider>
+        <TransferList {...baseTransferListProps} transfers={{ f1: p2pTransfer({ direction: "outgoing", status: "queued", progress: 0 }) }} onCancelTransfer={vi.fn()} onPauseTransfer={vi.fn()} onResumeTransfer={vi.fn()} />
+      </I18nProvider>,
+    );
+    expect(screen.getByText(/Queued/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Cancel/ })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Pause|Resume/ })).not.toBeInTheDocument();
   });
 
   it("renders the engine error message on a failed transfer", () => {

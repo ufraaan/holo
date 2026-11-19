@@ -8,6 +8,7 @@ export const MEMORY_LIMIT_BYTES = 100 * 1024 * 1024;
 export const MAX_FILE_BYTES = 3 * 1024 * 1024 * 1024;
 
 export type PeerTransferStatus =
+  | "queued"
   | "offered"
   | "connecting"
   | "transferring"

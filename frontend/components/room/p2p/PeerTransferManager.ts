@@ -657,7 +657,7 @@ export class PeerTransferManager {
     // Both sides may own outgoing files; the shared channel reoffers all of them.
     for (const record of this.records.values()) {
       if (record.peerId !== peer.id || record.direction !== "outgoing") continue;
-      if (this.isTerminal(record)) continue;
+      if (this.isTerminal(record) || record.status === "queued") continue;
       this.sendControl(peer, {
         t: "offer",
         fileId: record.fileId,
@@ -671,6 +671,7 @@ export class PeerTransferManager {
         this.emit(record, true);
       }
     }
+    this.advanceQueue(peer);
   }
 
   private handleConnectionState(peer: PeerState, pc: RTCPeerConnection): void {
@@ -749,7 +750,7 @@ export class PeerTransferManager {
 
   private markPeerReconnecting(peer: PeerState): void {
     for (const record of this.records.values()) {
-      if (record.peerId !== peer.id || this.isTerminal(record)) continue;
+      if (record.peerId !== peer.id || this.isTerminal(record) || record.status === "queued") continue;
       // A replacement channel must obtain a fresh receiver offset before any
       // old pump or explicit Resume can send more bytes.
       if (record.direction === "outgoing") record.accepted = false;
@@ -1150,7 +1151,7 @@ export class PeerTransferManager {
 
   private handleAccept(peer: PeerState, fileId: string, offset: unknown, paused?: unknown): void {
     const record = this.records.get(transferId(peer.id, "outgoing", fileId));
-    if (!record || this.isTerminal(record)) return;
+    if (!record || this.isTerminal(record) || record.status === "queued") return;
     if (
       typeof offset !== "number" ||
       !Number.isSafeInteger(offset) ||
@@ -1313,7 +1314,7 @@ export class PeerTransferManager {
       name: (file.name || "file").slice(0, MAX_NAME_LENGTH),
       size: file.size,
       mime: (file.type || "application/octet-stream").slice(0, MAX_MIME_LENGTH),
-      status: "offered",
+      status: "queued",
       bytesTransferred: 0,
       progress: 0,
       connectionType: peer.connectionType,
@@ -1332,12 +1333,23 @@ export class PeerTransferManager {
     };
     this.records.set(record.id, record);
     this.emit(record, true);
+    this.advanceQueue(peer);
+  }
+
+  private advanceQueue(peer: PeerState): void {
+    if (this.destroyed || peer.removed || !this.isChannelOpen(peer)) return;
+    const next = [...this.records.values()].find(
+      (record) => record.peerId === peer.id && record.direction === "outgoing" && !this.isTerminal(record),
+    );
+    if (!next || next.status !== "queued") return;
+    next.status = "offered";
+    this.emit(next, true);
     this.sendControl(peer, {
       t: "offer",
-      fileId,
-      name: record.name,
-      size: record.size,
-      mime: record.mime,
+      fileId: next.fileId,
+      name: next.name,
+      size: next.size,
+      mime: next.mime,
     });
   }
 
@@ -1822,6 +1834,10 @@ export class PeerTransferManager {
       return;
     }
     this.deliverTransfer(record);
+    if (record.direction === "outgoing" && this.isTerminal(record)) {
+      const peer = this.peers.get(record.peerId);
+      if (peer) this.advanceQueue(peer);
+    }
   }
 
   private deliverTransfer(record: TransferRecord): void {

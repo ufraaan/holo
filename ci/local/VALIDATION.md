@@ -1,6 +1,6 @@
 # P2P migration validation
 
-Validated on 18 November 2026 using act 0.2.98, Docker 29.9.2, Ubuntu 24.04 amd64, Node 24, and Bun 1.4.4. Runs execute locally through Docker on Apple Silicon.
+Validated on 18 November 2026 using [act](https://github.com/nektos/act) 0.2.98, Docker 29.9.2, Ubuntu 24.04 amd64, Node 24, and Bun 1.4.4. Runs execute locally through Docker on Apple Silicon.
 
 | Check | Result |
 | --- | --- |
@@ -14,7 +14,7 @@ Validated on 18 November 2026 using act 0.2.98, Docker 29.9.2, Ubuntu 24.04 amd6
 | Frontend unit tests | 145 passed |
 | Frontend production build | Passed |
 
-The signaling/browser job passed in the initial local workflow run. The frontend's application checks also passed, but Bun's post-job cache action could not locate Node in act's default environment. The workflow now explicitly sets up Node 24 in both jobs; the frontend job was rerun successfully with that configuration, including both post-job cache steps.
+The signaling/browser job passed in the initial local workflow run. The frontend's application checks also passed, but Bun's post-job cache action could not locate Node in [act](https://github.com/nektos/act)'s default environment. The workflow now explicitly sets up Node 24 in both jobs; the frontend job was rerun successfully with that configuration, including both post-job cache steps.
 
 Separately, the deployed Vercel preview was tested against the live Cloudflare service with direct ICE paths disabled. Three-person chat/file delivery and pause/resume through reconnection both passed over TURN.
 
