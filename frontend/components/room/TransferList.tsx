@@ -96,6 +96,8 @@ export default function TransferList({
 
   const statusLabel = (value: TransferStatus): string => {
     switch (value) {
+      case "queued":
+        return t("statusQueued");
       case "offered":
         return t("statusOffered");
       case "connecting":
@@ -130,7 +132,7 @@ export default function TransferList({
     if (tr.status === "paused" || tr.status === "reconnecting") {
       buttons.push({ key: "resume", label: t("resume"), onClick: onResumeTransfer && (() => onResumeTransfer(tr.id)) });
     }
-    if (tr.status === "offered" || tr.status === "connecting" || tr.status === "transferring" || tr.status === "paused" || tr.status === "reconnecting") {
+    if (tr.status === "queued" || tr.status === "offered" || tr.status === "connecting" || tr.status === "transferring" || tr.status === "paused" || tr.status === "reconnecting") {
       buttons.push({ key: "cancel", label: t("cancel"), onClick: onCancelTransfer && (() => onCancelTransfer(tr.id)) });
     }
     return buttons.filter((button) => button.onClick);

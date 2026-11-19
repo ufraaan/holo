@@ -93,6 +93,7 @@
     "cancel": "Abbrechen",
     "directionIncoming": "Eingehend",
     "directionOutgoing": "Ausgehend",
+    "statusQueued": "In Warteschlange",
     "statusOffered": "Warte auf Annahme",
     "statusConnecting": "Verbinden",
     "statusTransferring": "Übertragung",

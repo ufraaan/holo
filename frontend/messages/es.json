@@ -93,6 +93,7 @@
     "cancel": "Cancelar",
     "directionIncoming": "Entrante",
     "directionOutgoing": "Saliente",
+    "statusQueued": "En cola",
     "statusOffered": "Esperando aceptación",
     "statusConnecting": "Conectando",
     "statusTransferring": "Transfiriendo",

@@ -206,6 +206,17 @@ describe("TransferList P2P cards", () => {
     expect(screen.queryByText(/Sent/)).not.toBeInTheDocument();
   });
 
+  it("shows queued files with cancel but no premature pause or resume", () => {
+    render(
+      <I18nProvider>
+        <TransferList {...baseTransferListProps} transfers={{ f1: p2pTransfer({ direction: "outgoing", status: "queued", progress: 0 }) }} onCancelTransfer={vi.fn()} onPauseTransfer={vi.fn()} onResumeTransfer={vi.fn()} />
+      </I18nProvider>,
+    );
+    expect(screen.getByText(/Queued/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Cancel/ })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Pause|Resume/ })).not.toBeInTheDocument();
+  });
+
   it("renders the engine error message on a failed transfer", () => {
     render(
       <I18nProvider>
