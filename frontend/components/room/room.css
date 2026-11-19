@@ -29,8 +29,21 @@
   letter-spacing: 0.04em;
 }
 
-.room-view .room-expand {
-  padding-inline: 0.75rem;
+.room-view .room-header :is(.room-code, .room-expand) {
+  min-block-size: 2rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+}
+
+.room-view .room-header .room-expand {
+  inline-size: 2rem;
+  padding: 0;
+}
+
+@media (pointer: coarse) {
+  .room-view .room-header :is(.room-code, .room-expand) { min-block-size: 2.5rem; }
+  .room-view .room-header .room-expand { inline-size: 2.5rem; }
 }
 
 .room-view .room-drop-zone {
