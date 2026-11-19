@@ -58,9 +58,9 @@
   },
   "FileDropZone": {
     "connectingBanner": "Verbindung zum Raum wird hergestellt…",
-    "dropPrompt": "Datei hier ablegen",
-    "choosePrompt": "oder wählen Sie eine von Ihrem Gerät",
-    "chooseFile": "Datei auswählen",
+    "dropPrompt": "Dateien hier ablegen",
+    "choosePrompt": "oder Dateien von Ihrem Gerät auswählen",
+    "chooseFile": "Dateien auswählen",
     "p2pSendLimit": "Senden: bis zu 3 GB pro Datei. Lass beide Tabs offen, bis die Übertragung abgeschlossen ist.",
     "p2pReceiveDisk": "Empfangen: Dieser Browser kann direkt auf die Festplatte speichern, bis zu 3 GB pro Datei.",
     "p2pReceiveMemory": "Empfang: insgesamt bis zu 100 MB im Arbeitsspeicher. Entferne abgeschlossene Übertragungen, um Platz freizugeben, oder nutze für größere Dateien einen Chromium-Browser auf dem Computer.",
