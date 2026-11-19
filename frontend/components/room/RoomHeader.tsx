@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRoomCodeCopy } from "./useRoomCodeCopy";
+import { RoomQrCode } from "./RoomQrCode";
 import { RoomStatus } from "./useRoomWebSocket";
 
 interface RoomHeaderProps {
@@ -95,6 +96,7 @@ export default function RoomHeader({ roomId, status, clientCount, onRetry }: Roo
                 <line x1="3" y1="21" x2="10" y2="14" />
               </svg>
             </button>
+            <RoomQrCode roomId={roomId} />
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-4 text-sm">

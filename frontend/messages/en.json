@@ -49,7 +49,12 @@
     "countConnected": "{count} connected",
     "retry": "Retry",
     "roomCode": "Room code",
-    "overlayHint": "tap anywhere or press esc to close"
+    "overlayHint": "tap anywhere or press esc to close",
+    "showQr": "Show room QR code",
+    "qrTitle": "Join this room",
+    "qrDescription": "Scan with your phone’s camera to open this room.",
+    "closeQr": "Close QR code",
+    "qrLocalNotice": "This localhost link only works on this device. Phone pairing needs a reachable hosted address."
   },
   "FileDropZone": {
     "connectingBanner": "Connecting to room…",
