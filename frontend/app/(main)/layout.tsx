@@ -15,7 +15,7 @@ export default async function MainLayout({ children }: { children: ReactNode }) 
       <Background />
       <PageOverlay />
       <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-6xl flex-col px-4 py-6 sm:px-6 md:px-10 md:py-8">
-        <header className="flex flex-wrap items-center justify-between gap-4 text-sm font-normal">
+        <header className="relative z-20 flex flex-wrap items-center justify-between gap-4 text-sm font-normal">
           <Link href="/" className="intro-left text-white/85">HOLO</Link>
           <nav aria-label="Main navigation" className="intro-right flex flex-wrap items-center gap-4 text-white/70">
             <LocaleSwitcher />

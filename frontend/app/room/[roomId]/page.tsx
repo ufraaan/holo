@@ -92,7 +92,7 @@ function RoomContent({ roomId }: { roomId: string }) {
           bgLoaded ? "opacity-100" : "opacity-0"
         }`}
       >
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between">
+        <div className="relative z-20 mx-auto flex w-full max-w-6xl items-center justify-between">
           <Link href="/" className="text-sm font-normal text-white/80 transition hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4">
             {t("headerLabel")}
           </Link>
