@@ -59,7 +59,7 @@ export default function RoomHeader({ roomId, status, clientCount, onRetry }: Roo
               <span
                 id={copyHintId}
                 role="tooltip"
-                className={`absolute inset-be-full inset-s-0 z-10 whitespace-nowrap pbe-1 text-[10px] transition-opacity duration-150 ${hintVisible && !copyStatus ? "opacity-100" : "pointer-events-none opacity-0"}`}
+                className={`absolute inset-be-full left-1/2 -translate-x-1/2 z-10 whitespace-nowrap pbe-1 text-[10px] transition-opacity duration-150 ${hintVisible && !copyStatus ? "opacity-100" : "pointer-events-none opacity-0"}`}
               >
                 <span className="block rounded-md border border-white/15 bg-black/90 px-2 py-1 text-white/80">
                   {t("copyHint")}
@@ -67,7 +67,7 @@ export default function RoomHeader({ roomId, status, clientCount, onRetry }: Roo
               </span>
               <span
                 role="status"
-                className={`pointer-events-none absolute inset-be-full inset-s-0 z-10 whitespace-nowrap pbe-1 text-[10px] transition-opacity duration-150 ${copyStatus ? "opacity-100" : "opacity-0"}`}
+                className={`pointer-events-none absolute inset-be-full left-1/2 -translate-x-1/2 z-10 whitespace-nowrap pbe-1 text-[10px] transition-opacity duration-150 ${copyStatus ? "opacity-100" : "opacity-0"}`}
               >
                 <span className="block rounded-md border border-white/15 bg-black/90 px-2 py-1 text-white/80">
                   {copyStatus ? t(copyStatus) : ""}
