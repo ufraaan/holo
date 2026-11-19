@@ -25,21 +25,23 @@ export default function Background({ onLoad, fade = true }: BackgroundProps) {
   }, [onLoad]);
 
   return (
-    <Image
-      ref={imageRef}
-      src="/landing-backdrop-clouds.avif"
-      alt=""
-      fill
-      priority
-      sizes="100vw"
-      onLoad={reveal}
-      className={`fixed inset-0 z-0 object-cover ${
-        fade
-          ? `transition-[opacity,transform] duration-[1400ms] ease-out ${
-              visible ? "opacity-100 scale-100" : "opacity-0 scale-[1.06]"
-            }`
-          : ""
-      }`}
-    />
+    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+      <Image
+        ref={imageRef}
+        src="/landing-backdrop-clouds.avif"
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        onLoad={reveal}
+        className={`object-cover ${
+          fade
+            ? `transition-[opacity,transform] duration-[1400ms] ease-out ${
+                visible ? "opacity-100 scale-100" : "opacity-0 scale-[1.06]"
+              }`
+            : ""
+        }`}
+      />
+    </div>
   );
 }
