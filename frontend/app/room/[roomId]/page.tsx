@@ -93,9 +93,9 @@ function RoomContent({ roomId }: { roomId: string }) {
         }`}
       >
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between">
-          <span className="text-sm font-normal text-white/80">
+          <Link href="/" className="text-sm font-normal text-white/80 transition hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4">
             {t("headerLabel")}
-          </span>
+          </Link>
           <div className="flex items-center gap-4">
             <LocaleSwitcher />
             <a
