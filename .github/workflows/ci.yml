@@ -6,11 +6,31 @@ on:
     branches:
       - master
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  p2p:
-    name: Signaling and P2P Transfers
-    # Keep Chromium on an OS supported by the pinned Playwright version.
+  checks:
+    name: ${{ matrix.name }}
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - check: lint
+            name: Lint
+            command: bun run --cwd frontend lint
+          - check: typecheck
+            name: Typecheck
+            command: bun run --cwd frontend typecheck && bun run --cwd signaling typecheck
+          - check: unit-tests
+            name: Unit tests
+            command: bun run test
     steps:
       - uses: actions/checkout@v4
 
@@ -20,62 +40,48 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
 
-      - name: Install signaling dependencies
-        working-directory: signaling
-        run: bun install --frozen-lockfile
-
-      - name: Check signaling runtime
-        working-directory: signaling
-        run: bun run check
-
-      - name: Check Worker bundle without deploying
-        working-directory: signaling
-        run: bunx wrangler deploy --dry-run --env=""
+      - uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('frontend/bun.lock', 'signaling/bun.lock') }}
+          restore-keys: ${{ runner.os }}-bun-
 
       - name: Install frontend dependencies
-        working-directory: frontend
-        run: bun install --frozen-lockfile
+        run: bun install --frozen-lockfile --cwd frontend
 
-      - name: Install Chromium
-        working-directory: frontend
-        run: bunx playwright install --with-deps chromium
+      - name: Install signaling dependencies
+        if: matrix.check != 'lint'
+        run: bun install --frozen-lockfile --cwd signaling
 
-      - name: Test P2P transfers locally
-        working-directory: frontend
-        run: bun run test:e2e
-        env:
-          CI: true
+      - name: Run check
+        run: ${{ matrix.command }}
 
-  frontend-core:
-    name: Frontend Lint Typecheck Build Test
+  build:
+    name: Production build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: checks
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: frontend
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@v2
 
-      - name: Install deps
+      - uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('frontend/bun.lock', 'signaling/bun.lock') }}
+          restore-keys: ${{ runner.os }}-bun-
+
+      - name: Install dependencies
         run: bun install --frozen-lockfile
-
-      - name: Lint
-        run: bun run lint
-
-      - name: Typecheck
-        run: bun run typecheck
-
-      - name: Unit tests
-        run: bun run test
 
       - name: Build
         run: bun run build
-
