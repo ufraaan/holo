@@ -24,8 +24,11 @@ never a `NEXT_PUBLIC_` variable. See [signaling setup](signaling/README.md).
 5. Commit, push your branch, and open a PR. Never merge or deploy production
    without checking the target configuration.
 
-The pre-commit hook runs the same root check. GitHub Actions also builds the
-website and Worker and exercises real Chromium data channels.
+The pre-commit hook runs the same root check. GitHub Actions runs lint, type
+checks, and unit tests on PRs and pushes to `master`. Successful checks on
+`master` are followed by a production build. The separate **Browser transfers**
+workflow is manual-only; run it from Actions when changing transfers, reconnects,
+or disk saving, or use `./ci/local/run.sh browser` locally.
 
 ## conventions
 
