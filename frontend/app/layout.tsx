@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import Script from "next/script";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
+import { Analytics } from "@vercel/analytics/next";
 import { PrivacyScreen } from "../components/PrivacyScreen";
 import "./globals.css";
 import "../components/glass-controls.css";
@@ -78,6 +79,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           {children}
           <PrivacyScreen />
         </NextIntlClientProvider>
+        <Analytics />
       </body>
     </html>
   );
