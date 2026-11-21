@@ -38,6 +38,7 @@ export type PeerSignal =
 
 export interface PeerTransferManagerOptions {
   clientId: string;
+  autoReceive?: boolean;
   sendSignal: (to: string, signal: PeerSignal) => void;
   getIceServers: () => Promise<RTCIceServer[]>;
   onTransfer: (transfer: PeerTransfer) => void;

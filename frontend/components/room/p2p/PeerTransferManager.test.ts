@@ -16,6 +16,7 @@ interface Harness {
 }
 
 interface HarnessOptions {
+  autoReceive?: boolean;
   memoryLimitBytes?: number;
   iceRefreshMs?: number;
 }
@@ -56,6 +57,7 @@ function harness(
       state.updates.set(transfer.id, transfer);
     },
     onError: (error) => state.errors.push(error),
+    autoReceive: options.autoReceive,
     internal: options,
   });
   net.attach(clientId, state.manager);
@@ -177,6 +179,18 @@ afterEach(() => {
 });
 
 describe("PeerTransferManager", () => {
+  it("automatically receives files within the memory budget", async () => {
+    const net = new MockNetwork();
+    installRtc(net);
+    const a = harness(net, "a");
+    const b = harness(net, "b", { autoReceive: true });
+    await connect(net, [a, b]);
+    await a.manager.sendFiles([new File(["automatic"], "auto.txt")], ["b"]);
+    await waitFor(() => outgoing(a, "b")?.status === "completed");
+    expect([...b.updates.values()][0].status).toBe("completed");
+    expect(b.errors).toEqual([]);
+  });
+
   it("accepts completion when disk finalization finishes during reconnection", async () => {
     const net = new MockNetwork();
     installRtc(net);

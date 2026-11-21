@@ -1146,7 +1146,11 @@ export class PeerTransferManager {
       waiters: [],
     };
     this.records.set(record.id, record);
-    this.emit(record, true);
+    if (this.options.autoReceive && record.size <= this.memoryLimit - this.memoryUsed) {
+      void this.acceptInMemory(record);
+    } else {
+      this.emit(record, true);
+    }
   }
 
   private handleAccept(peer: PeerState, fileId: string, offset: unknown, paused?: unknown): void {

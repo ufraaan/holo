@@ -100,7 +100,6 @@ test("three peers chat and receive byte-identical files without WebSocket file t
     for (const page of [sender, alice, bob]) await page.getByRole("button", { name: "Transfers", exact: true }).click();
     const content = Buffer.from("PDF-like bytes\0\xff\n".repeat(5000));
     await sender.locator('input[type="file"]').setInputFiles({ name: "friends.pdf", mimeType: "application/pdf", buffer: content });
-    for (const page of [alice, bob]) await page.getByRole("button", { name: "Accept friends.pdf", exact: true }).click();
     await saveAndCheck(alice, "friends.pdf", content, info.outputPath("alice.pdf"));
     await saveAndCheck(bob, "friends.pdf", content, info.outputPath("bob.pdf"));
     await expect(sender.getByRole("group").filter({ has: sender.getByText("friends.pdf", { exact: true }) })).toHaveCount(2);
@@ -121,11 +120,8 @@ test("multiple selection queues files and downloads each with identical bytes", 
       { name: "third.bin", mimeType: "application/octet-stream", buffer: Buffer.from([0, 1, 255, 42]) },
     ];
     await sender.locator('input[type="file"]').setInputFiles(files);
-    const second = sender.getByRole("group").filter({ has: sender.getByText("second.txt", { exact: true }) });
-    await expect(second).toContainText("Queued");
     await expect(receiver.getByRole("button", { name: "Accept second.txt", exact: true })).toHaveCount(0);
     for (const file of files) {
-      await receiver.getByRole("button", { name: `Accept ${file.name}`, exact: true }).click();
       await saveAndCheck(receiver, file.name, file.buffer, info.outputPath(file.name));
     }
     expect(socketTypes).not.toContain("file-meta");
@@ -146,7 +142,7 @@ test("streams files above the memory cap to browser disk without a Blob download
     await file.truncate(size);
     await file.close();
     await sender.locator('input[type="file"]').setInputFiles(source);
-    await receiver.getByRole("button", { name: "Accept disk-source.bin", exact: true }).click();
+    await receiver.getByRole("button", { name: "Save to disk disk-source.bin", exact: true }).click();
     const card = receiver.getByRole("group").filter({ has: receiver.getByText("disk-source.bin", { exact: true }) });
     await expect(card).toContainText("Saved to disk", { timeout: 90_000 });
     await expect(card.getByRole("link", { name: "Save", exact: true })).toHaveCount(0);
@@ -174,7 +170,6 @@ test("pause survives signaling and peer reconnection, then resumes with exact by
   try {
     const content = Buffer.alloc(4 * 1024 * 1024 + 19, 0x5a);
     await sender.locator('input[type="file"]').setInputFiles({ name: "resume.bin", mimeType: "application/octet-stream", buffer: content });
-    await receiver.getByRole("button", { name: "Accept resume.bin", exact: true }).click();
     await sender.getByRole("button", { name: "Pause resume.bin", exact: true }).click();
     const card = receiver.getByRole("group").filter({ has: receiver.getByText("resume.bin", { exact: true }) });
     await expect(card).toContainText("Paused");
