@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import { UploadIcon } from "@radix-ui/react-icons";
 import { RoomStatus } from "./useRoomWebSocket";
 import type { Peer } from "./useRoomWebSocket";
 
@@ -51,7 +52,8 @@ export default function FileDropZone({
         <p className="text-sm font-normal text-white/90">{t("dropPrompt")}</p>
         <p className="text-sm text-white/60">{t("choosePrompt")}</p>
         <label
-          className={`glass-button relative inline-flex items-center justify-center ${
+          data-action="choose"
+          className={`glass-button room-action relative inline-flex items-center justify-center ${
             status === "connected"
               ? "cursor-pointer"
               : "cursor-not-allowed opacity-45"
@@ -64,6 +66,7 @@ export default function FileDropZone({
             onChange={status === "connected" ? onInputChange : undefined}
             disabled={status !== "connected"}
           />
+          <UploadIcon aria-hidden="true" />
           {t("chooseFile")}
         </label>
 
