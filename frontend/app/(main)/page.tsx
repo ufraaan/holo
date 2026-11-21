@@ -1,13 +1,13 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { generateRoomId } from "../../components/room/room-utils";
 import { containsProfanity } from "../../lib/profanity";
 import { useRoomIdShortcut } from "../../hooks/useRoomIdShortcut";
 
-const titleFont = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["500", "600"] });
+const titleFont = localFont({ src: "../fonts/PlusJakartaSans.ttf", weight: "200 800", display: "swap" });
 
 export default function HomePage() {
   const router = useRouter();
