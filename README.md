@@ -132,10 +132,3 @@ separately and provide the URL that the user's browser can reach:
 ```bash
 NEXT_PUBLIC_SIGNALING_URL=wss://your-worker.workers.dev/ws docker compose up --build
 ```
-
-## license
-
-Earlier versions released under MIT remain available under their original license.
-
-[Apache 2.0](LICENSE) · [live site](https://holo.ufraan.dev) ·
-[issues](https://github.com/ufraaan/holo/issues)
