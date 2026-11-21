@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { CheckIcon, CopyIcon, Cross2Icon, DownloadIcon, PauseIcon, PlayIcon, TrashIcon } from "@radix-ui/react-icons";
 import ChatBox from "./ChatBox";
 import { useUnreadChat } from "./useUnreadChat";
 import {
@@ -14,6 +15,14 @@ import {
 import type { RoomStatus } from "./useRoomWebSocket";
 
 type Tab = "transfers" | "chat";
+
+const actionIcons = {
+  accept: CheckIcon,
+  pause: PauseIcon,
+  resume: PlayIcon,
+  cancel: Cross2Icon,
+  remove: TrashIcon,
+};
 
 interface TransferListProps {
   transfers: Record<string, Transfer>;
@@ -119,7 +128,7 @@ export default function TransferList({
 
   const transferActions = (tr: Transfer) => {
     if (!p2pEnabled || !tr.peerId) return null;
-    const buttons: { key: string; label: string; onClick?: () => void }[] = [];
+    const buttons: { key: keyof typeof actionIcons; label: string; onClick?: () => void }[] = [];
     if (tr.status === "completed" || tr.status === "cancelled" || tr.status === "error") {
       buttons.push({ key: "remove", label: t("remove"), onClick: onCancelTransfer && (() => onCancelTransfer(tr.id)) });
     }
@@ -165,13 +174,17 @@ export default function TransferList({
         )}
         {(actions.length > 0 || (tr.status === "completed" && !tr.savedToDisk && tr.url)) && (
           <div className="room-transfer-actions">
-            {actions.map((action) => (
-              <button key={action.key} type="button" onClick={action.onClick} aria-label={`${action.label} ${tr.name}`} className="glass-button glass-button-small">
-                {action.label}
-              </button>
-            ))}
+            {actions.map((action) => {
+              const Icon = actionIcons[action.key];
+              return (
+                <button key={action.key} type="button" onClick={action.onClick} aria-label={`${action.label} ${tr.name}`} className="glass-button glass-button-small room-action" data-action={action.key}>
+                  <Icon aria-hidden="true" />
+                  {action.label}
+                </button>
+              );
+            })}
             {tr.status === "completed" && !tr.savedToDisk && tr.url && (
-              <a href={tr.url} download={tr.name} className="glass-button glass-button-small">{t("save")}</a>
+              <a href={tr.url} download={tr.name} className="glass-button glass-button-small room-action" data-action="save"><DownloadIcon aria-hidden="true" />{t("save")}</a>
             )}
           </div>
         )}
@@ -195,7 +208,7 @@ export default function TransferList({
       )}
       {tr.url && (
         <div className="room-transfer-actions">
-          <a href={tr.url} download={tr.name} className="glass-button glass-button-small">{t("save")}</a>
+          <a href={tr.url} download={tr.name} className="glass-button glass-button-small room-action" data-action="save"><DownloadIcon aria-hidden="true" />{t("save")}</a>
         </div>
       )}
     </div>
@@ -273,15 +286,19 @@ export default function TransferList({
                             <button
                               type="button"
                               onClick={() => handleCopyText(ts.text, ts.id)}
-                              className="glass-button glass-button-small"
+                              className="glass-button glass-button-small room-action"
+                              data-action="copy"
                             >
+                              {copiedId === ts.id ? <CheckIcon aria-hidden="true" /> : <CopyIcon aria-hidden="true" />}
                               {copiedId === ts.id ? t("copied") : t("copy")}
                             </button>
                             <button
                               type="button"
                               onClick={() => handleDownloadText(ts.text, ts.id, ts.timestamp, ts.customName)}
-                              className="glass-button glass-button-small"
+                              className="glass-button glass-button-small room-action"
+                              data-action="save"
                             >
+                              <DownloadIcon aria-hidden="true" />
                               {t("save")}
                             </button>
                           </div>
