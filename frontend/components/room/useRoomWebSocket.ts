@@ -220,6 +220,7 @@ export function useRoomWebSocket({
 
     const engine = new PeerTransferManager({
       clientId,
+      autoReceive: true,
       sendSignal: (to, signal) => sendSignal(to, signal),
       getIceServers,
       onTransfer: (transfer) => {

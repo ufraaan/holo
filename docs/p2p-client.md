@@ -58,8 +58,8 @@ Later files show "Queued" on the sender and can be cancelled before being offere
 
 The next file is offered when the current file completes, is declined, fails, or
 is cancelled. Pausing or reconnecting the current transfer holds that recipient's
-queue. New selections append to the queue. Each file still requires individual
-acceptance, preserving the user gesture needed for the native save picker.
+queue. New selections append to the queue. Files receive automatically when they fit within the available aggregate 100 MiB
+memory budget. Otherwise, the receiver clicks Save to disk to open the native save picker.
 Other recipients and transfers in the opposite direction run independently.
 
 ## Limits

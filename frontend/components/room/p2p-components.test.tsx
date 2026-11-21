@@ -116,7 +116,7 @@ describe("TransferList P2P cards", () => {
       </I18nProvider>,
     );
 
-    const accept = screen.getByRole("button", { name: /Accept movie.mp4/ });
+    const accept = screen.getByRole("button", { name: /Save to disk movie.mp4/ });
     fireEvent.click(accept);
     expect(onAcceptTransfer).toHaveBeenCalledWith("in:peer-1:f1");
   });
