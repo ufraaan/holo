@@ -10,24 +10,33 @@ and Hindi.
 
 ## how it works
 
+Holo sends files between browsers over an encrypted WebRTC data channel. The
+browsers use Cloudflare STUN to discover addresses for a direct connection.
+WebRTC prefers a working direct path and can relay the encrypted file bytes
+through Cloudflare TURN when a direct connection is unavailable.
+
+The Cloudflare Worker manages room membership and carries WebRTC signaling,
+chat, and shared text over WebSockets. During connection setup, it supplies
+both STUN and TURN in the ICE configuration when TURN credentials are available.
+It supplies a STUN-only configuration if TURN is disabled or credential
+issuance fails. File bytes bypass the signaling Worker.
+
 ```mermaid
 flowchart LR
   S["Sender browser"]
   R["Receiver browser"]
-  W["Cloudflare Worker<br/>room Durable Object"]
-  T["Cloudflare TURN"]
+  W["Cloudflare Worker<br/>Room Durable Object"]
+  D["Cloudflare STUN<br/>Address discovery"]
+  T["Cloudflare TURN<br/>Fallback relay"]
 
   S <-->|"WebSocket: signaling, chat, text"| W
-  W <-->|"WebSocket"| R
-  S <-.->|"WebRTC: encrypted file bytes"| R
-  S -.->|"only when a direct path fails"| T
+  R <-->|"WebSocket: signaling, chat, text"| W
+  S <-->|"STUN requests and responses"| D
+  R <-->|"STUN requests and responses"| D
+  S -->|"Direct WebRTC file transfer"| R
+  S -.->|"Relayed WebRTC file transfer"| T
   T -.-> R
 ```
-
-Cloudflare handles room membership, chat, text, and WebRTC connection setup.
-File bytes travel over reliable binary data channels. TURN relays encrypted
-traffic when the browsers cannot connect directly. There is no Go server and no
-application relay.
 
 Transfers have independent progress and controls for each recipient. The sender
 advances from receiver acknowledgments after checksum validation and writing.
@@ -55,7 +64,7 @@ signaling/                      Cloudflare Worker and per-room Durable Objects
 
 ## running locally
 
-Requires Bun and Node.js 24 or later. No Go installation is needed.
+Requires Bun and Node.js 24 or later.
 
 ```bash
 bun install
@@ -67,7 +76,7 @@ Terminal 1, from the repository root:
 
 ```bash
 cd signaling
-bun run dev -- --port 8788
+bun run dev -- --port 8788 --var ORIGINS:http://localhost:3000 --var TURN_ENABLED:false
 ```
 
 Terminal 2, from the repository root:
@@ -77,12 +86,13 @@ cd frontend
 NEXT_PUBLIC_SIGNALING_URL=ws://localhost:8788/ws bun run dev
 ```
 
-Open `http://localhost:3000` in two tabs. Local TURN is disabled by default;
-configure credentials to test restrictive networks. Port 8788 avoids conflicts
-with other services using Wrangler's default 8787.
+Open `http://localhost:3000` in two tabs. This setup uses STUN for direct
+connections. To enable the TURN relay locally, change the Worker command to
+use `--var TURN_ENABLED:true` and configure local credentials as described in
+the [signaling setup](signaling/README.md).
 
 For a hosted frontend, **set `NEXT_PUBLIC_SIGNALING_URL` at build time** to its
-Cloudflare `wss://…/ws` endpoint. There is no fallback to an older relay URL.
+Cloudflare `wss://…/ws` endpoint.
 
 ## verification
 
@@ -99,16 +109,14 @@ picker still needs a manual check. A full 3 GiB transfer is not yet benchmarked.
 
 ## deployment
 
-Production needs a Cloudflare Worker with its own room namespace, TURN
-credentials stored as Worker secrets, an exact `ORIGINS` allowlist, and Vercel's
-Production `NEXT_PUBLIC_SIGNALING_URL` pointing at that Worker. Set the Vercel
-variable before the build that serves traffic; it is inlined at build time and
-there is no runtime fallback.
+Deploy a Cloudflare Worker with its own room namespace and include the
+frontend's exact origin in the Worker's `ORIGINS` allowlist. For TURN relay
+support, enable `TURN_ENABLED` and set `TURN_KEY_ID` and `TURN_API_TOKEN` as
+Worker secrets. Set Vercel's production `NEXT_PUBLIC_SIGNALING_URL` to the
+Worker's WebSocket endpoint before building the frontend.
 
-Preview deployments use their own Worker and room namespace selected by Vercel's
-branch-specific Preview variable. Merging source does not create or delete a
-hosting account or service; retire the old Render service separately once the
-Worker deployment is verified.
+Preview deployments use a separate Worker and room namespace. Point Vercel's
+branch-specific Preview `NEXT_PUBLIC_SIGNALING_URL` at the preview Worker.
 
 See [signaling setup](signaling/README.md), [client protocol](docs/p2p-client.md),
 and [contributing](CONTRIBUTING.md).
