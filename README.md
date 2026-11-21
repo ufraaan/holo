@@ -11,9 +11,12 @@ and Hindi.
 ## how it works
 
 Holo sends files between browsers over an encrypted WebRTC data channel. The
-browsers use Cloudflare STUN to discover addresses for a direct connection.
+browsers use [Cloudflare STUN][stun] to discover addresses for a direct connection.
 WebRTC prefers a working direct path and can relay the encrypted file bytes
-through Cloudflare TURN when a direct connection is unavailable.
+through [Cloudflare TURN][turn] when a direct connection is unavailable.
+
+[stun]: https://developers.cloudflare.com/realtime/sfu/get-started/connection-patterns/#network-connectivity
+[turn]: https://developers.cloudflare.com/realtime/turn/
 
 The Cloudflare Worker manages room membership and carries WebRTC signaling,
 chat, and shared text over WebSockets. During connection setup, it supplies
