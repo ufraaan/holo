@@ -5,12 +5,14 @@ import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { generateRoomId } from "../../components/room/room-utils";
 import { containsProfanity } from "../../lib/profanity";
+import { useRoomIdShortcut } from "../../hooks/useRoomIdShortcut";
 
 const titleFont = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["500", "600"] });
 
 export default function HomePage() {
   const router = useRouter();
   const t = useTranslations("HomePage");
+  const inputRef = useRoomIdShortcut();
   const [roomId, setRoomId] = useState("");
   const [joinError, setJoinError] = useState("");
   const [bgLoaded, setBgLoaded] = useState(false);
@@ -92,7 +94,9 @@ export default function HomePage() {
                 {t("enterRoomId")}
               </label>
               <input
+                ref={inputRef}
                 id="join-room-id"
+                aria-keyshortcuts="/"
                 type="text"
                 placeholder={t("enterRoomId")}
                 value={roomId}
