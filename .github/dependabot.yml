@@ -8,7 +8,7 @@ updates:
     labels:
       - "dependencies"
       - "frontend"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
 
   - package-ecosystem: "npm"
     directory: "/signaling"
@@ -18,4 +18,4 @@ updates:
     labels:
       - "dependencies"
       - "signaling"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
