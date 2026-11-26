@@ -48,8 +48,9 @@ export default function FileDropZone({
         onDragOver={status === "connected" ? onDragOver : undefined}
         tabIndex={0}
       >
-        <p className="text-sm font-normal text-white/90">{t("dropPrompt")}</p>
-        <p className="text-sm text-white/60">{t("choosePrompt")}</p>
+        <p className="room-drop-title">{t("dropPrompt")}</p>
+        <p className="room-drop-or" aria-hidden="true">{t("chooseSeparator")}</p>
+        <p className="room-drop-touch">{t("choosePrompt")}</p>
         <label
           data-action="choose"
           className={`glass-button room-action relative inline-flex items-center justify-center ${
@@ -69,7 +70,7 @@ export default function FileDropZone({
         </label>
 
         {p2pEnabled && peers.length === 0 && status === "connected" && (
-          <p className="text-[11px] text-white/60">{t("waitingForPeers")}</p>
+          <p className="room-drop-status">{t("waitingForPeers")}</p>
         )}
       </div>
     </div>

@@ -59,7 +59,8 @@
   "FileDropZone": {
     "connectingBanner": "Connexion au salon…",
     "dropPrompt": "Déposez des fichiers ici",
-    "choosePrompt": "ou choisissez des fichiers sur votre appareil",
+    "choosePrompt": "choisissez des fichiers sur votre appareil",
+    "chooseSeparator": "ou",
     "chooseFile": "Choisir des fichiers",
     "p2pSendLimit": "Envoi : jusqu'à 3 Go par fichier. Gardez les deux onglets ouverts jusqu'à la fin du transfert.",
     "p2pReceiveDisk": "Réception : ce navigateur peut enregistrer directement sur le disque, jusqu'à 3 Go par fichier.",

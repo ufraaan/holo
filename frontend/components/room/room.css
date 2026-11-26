@@ -27,6 +27,11 @@
   cursor: copy;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.04em;
+  min-inline-size: 0;
+  max-inline-size: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .room-view .room-header :is(.room-code, .room-expand) {
@@ -72,6 +77,44 @@
   min-inline-size: 0;
   min-block-size: 12.5rem;
   padding: 1.5rem;
+}
+
+.room-view .room-drop-title {
+  display: none;
+  color: oklch(1 0 none / 0.92);
+  font-size: 0.9375rem;
+}
+
+.room-view .room-drop-touch {
+  color: oklch(1 0 none / 0.85);
+  font-size: 0.875rem;
+}
+
+.room-view .room-drop-or {
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  color: oklch(1 0 none / 0.38);
+  font-size: 0.6875rem;
+}
+
+.room-view .room-drop-or::before,
+.room-view .room-drop-or::after {
+  content: "";
+  inline-size: 1.5rem;
+  block-size: 1px;
+  background: oklch(1 0 none / 0.14);
+}
+
+.room-view .room-drop-status {
+  color: oklch(1 0 none / 0.42);
+  font-size: 0.6875rem;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .room-view .room-drop-title { display: block; }
+  .room-view .room-drop-or { display: flex; }
+  .room-view .room-drop-touch { display: none; }
 }
 
 .room-view .room-text-compose {
@@ -154,7 +197,15 @@
 @media (max-width: 47.999rem) {
   .room-view .room-activity { min-block-size: 26rem; max-block-size: 38rem; }
   .room-view .room-drop-zone { min-block-size: 11rem; }
-  .room-view .room-textarea { min-block-size: 9rem; }
+  .room-view .room-text-compose { gap: 0.5rem; padding: 0.75rem; }
+  .room-view .room-text-compose .glass-field {
+    min-block-size: 2.5rem;
+    padding: 0.4375rem 0.625rem;
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+  .room-view .room-text-compose .glass-field::placeholder { color: oklch(1 0 none / 0.42); }
+  .room-view .room-text-compose .room-textarea { min-block-size: 7rem; }
 }
 
 @media (pointer: coarse) {

@@ -59,7 +59,8 @@
   "FileDropZone": {
     "connectingBanner": "Conectando con la sala…",
     "dropPrompt": "Suelta archivos aquí",
-    "choosePrompt": "o elige archivos de tu dispositivo",
+    "choosePrompt": "elige archivos de tu dispositivo",
+    "chooseSeparator": "o",
     "chooseFile": "Elegir archivos",
     "p2pSendLimit": "Envío: hasta 3 GB por archivo. Mantén ambas pestañas abiertas hasta que termine la transferencia.",
     "p2pReceiveDisk": "Recepción: este navegador puede guardar directamente en el disco, hasta 3 GB por archivo.",
