@@ -52,7 +52,7 @@ export default function RoomHeader({ roomId, status, clientCount, onRetry }: Roo
                   void copy();
                 }}
                 aria-describedby={copyHintId}
-                className="glass-button room-code cursor-copy break-all active:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                className="glass-button room-code cursor-copy break-all"
               >
                 {roomId}
               </button>
