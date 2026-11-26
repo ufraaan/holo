@@ -104,6 +104,25 @@ describe("room session lifetime", () => {
     expect(fresh.alarm).toBe(fresh.expiresAt);
   });
 
+  it("closes expired sockets instead of handling their frames before the alarm runs", async () => {
+    const room = roomId();
+    const a = await join(room, "a");
+    await a.next("room-state");
+    const b = await join(room, "b");
+    await a.next("room-state");
+    await b.next("room-state");
+
+    const stub = stubFor(room);
+    await runInDurableObject(stub, async (_instance, state) => {
+      state.storage.sql.exec("UPDATE room_session SET expires_at = ? WHERE id = 1", Date.now() - 1_000);
+    });
+
+    a.send({ type: "chat-message", payload: { id: "late", text: "after expiry", timestamp: Date.now() } });
+    expect(await a.waitClosed()).toEqual({ code: 4001, reason: "room-expired" });
+    expect(await b.waitClosed()).toEqual({ code: 4001, reason: "room-expired" });
+    expect(await b.none("chat-message")).toBe(true);
+  });
+
   it("rejects a join with the expired close code while the old session is still closing", async () => {
     const room = roomId();
     const a = await join(room, "a");

@@ -147,6 +147,12 @@ export class Room extends DurableObject<Env> {
     const attachment = this.attachment(ws);
     if (!attachment) return;
 
+    const expiresAt = this.sessionExpiry();
+    if (expiresAt !== null && Date.now() >= expiresAt) {
+      this.closeExpired();
+      return;
+    }
+
     if (!this.allowFrame(ws, attachment)) {
       this.fail(ws, "rate-limited");
       return;
