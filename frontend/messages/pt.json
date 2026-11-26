@@ -46,6 +46,7 @@
     "connected": "Conectado",
     "connecting": "Conectando…",
     "disconnected": "Desconectado",
+    "expired": "Sala expirada",
     "countConnected": "{count} conectado",
     "retry": "Tentar novamente",
     "roomCode": "Código da sala",
@@ -137,7 +138,8 @@
     "sendFailed": "Não foi possível enviar dados porque a conexão com a sala não está aberta.",
     "connectionFailed": "Não foi possível conectar à sala. Verifique o serviço de sinalização e NEXT_PUBLIC_SIGNALING_URL.",
     "connectionClosed": "Conexão fechada. O relay pode estar offline, inacessível ou recusou o handshake.",
-    "wsError": "A conexão com a sala foi interrompida. Tentando novamente…"
+    "wsError": "A conexão com a sala foi interrompida. Tentando novamente…",
+    "roomExpired": "Esta sala expirou após uma hora. Recarregue a página para iniciar uma nova sala."
   },
   "LegalNav": {
     "privacy": "Privacidade",

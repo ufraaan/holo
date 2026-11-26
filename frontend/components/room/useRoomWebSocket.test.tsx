@@ -18,7 +18,7 @@ afterAll(() => {
 });
 import { useRoomWebSocket } from "./useRoomWebSocket";
 
-let wsClose: () => void = () => {};
+let wsClose: (code?: number, reason?: string) => void = () => {};
 
 class MockWebSocket {
   static instances: MockWebSocket[] = [];
@@ -45,10 +45,10 @@ class MockWebSocket {
     this.binaryType = "blob";
 
     MockWebSocket.instances.push(this);
-    wsClose = () => {
+    wsClose = (code = 1000, reason = "closed") => {
       this.readyState = MockWebSocket.CLOSED;
       if (this.onclose) {
-        this.onclose({ code: 1000, reason: "closed", wasClean: true });
+        this.onclose({ code, reason, wasClean: true });
       }
     };
   }
@@ -310,6 +310,46 @@ describe("useRoomWebSocket", () => {
   });
 });
 
+
+describe("room expiration", () => {
+  it("shows the expired state and stops reconnecting", async () => {
+    const { result } = renderHook(
+      () => useRoomWebSocket({ roomId: "test-room", clientId: "test-client", token: "test-token-0000" }),
+      { wrapper: I18nProvider },
+    );
+
+    connect();
+    act(() => {
+      wsClose(4001, "room-expired");
+    });
+
+    expect(result.current.status).toBe("expired");
+    expect(result.current.errorMessage).toBe(messages.WebSocketErrors.roomExpired);
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 700));
+    });
+    expect(MockWebSocket.instances).toHaveLength(1);
+  });
+
+  it("does not retry an expired room", () => {
+    const { result } = renderHook(
+      () => useRoomWebSocket({ roomId: "test-room", clientId: "test-client", token: "test-token-0000" }),
+      { wrapper: I18nProvider },
+    );
+
+    connect();
+    act(() => {
+      wsClose(4001, "room-expired");
+    });
+    act(() => {
+      result.current.handleRetry();
+    });
+
+    expect(result.current.status).toBe("expired");
+    expect(MockWebSocket.instances).toHaveLength(1);
+  });
+});
 
 describe("WebSocket cleanup", () => {
   it("ignores late events from a replaced connection", () => {

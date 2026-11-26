@@ -46,6 +46,7 @@
     "connected": "Connected",
     "connecting": "Connecting…",
     "disconnected": "Disconnected",
+    "expired": "Room expired",
     "countConnected": "{count} connected",
     "retry": "Retry",
     "roomCode": "Room code",
@@ -137,7 +138,8 @@
     "sendFailed": "Unable to send data because the room connection is not open.",
     "connectionFailed": "Could not connect to the room. Check the signaling service and NEXT_PUBLIC_SIGNALING_URL.",
     "connectionClosed": "Connection closed. The relay may be offline, unreachable, or refused the handshake.",
-    "wsError": "The room connection was interrupted. Retrying…"
+    "wsError": "The room connection was interrupted. Retrying…",
+    "roomExpired": "This room expired after one hour. Reload the page to start a new room."
   },
   "LegalNav": {
     "privacy": "Privacy",

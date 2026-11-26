@@ -46,6 +46,7 @@
     "connected": "Connecté",
     "connecting": "Connexion…",
     "disconnected": "Déconnecté",
+    "expired": "Salon expiré",
     "countConnected": "{count} connecté",
     "retry": "Réessayer",
     "roomCode": "Code de la salle",
@@ -137,7 +138,8 @@
     "sendFailed": "Impossible d'envoyer des données car la connexion à la salle n'est pas ouverte.",
     "connectionFailed": "Connexion au salon impossible. Vérifiez le service de signalisation et NEXT_PUBLIC_SIGNALING_URL.",
     "connectionClosed": "Connexion fermée. Le relay est peut-être hors ligne, inaccessible ou a refusé la liaison.",
-    "wsError": "La connexion au salon a été interrompue. Nouvelle tentative…"
+    "wsError": "La connexion au salon a été interrompue. Nouvelle tentative…",
+    "roomExpired": "Ce salon a expiré après une heure. Rechargez la page pour démarrer un nouveau salon."
   },
   "LegalNav": {
     "privacy": "Confidentialité",
