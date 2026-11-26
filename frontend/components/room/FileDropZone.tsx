@@ -1,5 +1,4 @@
 import { useTranslations } from "next-intl";
-import { UploadIcon } from "@radix-ui/react-icons";
 import { RoomStatus } from "./useRoomWebSocket";
 import type { Peer } from "./useRoomWebSocket";
 
@@ -66,7 +65,6 @@ export default function FileDropZone({
             onChange={status === "connected" ? onInputChange : undefined}
             disabled={status !== "connected"}
           />
-          <UploadIcon aria-hidden="true" />
           {t("chooseFile")}
         </label>
 

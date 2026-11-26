@@ -1,5 +1,4 @@
 import { useTranslations } from "next-intl";
-import { PaperPlaneIcon } from "@radix-ui/react-icons";
 import { RoomStatus } from "./useRoomWebSocket";
 
 interface TextInputAreaProps {
@@ -50,7 +49,6 @@ export default function TextInputArea({
           className="glass-button room-action"
           data-action="share"
         >
-          <PaperPlaneIcon aria-hidden="true" />
           {t("shareText")}
         </button>
       </div>

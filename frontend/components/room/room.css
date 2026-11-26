@@ -192,7 +192,7 @@
   color: oklch(1 0 none / 0.72);
 }
 
-.room-view .room-action:is([data-action="choose"], [data-action="share"], [data-action="cancel"], [data-action="pause"], [data-action="resume"]) > svg { color: inherit; }
+.room-view .room-action:is([data-action="cancel"], [data-action="pause"], [data-action="resume"]) > svg { color: inherit; }
 .room-view .room-action[data-action="copy"] { --action-color: oklch(0.84 0.085 245); }
 
 .room-view .room-action > svg {
