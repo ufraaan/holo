@@ -108,6 +108,16 @@
     "withPeer": "con {name}",
     "savedToDisk": "Guardado en disco",
     "etaLeft": "quedan ~{time}",
+    "retry": "Reintentar",
+    "errorChecksum": "La transferencia llegó dañada. Vuelve a enviar el archivo.",
+    "errorWrite": "No se pudo guardar el archivo. Comprueba el espacio libre e inténtalo de nuevo.",
+    "errorDisk": "Este navegador no puede guardar un archivo tan grande. Prueba con otro navegador.",
+    "errorSize": "El archivo es demasiado grande para esta transferencia.",
+    "errorProtocol": "El otro lado envió datos inesperados y la transferencia se detuvo.",
+    "errorConnection": "La conexión se cortó antes de terminar la transferencia.",
+    "errorSource": "El archivo cambió antes de enviarse.",
+    "errorCancelled": "El otro lado detuvo esta transferencia.",
+    "errorUnknown": "La transferencia falló.",
     "remove": "Eliminar"
   },
   "ConnectionToast": {

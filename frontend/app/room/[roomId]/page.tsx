@@ -39,7 +39,7 @@ function RoomContent({ roomId }: { roomId: string }) {
   const textInputRef = useRef<HTMLTextAreaElement>(null);
   const textNameInputRef = useRef<HTMLInputElement>(null);
 
-  const { status, errorMessage, clientCount, toasts, transfers, textShares, chatMessages, currentSenderId, currentSenderName, handleFiles, handleSendText, sendChatMessage, handleRetry, p2pEnabled, peers, p2pError, acceptTransfer, pauseTransfer, resumeTransfer, cancelTransfer } =
+  const { status, errorMessage, clientCount, toasts, transfers, textShares, chatMessages, currentSenderId, currentSenderName, handleFiles, handleSendText, sendChatMessage, handleRetry, p2pEnabled, peers, p2pError, acceptTransfer, pauseTransfer, resumeTransfer, cancelTransfer, retryTransfer } =
     useRoomWebSocket({ roomId, clientId, token });
 
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -156,6 +156,7 @@ function RoomContent({ roomId }: { roomId: string }) {
                 onPauseTransfer={pauseTransfer}
                 onResumeTransfer={resumeTransfer}
                 onCancelTransfer={cancelTransfer}
+                onRetryTransfer={retryTransfer}
               />
             </div>
           </div>

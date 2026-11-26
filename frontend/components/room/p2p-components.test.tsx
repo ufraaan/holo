@@ -285,4 +285,56 @@ describe("TransferList P2P cards", () => {
     expect(screen.getByText("checksum mismatch")).toBeInTheDocument();
     expect(screen.getByText(/Failed/)).toBeInTheDocument();
   });
+
+  it("explains a coded failure and offers a retry for the retained source", () => {
+    const onRetryTransfer = vi.fn();
+    render(
+      <I18nProvider>
+        <TransferList
+          {...baseTransferListProps}
+          onRetryTransfer={onRetryTransfer}
+          transfers={{
+            f1: p2pTransfer({
+              direction: "outgoing",
+              status: "error",
+              error: "peer sent an invalid acknowledgement",
+              errorCode: "protocol",
+              retryable: true,
+            }),
+          }}
+        />
+      </I18nProvider>,
+    );
+
+    expect(
+      screen.getByText("The other side sent unexpected data, so the transfer stopped."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("peer sent an invalid acknowledgement")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Retry movie.mp4/ }));
+    expect(onRetryTransfer).toHaveBeenCalledWith("in:peer-1:f1");
+  });
+
+  it("does not offer a retry when the receiving side cannot resume", () => {
+    render(
+      <I18nProvider>
+        <TransferList
+          {...baseTransferListProps}
+          onRetryTransfer={vi.fn()}
+          transfers={{
+            f1: p2pTransfer({
+              status: "error",
+              error: "checksum mismatch",
+              errorCode: "checksum",
+            }),
+          }}
+        />
+      </I18nProvider>,
+    );
+
+    expect(
+      screen.getByText("The transfer arrived corrupted. Send the file again."),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Retry/ })).not.toBeInTheDocument();
+  });
 });

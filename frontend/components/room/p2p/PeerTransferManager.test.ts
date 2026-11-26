@@ -408,6 +408,8 @@ describe("PeerTransferManager", () => {
 
     await waitFor(() => b.updates.get(received.id)?.status === "error");
     expect(b.updates.get(received.id)?.error).toMatch(/checksum/i);
+    expect(b.updates.get(received.id)?.errorCode).toBe("checksum");
+    expect(b.updates.get(received.id)?.retryable).toBeFalsy();
     expect(b.errors.some((item) => /checksum/i.test(item))).toBe(true);
     expect(b.updates.get(received.id)?.url).toBeUndefined();
   });
@@ -862,5 +864,43 @@ describe("PeerTransferManager", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it("offers a failed outgoing file again from the retained source", async () => {
+    const net = new MockNetwork();
+    installRtc(net);
+    const a = harness(net, "a");
+    const b = harness(net, "b");
+    await connect(net, [a, b]);
+
+    await a.manager.sendFiles([new File(["retry"], "retry.txt")], ["b"]);
+    const received = await waitForIncoming(b, "a", "offered");
+    const sent = outgoing(a, "b")!;
+    net.channelOf("b").send(
+      JSON.stringify({ t: "accept", fileId: sent.id.split(":").pop(), offset: 999 }),
+    );
+
+    await waitFor(() => a.updates.get(sent.id)?.status === "error");
+    expect(a.updates.get(sent.id)?.retryable).toBe(true);
+
+    a.manager.retryTransfer(sent.id);
+    await waitFor(() => a.updates.get(sent.id)?.retryable === false);
+    await waitFor(() =>
+      [...b.updates.values()].some(
+        (transfer) => transfer.name === "retry.txt" && transfer.status === "offered",
+      ),
+    );
+    const retried = [...b.updates.values()].find(
+      (transfer) => transfer.name === "retry.txt" && transfer.status === "offered",
+    );
+    expect(retried!.id).not.toBe(received.id);
+
+    await b.manager.acceptTransfer(retried!.id);
+    await waitFor(() => b.updates.get(retried!.id)?.status === "completed");
+    await waitFor(() =>
+      [...a.updates.values()].some(
+        (transfer) => transfer.name === "retry.txt" && transfer.status === "completed",
+      ),
+    );
   });
 });

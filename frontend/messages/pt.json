@@ -108,6 +108,16 @@
     "withPeer": "com {name}",
     "savedToDisk": "Salvo no disco",
     "etaLeft": "faltam ~{time}",
+    "retry": "Tentar novamente",
+    "errorChecksum": "A transferência chegou corrompida. Envie o arquivo novamente.",
+    "errorWrite": "Não foi possível salvar o arquivo. Verifique o espaço livre e tente novamente.",
+    "errorDisk": "Este navegador não consegue salvar um arquivo tão grande. Tente outro navegador.",
+    "errorSize": "O arquivo é grande demais para esta transferência.",
+    "errorProtocol": "O outro lado enviou dados inesperados e a transferência parou.",
+    "errorConnection": "A conexão caiu antes de a transferência terminar.",
+    "errorSource": "O arquivo mudou antes de ser enviado.",
+    "errorCancelled": "O outro lado interrompeu esta transferência.",
+    "errorUnknown": "A transferência falhou.",
     "remove": "Remover"
   },
   "ConnectionToast": {

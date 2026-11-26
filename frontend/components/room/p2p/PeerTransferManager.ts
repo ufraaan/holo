@@ -8,6 +8,7 @@ import type {
   PeerTransfer,
   PeerTransferManagerOptions,
   PeerTransferStatus,
+  TransferErrorCode,
 } from "./types";
 
 const DATA_CHANNEL_LABEL = "holo-file";
@@ -144,6 +145,7 @@ interface TransferRecord {
   connectionType: PeerConnectionType;
   url?: string;
   error?: string;
+  errorCode?: TransferErrorCode;
   savedToDisk?: boolean;
   // Sender side.
   file?: File;
@@ -162,6 +164,7 @@ interface TransferRecord {
   localPaused?: boolean;
   remotePaused?: boolean;
   speed: SpeedSample | null;
+  retried?: boolean;
   lastEmit: number;
   emitTimer: ReturnType<typeof setTimeout> | null;
   waiters: Array<() => void>;
@@ -398,8 +401,32 @@ export class PeerTransferManager {
     }
   }
 
-  acceptTransfer(id: string): Promise<void> {
+  retryTransfer(id: string): void {
     const record = this.records.get(id);
+    if (
+      this.destroyed ||
+      !record ||
+      record.direction !== "outgoing" ||
+      record.status !== "error" ||
+      record.retried ||
+      !record.file
+    ) {
+      return;
+    }
+    const peer = this.peers.get(record.peerId);
+    if (!peer || peer.removed) return;
+    // A fresh file id makes the peer treat this as a new offer, so a failed
+    // receive record can never be resumed into a half-written sink.
+    record.retried = true;
+    try {
+      this.queueOutgoing(peer, record.file);
+    } catch (error) {
+      this.reportError(`${record.peerId}: ${errorMessage(error)}`);
+    }
+    this.emit(record, true);
+  }
+
+  acceptTransfer(id: string): Promise<void> {    const record = this.records.get(id);
     if (
       this.destroyed ||
       !record ||
@@ -414,7 +441,7 @@ export class PeerTransferManager {
       return Promise.resolve();
     }
     if (record.size > MAX_FILE_BYTES) {
-      this.rejectIncoming(record, "file exceeds the maximum supported size");
+      this.rejectIncoming(record, "file exceeds the maximum supported size", "size");
       return Promise.resolve();
     }
     if (record.size <= this.memoryLimit - this.memoryUsed) {
@@ -424,6 +451,7 @@ export class PeerTransferManager {
       this.rejectIncoming(
         record,
         "file is larger than the in-memory limit and this browser cannot save directly to disk",
+        "disk",
       );
       return Promise.resolve();
     }
@@ -771,12 +799,16 @@ export class PeerTransferManager {
     }
   }
 
-  private failPeer(peer: PeerState, message: string): void {
+  private failPeer(
+    peer: PeerState,
+    message: string,
+    code: TransferErrorCode = "connection",
+  ): void {
     this.clearPeerTimers(peer);
     this.closePeerConnection(peer);
     for (const record of this.records.values()) {
       if (record.peerId === peer.id && !this.isTerminal(record)) {
-        this.failRecord(record, message);
+        this.failRecord(record, message, code);
       }
     }
     this.reportError(`${peer.id}: ${message}`);
@@ -1081,7 +1113,7 @@ export class PeerTransferManager {
         existing.name !== name ||
         existing.mime !== mime
       ) {
-        this.failRecord(existing, "peer sent inconsistent file metadata");
+        this.failRecord(existing, "peer sent inconsistent file metadata", "protocol");
         this.sendControl(peer, { t: "cancel", fileId, reason: "inconsistent metadata" });
         return;
       }
@@ -1091,7 +1123,7 @@ export class PeerTransferManager {
       }
       if (existing.accepted) {
         if (!existing.sink && existing.status !== "completed") {
-          this.failRecord(existing, "receive state was lost");
+          this.failRecord(existing, "receive state was lost", "protocol");
           return;
         }
         existing.remotePaused = message.paused === true;
@@ -1173,11 +1205,11 @@ export class PeerTransferManager {
       offset > record.size ||
       offset > record.offset
     ) {
-      this.failRecord(record, "peer reported an invalid resume offset");
+      this.failRecord(record, "peer reported an invalid resume offset", "protocol");
       return;
     }
     if (offset < record.ackedOffset) {
-      this.failRecord(record, "peer resume offset is behind confirmed data");
+      this.failRecord(record, "peer resume offset is behind confirmed data", "protocol");
       return;
     }
     record.accepted = true;
@@ -1207,7 +1239,7 @@ export class PeerTransferManager {
       offset > record.size ||
       offset > record.offset
     ) {
-      this.failRecord(record, "peer sent an invalid acknowledgement");
+      this.failRecord(record, "peer sent an invalid acknowledgement", "protocol");
       return;
     }
     if (offset < record.ackedOffset) return; // Stale ack from an older session.
@@ -1227,7 +1259,7 @@ export class PeerTransferManager {
     const record = this.records.get(transferId(peer.id, "outgoing", fileId));
     if (!record || this.isTerminal(record)) return;
     if (record.offset !== record.size) {
-      this.failRecord(record, "peer confirmed a file before it was sent");
+      this.failRecord(record, "peer confirmed a file before it was sent", "protocol");
       return;
     }
     record.bytesTransferred = record.size;
@@ -1281,6 +1313,7 @@ export class PeerTransferManager {
       if (!record || this.isTerminal(record)) continue;
       record.paused = false;
       record.error = message;
+      record.errorCode = "cancelled";
       record.status = "cancelled";
       this.releaseRecord(record);
       this.emit(record, true);
@@ -1379,7 +1412,7 @@ export class PeerTransferManager {
     if (!channel || channel.readyState !== "open" || !file) return;
     const chunkSize = this.chunkSizeFor(peer, record.fileId);
     if (chunkSize <= 0) {
-      this.failRecord(record, "data channel message limit is too small");
+      this.failRecord(record, "data channel message limit is too small", "connection");
       return;
     }
     const windowBytes = Math.max(WINDOW_BYTES, chunkSize * 4);
@@ -1441,7 +1474,7 @@ export class PeerTransferManager {
           peer.channel === channel &&
           channel.readyState === "open"
         ) {
-          this.failRecord(record, errorMessage(error));
+          this.failRecord(record, errorMessage(error), "source");
         }
       } finally {
         record.pumping = false;
@@ -1557,7 +1590,7 @@ export class PeerTransferManager {
       payload.byteLength > MAX_CHUNK_BYTES ||
       offset + payload.byteLength > record.size
     ) {
-      this.failRecord(record, "invalid chunk geometry");
+      this.failRecord(record, "invalid chunk geometry", "protocol");
       return;
     }
 
@@ -1574,29 +1607,29 @@ export class PeerTransferManager {
         }
         return;
       }
-      this.failRecord(record, "overlapping chunk");
+      this.failRecord(record, "overlapping chunk", "protocol");
       return;
     }
     if (offset !== record.bytesTransferred) {
-      this.failRecord(record, "chunk gap");
+      this.failRecord(record, "chunk gap", "protocol");
       return;
     }
     if (payload.byteLength === 0 && !final) {
-      this.failRecord(record, "empty non-final chunk");
+      this.failRecord(record, "empty non-final chunk", "protocol");
       return;
     }
 
     const actual = new Uint8Array(await crypto.subtle.digest("SHA-256", payload));
     if (this.destroyed || this.isTerminal(record) || !record.sink) return;
     if (!equalBytes(actual, digest)) {
-      this.failRecord(record, "checksum mismatch");
+      this.failRecord(record, "checksum mismatch", "checksum");
       return;
     }
     const sink = record.sink;
     try {
       if (payload.byteLength > 0) await sink.write(offset, payload);
     } catch (error) {
-      this.failRecord(record, `write failed (${errorMessage(error)})`);
+      this.failRecord(record, `write failed (${errorMessage(error)})`, "write");
       return;
     }
     if (this.destroyed || this.isTerminal(record) || record.sink !== sink) return;
@@ -1613,7 +1646,7 @@ export class PeerTransferManager {
     this.emit(record, record.status === "transferring" && record.bytesTransferred === record.size);
     if (final) {
       if (record.bytesTransferred !== record.size) {
-        this.failRecord(record, "final size mismatch");
+        this.failRecord(record, "final size mismatch", "protocol");
         return;
       }
       await this.finishIncoming(peer, record);
@@ -1634,7 +1667,7 @@ export class PeerTransferManager {
       // The sink must close before the sender is told the file is complete.
       await sink.close();
     } catch (error) {
-      this.failRecord(record, `could not finalize file (${errorMessage(error)})`);
+      this.failRecord(record, `could not finalize file (${errorMessage(error)})`, "write");
       return;
     }
     if (this.destroyed || this.isTerminal(record) || record.sink !== sink) {
@@ -1668,7 +1701,7 @@ export class PeerTransferManager {
   private acceptOnDisk(record: TransferRecord): Promise<void> {
     const picker = getSaveFilePicker();
     if (!picker) {
-      this.rejectIncoming(record, "disk saving is not available");
+      this.rejectIncoming(record, "disk saving is not available", "disk");
       return Promise.resolve();
     }
     let picked: Promise<DiskHandle>;
@@ -1676,7 +1709,7 @@ export class PeerTransferManager {
       // Called in the click handler before any await so the gesture is valid.
       picked = Promise.resolve(picker({ suggestedName: safeFileName(record.name) }));
     } catch (error) {
-      this.rejectIncoming(record, `could not open the save dialog (${errorMessage(error)})`);
+      this.rejectIncoming(record, `could not open the save dialog (${errorMessage(error)})`, "disk");
       return Promise.resolve();
     }
     return this.attachDiskSink(record, picked);
@@ -1712,7 +1745,7 @@ export class PeerTransferManager {
     } catch (error) {
       if (this.destroyed) return;
       if (record.status === "cancelled") return;
-      this.failRecord(record, `could not open the save file (${errorMessage(error)})`);
+      this.failRecord(record, `could not open the save file (${errorMessage(error)})`, "write");
     } finally {
       record.accepting = false;
     }
@@ -1737,8 +1770,12 @@ export class PeerTransferManager {
     }
   }
 
-  private rejectIncoming(record: TransferRecord, message: string): void {
-    this.failRecord(record, message);
+  private rejectIncoming(
+    record: TransferRecord,
+    message: string,
+    code: TransferErrorCode,
+  ): void {
+    this.failRecord(record, message, code);
     const peer = this.peers.get(record.peerId);
     if (peer) {
       this.sendControl(peer, {
@@ -1759,13 +1796,18 @@ export class PeerTransferManager {
     );
   }
 
-  private failRecord(record: TransferRecord, message: string): void {
+  private failRecord(
+    record: TransferRecord,
+    message: string,
+    code: TransferErrorCode = "unknown",
+  ): void {
     if (this.destroyed || record.status === "error" || record.status === "cancelled") {
       return;
     }
     record.paused = false;
     record.status = "error";
     record.error = message;
+    record.errorCode = code;
     const peer = this.peers.get(record.peerId);
     if (peer) {
       this.sendControl(peer, {
@@ -1774,7 +1816,9 @@ export class PeerTransferManager {
         reason: message.slice(0, 200),
       });
     }
-    this.releaseRecord(record);
+    // The sender keeps its File handle so a retry can offer the same bytes
+    // again; the receiver's sink is released because its state is unusable.
+    this.releaseRecord(record, record.direction === "outgoing");
     this.emit(record, true);
     this.reportError(`${record.peerId}: ${message}`);
   }
@@ -1805,7 +1849,7 @@ export class PeerTransferManager {
     this.emit(record, true);
   }
 
-  private releaseRecord(record: TransferRecord): void {
+  private releaseRecord(record: TransferRecord, keepFile = false): void {
     if (record.emitTimer) {
       clearTimeout(record.emitTimer);
       record.emitTimer = null;
@@ -1828,7 +1872,7 @@ export class PeerTransferManager {
       this.memoryUsed = Math.max(0, this.memoryUsed - record.memoryHeld);
       record.memoryHeld = 0;
     }
-    this.releaseFile(record);
+    if (!keepFile) this.releaseFile(record);
   }
 
   private releaseFile(record: TransferRecord): void {
@@ -1885,6 +1929,14 @@ export class PeerTransferManager {
           ? remainingSeconds(record.bytesTransferred, record.size, bytesPerSecond)
           : undefined,
       error: record.error,
+      errorCode: record.errorCode,
+      retryable:
+        record.direction === "outgoing" &&
+        record.status === "error" &&
+        !!record.file &&
+        !record.retried &&
+        !!this.peers.get(record.peerId) &&
+        !this.peers.get(record.peerId)?.removed,
       savedToDisk: record.savedToDisk,
     };
     try {

@@ -108,6 +108,16 @@
     "withPeer": "with {name}",
     "savedToDisk": "Saved to disk",
     "etaLeft": "~{time} left",
+    "retry": "Retry",
+    "errorChecksum": "The transfer arrived corrupted. Send the file again.",
+    "errorWrite": "Saving the file failed. Check free disk space and try again.",
+    "errorDisk": "This browser cannot save a file this large. Try another browser.",
+    "errorSize": "The file is too large for this transfer.",
+    "errorProtocol": "The other side sent unexpected data, so the transfer stopped.",
+    "errorConnection": "The connection dropped before the transfer finished.",
+    "errorSource": "The file changed on disk before it was sent.",
+    "errorCancelled": "The other side stopped this transfer.",
+    "errorUnknown": "The transfer failed.",
     "remove": "Remove"
   },
   "ConnectionToast": {
