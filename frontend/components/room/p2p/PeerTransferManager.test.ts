@@ -828,4 +828,39 @@ describe("PeerTransferManager", () => {
     expect(URL.revokeObjectURL).toHaveBeenCalledWith(url);
     expect(net.isOpen("b")).toBe(false);
   });
+
+  it("reports a speed and eta while receiving and clears them on pause", async () => {
+    const net = new MockNetwork();
+    installRtc(net);
+    const a = harness(net, "a");
+    const b = harness(net, "b", { autoReceive: true });
+    await connect(net, [a, b]);
+
+    net.channelOf("a").send(offerControl("speed", 3 * 4096));
+    const received = await waitForIncoming(b, "a", "transferring");
+
+    vi.useFakeTimers();
+    try {
+      const channel = net.channelOf("a");
+      channel.send(await chunkFrame("speed", 0, false, makeBytes(4096)));
+      await vi.advanceTimersByTimeAsync(1000);
+      channel.send(await chunkFrame("speed", 4096, false, makeBytes(4096, 3)));
+      await vi.advanceTimersByTimeAsync(0);
+      await vi.advanceTimersByTimeAsync(1000);
+
+      const active = b.updates.get(received.id)!;
+      expect(active.bytesTransferred).toBe(8192);
+      expect(active.bytesPerSecond).toBeGreaterThan(4000);
+      expect(active.bytesPerSecond).toBeLessThan(4200);
+      expect(active.etaSeconds).toBe(1);
+
+      b.manager.pauseTransfer(received.id);
+      const paused = b.updates.get(received.id)!;
+      expect(paused.status).toBe("paused");
+      expect(paused.bytesPerSecond).toBeUndefined();
+      expect(paused.etaSeconds).toBeUndefined();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

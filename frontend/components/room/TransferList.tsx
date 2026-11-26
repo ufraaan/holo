@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { CheckIcon, CopyIcon, Cross2Icon, DownloadIcon, PauseIcon, PlayIcon, TrashIcon } from "@radix-ui/react-icons";
 import ChatBox from "./ChatBox";
 import { useUnreadChat } from "./useUnreadChat";
+import { formatEta } from "./p2p/transfer-metrics";
 import {
   formatSize,
   type ChatMessage,
@@ -168,6 +169,14 @@ export default function TransferList({
             <div className="room-progress-fill" style={{ width: `${tr.progress}%` }} />
           </div>
         )}
+        {tr.status === "transferring" && tr.bytesPerSecond ? (
+          <p className="room-transfer-rate">
+            <span>{formatSize(tr.bytesPerSecond)}/s</span>
+            {typeof tr.etaSeconds === "number" && (
+              <span>{t("etaLeft", { time: formatEta(tr.etaSeconds) })}</span>
+            )}
+          </p>
+        ) : null}
         {tr.error && <p className="mt-2 text-xs text-red-200">{tr.error}</p>}
         {tr.status === "completed" && tr.savedToDisk && (
           <p className="mt-2 text-xs text-emerald-200">{t("savedToDisk")}</p>

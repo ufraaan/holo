@@ -200,6 +200,44 @@ describe("TransferList P2P cards", () => {
     expect(screen.getByText("Save").closest("a")).toHaveAttribute("download", "movie.mp4");
   });
 
+  it("shows a speed and ETA only while bytes are moving", () => {
+    const { rerender } = render(
+      <I18nProvider>
+        <TransferList
+          {...baseTransferListProps}
+          transfers={{
+            f1: p2pTransfer({
+              status: "transferring",
+              bytesPerSecond: 1024 * 1024,
+              etaSeconds: 75,
+            }),
+          }}
+        />
+      </I18nProvider>,
+    );
+
+    expect(screen.getByText("1.0 MB/s")).toBeInTheDocument();
+    expect(screen.getByText("~1:15 left")).toBeInTheDocument();
+
+    rerender(
+      <I18nProvider>
+        <TransferList
+          {...baseTransferListProps}
+          transfers={{
+            f1: p2pTransfer({
+              status: "paused",
+              bytesPerSecond: 1024 * 1024,
+              etaSeconds: 75,
+            }),
+          }}
+        />
+      </I18nProvider>,
+    );
+
+    expect(screen.queryByText("1.0 MB/s")).not.toBeInTheDocument();
+    expect(screen.queryByText("~1:15 left")).not.toBeInTheDocument();
+  });
+
   it("never reports Sent from local queueing alone", () => {
     render(
       <I18nProvider>

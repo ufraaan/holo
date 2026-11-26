@@ -29,6 +29,8 @@ export interface Transfer {
   connectionType?: ConnectionType;
   status?: TransferStatus;
   bytesTransferred?: number;
+  bytesPerSecond?: number;
+  etaSeconds?: number;
   error?: string;
   savedToDisk?: boolean;
 }

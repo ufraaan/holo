@@ -1,4 +1,6 @@
 import { getChatName } from "../room-utils";
+import { remainingSeconds, sampleSpeed } from "./transfer-metrics";
+import type { SpeedSample } from "./transfer-metrics";
 import { MAX_FILE_BYTES, MEMORY_LIMIT_BYTES, supportsDiskSaving } from "./types";
 import type {
   PeerConnectionType,
@@ -33,6 +35,7 @@ const SETUP_TIMEOUT_MS = 10000;
 // TURN credentials are handed out with a 600s TTL; refresh well before that.
 const ICE_REFRESH_MS = 4 * 60 * 1000;
 const EMIT_INTERVAL_MS = 100;
+const METRICS_TICK_MS = 1000;
 
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
@@ -158,6 +161,7 @@ interface TransferRecord {
   paused: boolean;
   localPaused?: boolean;
   remotePaused?: boolean;
+  speed: SpeedSample | null;
   lastEmit: number;
   emitTimer: ReturnType<typeof setTimeout> | null;
   waiters: Array<() => void>;
@@ -259,6 +263,7 @@ export class PeerTransferManager {
   private readonly records = new Map<string, TransferRecord>();
   private memoryUsed = 0;
   private iceRefreshTimer: ReturnType<typeof setInterval> | null = null;
+  private metricsTimer: ReturnType<typeof setInterval> | null = null;
   private destroyed = false;
 
   constructor(options: PeerTransferManagerOptions) {
@@ -434,6 +439,10 @@ export class PeerTransferManager {
     if (this.iceRefreshTimer) {
       clearInterval(this.iceRefreshTimer);
       this.iceRefreshTimer = null;
+    }
+    if (this.metricsTimer) {
+      clearInterval(this.metricsTimer);
+      this.metricsTimer = null;
     }
     for (const peer of this.peers.values()) {
       this.clearPeerTimers(peer);
@@ -1141,6 +1150,7 @@ export class PeerTransferManager {
       finished: false,
       memoryHeld: 0,
       paused: false,
+      speed: null,
       lastEmit: 0,
       emitTimer: null,
       waiters: [],
@@ -1331,6 +1341,7 @@ export class PeerTransferManager {
       finished: false,
       memoryHeld: 0,
       paused: false,
+      speed: null,
       lastEmit: 0,
       emitTimer: null,
       waiters: [],
@@ -1845,7 +1856,16 @@ export class PeerTransferManager {
   }
 
   private deliverTransfer(record: TransferRecord): void {
-    record.lastEmit = Date.now();
+    const now = Date.now();
+    record.lastEmit = now;
+    const active = record.status === "transferring" && !record.paused;
+    // Resetting here means a pause, reconnect, or completion clears stale speed
+    // instead of resuming a rate that was measured before the gap.
+    record.speed = active
+      ? sampleSpeed(record.speed, record.bytesTransferred, now)
+      : null;
+    const bytesPerSecond = Math.round(record.speed?.bytesPerSecond ?? 0);
+    if (active) this.startMetricsTimer();
     const transfer: PeerTransfer = {
       id: record.id,
       name: record.name,
@@ -1859,6 +1879,11 @@ export class PeerTransferManager {
       status: record.status,
       connectionType: record.connectionType,
       bytesTransferred: record.bytesTransferred,
+      bytesPerSecond: bytesPerSecond > 0 ? bytesPerSecond : undefined,
+      etaSeconds:
+        bytesPerSecond > 0
+          ? remainingSeconds(record.bytesTransferred, record.size, bytesPerSecond)
+          : undefined,
       error: record.error,
       savedToDisk: record.savedToDisk,
     };
@@ -1867,6 +1892,24 @@ export class PeerTransferManager {
     } catch {
       // A consumer error must not break the transfer engine.
     }
+  }
+
+  private startMetricsTimer(): void {
+    if (this.metricsTimer || this.destroyed) return;
+    // Re-sampling while nothing arrives lets a stalled channel show zero speed
+    // instead of freezing the last value.
+    this.metricsTimer = setInterval(() => {
+      let active = false;
+      for (const record of this.records.values()) {
+        if (record.status !== "transferring" || record.paused) continue;
+        active = true;
+        this.emit(record);
+      }
+      if (!active && this.metricsTimer) {
+        clearInterval(this.metricsTimer);
+        this.metricsTimer = null;
+      }
+    }, METRICS_TICK_MS);
   }
 
   private reportError(message: string): void {

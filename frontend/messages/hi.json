@@ -107,6 +107,7 @@
     "routeUnknown": "मार्ग अज्ञात",
     "withPeer": "{name} के साथ",
     "savedToDisk": "डिस्क पर सहेजा गया",
+    "etaLeft": "~{time} शेष",
     "remove": "हटाएँ"
   },
   "ConnectionToast": {

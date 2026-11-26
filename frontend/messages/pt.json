@@ -107,6 +107,7 @@
     "routeUnknown": "rota desconhecida",
     "withPeer": "com {name}",
     "savedToDisk": "Salvo no disco",
+    "etaLeft": "faltam ~{time}",
     "remove": "Remover"
   },
   "ConnectionToast": {

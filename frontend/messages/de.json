@@ -107,6 +107,7 @@
     "routeUnknown": "Route unbekannt",
     "withPeer": "mit {name}",
     "savedToDisk": "Auf Festplatte gespeichert",
+    "etaLeft": "noch ~{time}",
     "remove": "Entfernen"
   },
   "ConnectionToast": {

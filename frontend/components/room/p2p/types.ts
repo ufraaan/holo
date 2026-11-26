@@ -26,6 +26,8 @@ export interface PeerTransfer extends Transfer {
   status: PeerTransferStatus;
   connectionType: PeerConnectionType;
   bytesTransferred: number;
+  bytesPerSecond?: number;
+  etaSeconds?: number;
   error?: string;
   savedToDisk?: boolean;
 }

@@ -98,6 +98,8 @@ function toTransfer(transfer: PeerTransfer): Transfer {
     connectionType: transfer.connectionType,
     status: transfer.status,
     bytesTransferred: bytes,
+    bytesPerSecond: transfer.bytesPerSecond,
+    etaSeconds: transfer.etaSeconds,
     error: transfer.error,
     savedToDisk: transfer.savedToDisk,
   };
