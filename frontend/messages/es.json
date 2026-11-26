@@ -46,6 +46,7 @@
     "connected": "Conectado",
     "connecting": "Conectando…",
     "disconnected": "Desconectado",
+    "expired": "Sala caducada",
     "countConnected": "{count} conectado",
     "retry": "Reintentar",
     "roomCode": "Código de sala",
@@ -137,7 +138,8 @@
     "sendFailed": "No se pueden enviar datos porque la conexión a la sala no está abierta.",
     "connectionFailed": "No se pudo conectar con la sala. Revisa el servicio de señalización y NEXT_PUBLIC_SIGNALING_URL.",
     "connectionClosed": "Conexión cerrada. Es posible que el relay esté desconectado, sea inaccesible o haya rechazado el handshake.",
-    "wsError": "Se interrumpió la conexión con la sala. Reintentando…"
+    "wsError": "Se interrumpió la conexión con la sala. Reintentando…",
+    "roomExpired": "Esta sala caducó después de una hora. Recarga la página para iniciar una sala nueva."
   },
   "LegalNav": {
     "privacy": "Privacidad",

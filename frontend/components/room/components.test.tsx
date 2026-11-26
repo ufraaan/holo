@@ -173,6 +173,16 @@ describe("RoomHeader", () => {
     expect(onRetry).toHaveBeenCalledOnce();
   });
 
+  it("shows expired status without a retry button", () => {
+    render(
+      <I18nProvider>
+        <RoomHeader roomId="r1" status="expired" clientCount={0} onRetry={vi.fn()} />
+      </I18nProvider>,
+    );
+    expect(screen.getByText("Room expired")).toBeInTheDocument();
+    expect(screen.queryByText("Retry")).not.toBeInTheDocument();
+  });
+
   it("shows fullscreen room code on expand click", () => {
     render(
       <I18nProvider>

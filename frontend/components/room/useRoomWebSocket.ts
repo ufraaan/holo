@@ -14,7 +14,7 @@ import {
   type Transfer,
 } from "./room-utils";
 
-export type RoomStatus = "connecting" | "connected" | "closed";
+export type RoomStatus = "connecting" | "connected" | "closed" | "expired";
 export type { Transfer, TextShare } from "./room-utils";
 
 export interface ConnectionToast {
@@ -68,6 +68,7 @@ const ICE_CACHE_MARGIN_MS = 30_000;
 const ICE_CACHE_MAX_AGE_MS = 2 * 60_000;
 const RECONNECT_BASE_MS = 500;
 const RECONNECT_MAX_MS = 8_000;
+const ROOM_EXPIRED_CLOSE_CODE = 4001;
 
 function getIceCacheExpiry(expiresAt: number): number {
   if (!Number.isFinite(expiresAt) || expiresAt <= 0) {
@@ -327,7 +328,7 @@ export function useRoomWebSocket({
   );
 
   const handleRetry = useCallback(() => {
-    if (!roomId) return;
+    if (!roomId || status === "expired") return;
     setStatus("connecting");
     setErrorMessage(null);
     if (wsRef.current) {
@@ -335,7 +336,7 @@ export function useRoomWebSocket({
       wsRef.current = null;
     }
     setReconnectKey((key) => key + 1);
-  }, [roomId]);
+  }, [roomId, status]);
 
   const acceptTransfer = useCallback(
     (id: string) => {
@@ -416,6 +417,15 @@ export function useRoomWebSocket({
       ws.onclose = (ev) => {
         if (wsRef.current !== socket) return;
         icePendingRef.current?.cancel();
+        if (ev.code === ROOM_EXPIRED_CLOSE_CODE) {
+          if (reconnectTimer) {
+            clearTimeout(reconnectTimer);
+            reconnectTimer = null;
+          }
+          setStatus("expired");
+          setErrorMessage(t("roomExpired"));
+          return;
+        }
         setStatus("closed");
         setErrorMessage(ev.reason || t("connectionClosed"));
         console.warn("WebSocket closed", {

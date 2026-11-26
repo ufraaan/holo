@@ -46,6 +46,7 @@
     "connected": "Verbunden",
     "connecting": "Verbinde…",
     "disconnected": "Getrennt",
+    "expired": "Raum abgelaufen",
     "countConnected": "{count} verbunden",
     "retry": "Wiederholen",
     "roomCode": "Raumcode",
@@ -137,7 +138,8 @@
     "sendFailed": "Daten können nicht gesendet werden, da die Raumverbindung nicht offen ist.",
     "connectionFailed": "Verbindung zum Raum fehlgeschlagen. Prüfe den Signalisierungsdienst und NEXT_PUBLIC_SIGNALING_URL.",
     "connectionClosed": "Verbindung geschlossen. Der Relay ist möglicherweise offline, nicht erreichbar oder hat den Handshake abgelehnt.",
-    "wsError": "Die Verbindung zum Raum wurde unterbrochen. Neuer Versuch…"
+    "wsError": "Die Verbindung zum Raum wurde unterbrochen. Neuer Versuch…",
+    "roomExpired": "Dieser Raum ist nach einer Stunde abgelaufen. Lade die Seite neu, um einen neuen Raum zu starten."
   },
   "LegalNav": {
     "privacy": "Datenschutz",

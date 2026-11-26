@@ -14,6 +14,9 @@ const MAX_PEERS = 10;
 const FRAME_LIMIT = 300;
 const FRAME_WINDOW_MS = 60_000;
 const ICE_MIN_INTERVAL_MS = 60_000;
+const ROOM_LIFETIME_MS = 3_600_000;
+const ROOM_EXPIRED_CODE = 4001;
+const ROOM_EXPIRED_REASON = "room-expired";
 export const TURN_HOURLY_LIMIT = 180;
 const ROOM_ID = /^[a-z0-9][a-z0-9-]{0,63}$/;
 const CLIENT_ID = /^[A-Za-z0-9_-]{1,64}$/;
@@ -58,6 +61,12 @@ export class Room extends DurableObject<Env> {
           issued INTEGER NOT NULL
         )
       `);
+      this.ctx.storage.sql.exec(`
+        CREATE TABLE IF NOT EXISTS room_session (
+          id INTEGER PRIMARY KEY CHECK (id = 1),
+          expires_at INTEGER NOT NULL
+        )
+      `);
     });
   }
 
@@ -72,6 +81,15 @@ export class Room extends DurableObject<Env> {
     const token = url.searchParams.get("token") ?? "";
     if (!ROOM_ID.test(roomId) || !CLIENT_ID.test(clientId) || !CLIENT_TOKEN.test(token)) {
       return Response.json({ error: "bad-request" }, { status: 400 });
+    }
+
+    const now = Date.now();
+    let expiresAt = this.sessionExpiry();
+    if (expiresAt !== null && now >= expiresAt) {
+      this.closeExpired();
+      if (this.peers().size > 0) return this.expiredResponse();
+      await this.releaseExpiredSession();
+      expiresAt = null;
     }
 
     const peers = this.peers();
@@ -100,6 +118,11 @@ export class Room extends DurableObject<Env> {
       }
     }
 
+    if (expiresAt === null) {
+      expiresAt = this.startSession(now);
+      await this.ctx.storage.setAlarm(expiresAt);
+    }
+
     const pair = new WebSocketPair();
     const [client, server] = Object.values(pair) as [WebSocket, WebSocket];
     this.ctx.acceptWebSocket(server);
@@ -109,9 +132,26 @@ export class Room extends DurableObject<Env> {
     return new Response(null, { status: 101, webSocket: client });
   }
 
+  async alarm(): Promise<void> {
+    const expiresAt = this.sessionExpiry();
+    if (expiresAt === null) return;
+    if (Date.now() < expiresAt) {
+      await this.ctx.storage.setAlarm(expiresAt);
+      return;
+    }
+    this.closeExpired();
+    await this.releaseExpiredSession();
+  }
+
   async webSocketMessage(ws: WebSocket, message: string | ArrayBuffer): Promise<void> {
     const attachment = this.attachment(ws);
     if (!attachment) return;
+
+    const expiresAt = this.sessionExpiry();
+    if (expiresAt !== null && Date.now() >= expiresAt) {
+      this.closeExpired();
+      return;
+    }
 
     if (!this.allowFrame(ws, attachment)) {
       this.fail(ws, "rate-limited");
@@ -179,10 +219,12 @@ export class Room extends DurableObject<Env> {
   async webSocketClose(ws: WebSocket): Promise<void> {
     // Compatibility date 2026-11-18 auto-replies to the close frame.
     this.broadcastState(ws);
+    await this.releaseExpiredSession(ws);
   }
 
   async webSocketError(ws: WebSocket): Promise<void> {
     this.broadcastState(ws);
+    await this.releaseExpiredSession(ws);
   }
 
   /** Exposed for tests; production paths call iceConfig(). */
@@ -247,6 +289,52 @@ export class Room extends DurableObject<Env> {
       hourStart,
     );
     return true;
+  }
+
+  private sessionExpiry(): number | null {
+    const row = this.ctx.storage.sql
+      .exec<{ expires_at: number }>("SELECT expires_at FROM room_session WHERE id = 1")
+      .toArray()[0];
+    return row?.expires_at ?? null;
+  }
+
+  private startSession(now: number): number {
+    const expiresAt = now + ROOM_LIFETIME_MS;
+    this.ctx.storage.sql.exec(
+      "INSERT INTO room_session (id, expires_at) VALUES (1, ?) ON CONFLICT(id) DO UPDATE SET expires_at = excluded.expires_at",
+      expiresAt,
+    );
+    return expiresAt;
+  }
+
+  private closeExpired(): void {
+    for (const socket of this.ctx.getWebSockets()) {
+      if (!this.attachment(socket)) continue;
+      try {
+        socket.close(ROOM_EXPIRED_CODE, ROOM_EXPIRED_REASON);
+      } catch {
+        // already closing
+      }
+    }
+  }
+
+  private expiredResponse(): Response {
+    const pair = new WebSocketPair();
+    const [client, server] = Object.values(pair) as [WebSocket, WebSocket];
+    this.ctx.acceptWebSocket(server);
+    server.close(ROOM_EXPIRED_CODE, ROOM_EXPIRED_REASON);
+    return new Response(null, { status: 101, webSocket: client });
+  }
+
+  private async releaseExpiredSession(exclude?: WebSocket): Promise<void> {
+    const expiresAt = this.sessionExpiry();
+    if (expiresAt === null || Date.now() < expiresAt) return;
+    const remaining = this.ctx.getWebSockets().some(
+      (socket) => socket !== exclude && this.attachment(socket) !== null,
+    );
+    if (remaining) return;
+    this.ctx.storage.sql.exec("DELETE FROM room_session WHERE id = 1");
+    await this.ctx.storage.deleteAlarm();
   }
 
   /** Socket attachments survive hibernation without a storage write per message. */

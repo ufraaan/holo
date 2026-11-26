@@ -124,7 +124,9 @@ export default function RoomHeader({ roomId, status, clientCount, onRetry }: Roo
               ? t("connected")
               : status === "connecting"
                 ? t("connecting")
-                : t("disconnected")}
+                : status === "expired"
+                  ? t("expired")
+                  : t("disconnected")}
           </span>
           {status === "connected" && clientCount > 0 && (
             <span className="text-white/60">
