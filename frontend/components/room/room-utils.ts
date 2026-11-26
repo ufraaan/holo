@@ -15,6 +15,17 @@ export type TransferStatus =
 
 export type ConnectionType = "direct" | "relay" | "unknown";
 
+export type TransferErrorCode =
+  | "checksum"
+  | "write"
+  | "disk"
+  | "size"
+  | "protocol"
+  | "connection"
+  | "source"
+  | "cancelled"
+  | "unknown";
+
 export interface Transfer {
   id: string;
   name: string;
@@ -29,7 +40,11 @@ export interface Transfer {
   connectionType?: ConnectionType;
   status?: TransferStatus;
   bytesTransferred?: number;
+  bytesPerSecond?: number;
+  etaSeconds?: number;
   error?: string;
+  errorCode?: TransferErrorCode;
+  retryable?: boolean;
   savedToDisk?: boolean;
 }
 

@@ -119,6 +119,17 @@ describe("FileDropZone", () => {
     fireEvent.change(screen.getByLabelText("Choose files"));
     expect(onInputChange).toHaveBeenCalledOnce();
   });
+
+  it("separates the desktop drop prompt from the file picker action", () => {
+    render(
+      <I18nProvider>
+        <FileDropZone status="connected" errorMessage={null} {...handlers} />
+      </I18nProvider>,
+    );
+    expect(screen.getByText("Drop files here")).toBeInTheDocument();
+    expect(screen.getByText("or")).toHaveAttribute("aria-hidden", "true");
+    expect(screen.getByText("Choose files from your device")).toBeInTheDocument();
+  });
 });
 
 describe("RoomHeader", () => {

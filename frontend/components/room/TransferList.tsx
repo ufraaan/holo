@@ -2,9 +2,10 @@
 
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { CheckIcon, CopyIcon, Cross2Icon, DownloadIcon, PauseIcon, PlayIcon, TrashIcon } from "@radix-ui/react-icons";
+import { CheckIcon, CopyIcon, Cross2Icon, DownloadIcon, PauseIcon, PlayIcon, ReloadIcon, TrashIcon } from "@radix-ui/react-icons";
 import ChatBox from "./ChatBox";
 import { useUnreadChat } from "./useUnreadChat";
+import { formatEta } from "./p2p/transfer-metrics";
 import {
   formatSize,
   type ChatMessage,
@@ -20,6 +21,7 @@ const actionIcons = {
   accept: CheckIcon,
   pause: PauseIcon,
   resume: PlayIcon,
+  retry: ReloadIcon,
   cancel: Cross2Icon,
   remove: TrashIcon,
 };
@@ -37,6 +39,7 @@ interface TransferListProps {
   onPauseTransfer?: (id: string) => void;
   onResumeTransfer?: (id: string) => void;
   onCancelTransfer?: (id: string) => void;
+  onRetryTransfer?: (id: string) => void;
 }
 
 export default function TransferList({
@@ -52,6 +55,7 @@ export default function TransferList({
   onPauseTransfer,
   onResumeTransfer,
   onCancelTransfer,
+  onRetryTransfer,
 }: TransferListProps) {
   const t = useTranslations("TransferList");
   const tc = useTranslations("ChatBox");
@@ -126,9 +130,37 @@ export default function TransferList({
     }
   };
 
+  const errorText = (tr: Transfer): string | undefined => {
+    switch (tr.errorCode) {
+      case "checksum":
+        return t("errorChecksum");
+      case "write":
+        return t("errorWrite");
+      case "disk":
+        return t("errorDisk");
+      case "size":
+        return t("errorSize");
+      case "protocol":
+        return t("errorProtocol");
+      case "connection":
+        return t("errorConnection");
+      case "source":
+        return t("errorSource");
+      case "cancelled":
+        return t("errorCancelled");
+      case "unknown":
+        return t("errorUnknown");
+      default:
+        return tr.error;
+    }
+  };
+
   const transferActions = (tr: Transfer) => {
     if (!p2pEnabled || !tr.peerId) return null;
     const buttons: { key: keyof typeof actionIcons; label: string; onClick?: () => void }[] = [];
+    if (tr.retryable) {
+      buttons.push({ key: "retry", label: t("retry"), onClick: onRetryTransfer && (() => onRetryTransfer(tr.id)) });
+    }
     if (tr.status === "completed" || tr.status === "cancelled" || tr.status === "error") {
       buttons.push({ key: "remove", label: t("remove"), onClick: onCancelTransfer && (() => onCancelTransfer(tr.id)) });
     }
@@ -150,6 +182,7 @@ export default function TransferList({
   const renderP2pTransfer = (tr: Transfer) => {
     const actions = transferActions(tr) ?? [];
     const isFinished = tr.status === "completed" || tr.status === "cancelled" || tr.status === "error";
+    const failure = errorText(tr);
     return (
       <div key={tr.id} role="group" aria-label={tr.name} className="room-transfer-card">
         <p className="room-transfer-name">{tr.name}</p>
@@ -168,7 +201,15 @@ export default function TransferList({
             <div className="room-progress-fill" style={{ width: `${tr.progress}%` }} />
           </div>
         )}
-        {tr.error && <p className="mt-2 text-xs text-red-200">{tr.error}</p>}
+        {tr.status === "transferring" && tr.bytesPerSecond ? (
+          <p className="room-transfer-rate">
+            <span>{formatSize(tr.bytesPerSecond)}/s</span>
+            {typeof tr.etaSeconds === "number" && (
+              <span>{t("etaLeft", { time: formatEta(tr.etaSeconds) })}</span>
+            )}
+          </p>
+        ) : null}
+        {failure && <p className="mt-2 text-xs text-red-200">{failure}</p>}
         {tr.status === "completed" && tr.savedToDisk && (
           <p className="mt-2 text-xs text-emerald-200">{t("savedToDisk")}</p>
         )}

@@ -59,7 +59,8 @@
   "FileDropZone": {
     "connectingBanner": "Connexion au salon…",
     "dropPrompt": "Déposez des fichiers ici",
-    "choosePrompt": "ou choisissez des fichiers sur votre appareil",
+    "choosePrompt": "choisissez des fichiers sur votre appareil",
+    "chooseSeparator": "ou",
     "chooseFile": "Choisir des fichiers",
     "p2pSendLimit": "Envoi : jusqu'à 3 Go par fichier. Gardez les deux onglets ouverts jusqu'à la fin du transfert.",
     "p2pReceiveDisk": "Réception : ce navigateur peut enregistrer directement sur le disque, jusqu'à 3 Go par fichier.",
@@ -107,6 +108,17 @@
     "routeUnknown": "route inconnue",
     "withPeer": "avec {name}",
     "savedToDisk": "Enregistré sur le disque",
+    "etaLeft": "~{time} restantes",
+    "retry": "Réessayer",
+    "errorChecksum": "Le transfert est arrivé corrompu. Renvoyez le fichier.",
+    "errorWrite": "L'enregistrement a échoué. Vérifiez l'espace disque et réessayez.",
+    "errorDisk": "Ce navigateur ne peut pas enregistrer un fichier aussi volumineux. Essayez un autre navigateur.",
+    "errorSize": "Le fichier est trop volumineux pour ce transfert.",
+    "errorProtocol": "L'autre côté a envoyé des données inattendues, le transfert s'est arrêté.",
+    "errorConnection": "La connexion a été coupée avant la fin du transfert.",
+    "errorSource": "Le fichier a changé avant l'envoi.",
+    "errorCancelled": "L'autre côté a arrêté ce transfert.",
+    "errorUnknown": "Le transfert a échoué.",
     "remove": "Retirer"
   },
   "ConnectionToast": {

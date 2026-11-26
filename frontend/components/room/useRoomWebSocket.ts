@@ -58,6 +58,7 @@ interface UseRoomWebSocketReturn {
   pauseTransfer: (id: string) => void;
   resumeTransfer: (id: string) => void;
   cancelTransfer: (id: string) => void;
+  retryTransfer: (id: string) => void;
 }
 
 const ICE_REQUEST_TIMEOUT_MS = 10_000;
@@ -98,7 +99,11 @@ function toTransfer(transfer: PeerTransfer): Transfer {
     connectionType: transfer.connectionType,
     status: transfer.status,
     bytesTransferred: bytes,
+    bytesPerSecond: transfer.bytesPerSecond,
+    etaSeconds: transfer.etaSeconds,
     error: transfer.error,
+    errorCode: transfer.errorCode,
+    retryable: transfer.retryable,
     savedToDisk: transfer.savedToDisk,
   };
 }
@@ -348,6 +353,10 @@ export function useRoomWebSocket({
 
   const resumeTransfer = useCallback((id: string) => {
     engineRef.current?.resumeTransfer(id);
+  }, []);
+
+  const retryTransfer = useCallback((id: string) => {
+    engineRef.current?.retryTransfer(id);
   }, []);
 
   const cancelTransfer = useCallback((id: string) => {
@@ -605,7 +614,8 @@ export function useRoomWebSocket({
       pauseTransfer,
       resumeTransfer,
       cancelTransfer,
+      retryTransfer,
     }),
-    [status, errorMessage, clientCount, toasts, transfers, textShares, chatMessages, sendJson, handleFiles, handleSendText, sendChatMessage, handleRetry, p2pEnabled, peers, p2pError, canReceiveToDisk, acceptTransfer, pauseTransfer, resumeTransfer, cancelTransfer, clientId],
+    [status, errorMessage, clientCount, toasts, transfers, textShares, chatMessages, sendJson, handleFiles, handleSendText, sendChatMessage, handleRetry, p2pEnabled, peers, p2pError, canReceiveToDisk, acceptTransfer, pauseTransfer, resumeTransfer, cancelTransfer, retryTransfer, clientId],
   );
 }

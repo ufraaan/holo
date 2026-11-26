@@ -31,72 +31,74 @@ export default function RoomHeader({ roomId, status, clientCount, onRetry }: Roo
   return (
     <>
       <div className="room-header flex flex-wrap items-center justify-between gap-4 border-b border-white/15 pb-5">
-        <div className="md:justify-self-start">
-          <div className="inline-flex items-center gap-2 flex-wrap">
+        <div className="min-w-0 md:justify-self-start">
+          <div className="flex min-w-0 flex-col items-start gap-1.5 sm:flex-row sm:items-center sm:gap-2">
             <span className="text-sm font-normal text-white/60">{t("shareCode")}</span>
-            <div
-              className="relative inline-flex"
-              onMouseEnter={() => setHintVisible(true)}
-              onMouseLeave={() => setHintVisible(false)}
-              onFocus={() => setHintVisible(true)}
-              onBlur={() => setHintVisible(false)}
-              onKeyDown={(event) => {
-                if (event.key === "Escape") setHintVisible(false);
-              }}
-            >
+            <div className="flex min-w-0 items-center gap-2">
+              <div
+                className="relative inline-flex min-w-0"
+                onMouseEnter={() => setHintVisible(true)}
+                onMouseLeave={() => setHintVisible(false)}
+                onFocus={() => setHintVisible(true)}
+                onBlur={() => setHintVisible(false)}
+                onKeyDown={(event) => {
+                  if (event.key === "Escape") setHintVisible(false);
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => void copy()}
+                  onContextMenu={(event) => {
+                    event.preventDefault();
+                    void copy();
+                  }}
+                  aria-describedby={copyHintId}
+                  className="glass-button room-code cursor-copy"
+                >
+                  {roomId}
+                </button>
+                <span
+                  id={copyHintId}
+                  role="tooltip"
+                  className={`absolute inset-be-full inset-s-0 z-10 whitespace-nowrap pbe-1 text-[10px] ${hintVisible && !copyStatus ? "opacity-100" : "pointer-events-none opacity-0"}`}
+                >
+                  <span className="block rounded border border-white/15 bg-black/90 px-2 py-1 text-white/80">
+                    {t("copyHint")}
+                  </span>
+                </span>
+                <span
+                  role="status"
+                  className={`pointer-events-none absolute inset-be-full inset-s-0 z-10 whitespace-nowrap pbe-1 text-[10px] ${copyStatus ? "opacity-100" : "opacity-0"}`}
+                >
+                  <span className="block rounded border border-white/15 bg-black/90 px-2 py-1 text-white/80">
+                    {copyStatus ? t(copyStatus) : ""}
+                  </span>
+                </span>
+              </div>
               <button
                 type="button"
-                onClick={() => void copy()}
-                onContextMenu={(event) => {
-                  event.preventDefault();
-                  void copy();
-                }}
-                aria-describedby={copyHintId}
-                className="glass-button room-code cursor-copy break-all active:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                onClick={() => setShowDisplay(true)}
+                className="glass-button room-expand"
+                title={t("expandTitle")}
               >
-                {roomId}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-3.5 w-3.5 text-white/80"
+                >
+                  <polyline points="15 3 21 3 21 9" />
+                  <polyline points="9 21 3 21 3 15" />
+                  <line x1="21" y1="3" x2="14" y2="10" />
+                  <line x1="3" y1="21" x2="10" y2="14" />
+                </svg>
               </button>
-              <span
-                id={copyHintId}
-                role="tooltip"
-                className={`absolute inset-be-full inset-s-0 z-10 whitespace-nowrap pbe-1 text-[10px] ${hintVisible && !copyStatus ? "opacity-100" : "pointer-events-none opacity-0"}`}
-              >
-                <span className="block rounded border border-white/15 bg-black/90 px-2 py-1 text-white/80">
-                  {t("copyHint")}
-                </span>
-              </span>
-              <span
-                role="status"
-                className={`pointer-events-none absolute inset-be-full inset-s-0 z-10 whitespace-nowrap pbe-1 text-[10px] ${copyStatus ? "opacity-100" : "opacity-0"}`}
-              >
-                <span className="block rounded border border-white/15 bg-black/90 px-2 py-1 text-white/80">
-                  {copyStatus ? t(copyStatus) : ""}
-                </span>
-              </span>
+              <RoomQrCode roomId={roomId} />
             </div>
-            <button
-              type="button"
-              onClick={() => setShowDisplay(true)}
-              className="glass-button room-expand"
-              title={t("expandTitle")}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-3.5 w-3.5 text-white/80"
-              >
-                <polyline points="15 3 21 3 21 9" />
-                <polyline points="9 21 3 21 3 15" />
-                <line x1="21" y1="3" x2="14" y2="10" />
-                <line x1="3" y1="21" x2="10" y2="14" />
-              </svg>
-            </button>
-            <RoomQrCode roomId={roomId} />
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-4 text-sm">

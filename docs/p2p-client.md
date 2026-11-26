@@ -92,13 +92,21 @@ acceptTransfer(id: string): void; // call from the click handler, keeps the save
 pauseTransfer(id: string): void;
 resumeTransfer(id: string): void;
 cancelTransfer(id: string): void;
+retryTransfer(id: string): void; // outgoing failures only, while the source File is retained
 handleFiles(files: FileList | null, peerIds?: string[]): Promise<void>;
 ```
 
 Transfers stay a `Record<string, Transfer>` keyed by the engine's
 recipient-scoped id (`out:<peerId>:<fileId>` / `in:<peerId>:<fileId>`).
 P2P adds optional fields to `Transfer`: `peerId`, `peerName`, `connectionType`,
-`status`, `bytesTransferred`, `error`, `savedToDisk`.
+`status`, `bytesTransferred`, `bytesPerSecond`, `etaSeconds`, `error`,
+`errorCode`, `retryable`, `savedToDisk`.
+
+`bytesPerSecond` and `etaSeconds` are present only while a transfer is
+actively moving bytes. They are cleared on pause, reconnect, and completion so
+the card never shows a rate measured before a gap. `errorCode` names the
+failure so the UI can show a localized, actionable sentence; `retryable` is
+true only for an outgoing failure whose source `File` is still held.
 
 ## Errors you will see
 
@@ -108,6 +116,10 @@ P2P adds optional fields to `Transfer`: `peerId`, `peerName`, `connectionType`,
   retrying in the background.
 - User dismisses the save picker: the rejection is caught and shown as an error
   on the transfer card, never as an unhandled promise.
+- A failed outgoing transfer can be retried while its source `File` is still
+  held; the retry offers the same file again under a new file id, so the
+  receiver accepts from a clean sink. Incoming failures and any failure after
+  the source was released only offer **Remove**.
 
 ## Local verification
 

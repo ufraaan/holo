@@ -20,13 +20,28 @@ export type PeerTransferStatus =
 
 export type PeerConnectionType = "direct" | "relay" | "unknown";
 
+export type TransferErrorCode =
+  | "checksum"
+  | "write"
+  | "disk"
+  | "size"
+  | "protocol"
+  | "connection"
+  | "source"
+  | "cancelled"
+  | "unknown";
+
 export interface PeerTransfer extends Transfer {
   peerId: string;
   peerName: string;
   status: PeerTransferStatus;
   connectionType: PeerConnectionType;
   bytesTransferred: number;
+  bytesPerSecond?: number;
+  etaSeconds?: number;
   error?: string;
+  errorCode?: TransferErrorCode;
+  retryable?: boolean;
   savedToDisk?: boolean;
 }
 
